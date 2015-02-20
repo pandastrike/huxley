@@ -1,0 +1,12 @@
+-----------------------------------------------------------------
+Usage: huxley-cli wait_on_cluster -t SECRET_TOKEN -c CLUSTER_ID
+-----------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Polls cluster status until creation is successful.
+
+Required:
+    -t  Secret Token.  This is returned upon initial user creation.
+
+    -c  Cluster ID.  This is the unique, generated 64 bit returned upon intial 
+        account creation.

@@ -1,0 +1,22 @@
+{
+  "name": "pbx-blog-example",
+  "description": "Blog example for pbx",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "coffee --nodejs --harmony index.coffee",
+    "test": "coffee --nodejs --harmony test.coffee"
+  },
+  "author": "Dan Yoder <dan@pandastrike.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "amen": "^1.0.0-alpha-03"
+  },
+  "dependencies": {
+    "key-forge": "^1.0.0-beta-01",
+    "pirate": "git://github.com/pandastrike/pirate.git#57d404",
+    "when": "^3.6.3"
+  },
+  "private": true
+}

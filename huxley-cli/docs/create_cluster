@@ -1,0 +1,10 @@
+-----------------------------------------------------------------
+Usage: huxley-cli create_cluster -t SECRET_TOKEN
+-----------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several
+specified options.
+
+Required:
+  --token  Secret token.  This is returned upon initial user creation.

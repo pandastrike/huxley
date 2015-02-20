@@ -1,0 +1,27 @@
+{
+  "name": "huxley-cli",
+  "version": "1.0.17",
+  "description": "CLI for Huxley API",
+  "main": "src/cli.coffee",
+  "bin": {
+    "huxley-cli": "./bin/main"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "huxley",
+    "api",
+    "cli"
+  ],
+  "author": "Panda Strike",
+  "license": "ISC",
+  "dependencies": {
+    "c50n": "^0.7.2",
+    "coffee-script": "^1.9.0",
+    "fairmont": "^0.8.2",
+    "shred": "^1.1.0-alpha-03",
+    "underscore": "^1.7.0",
+    "when": "^3.7.2"
+  }
+}

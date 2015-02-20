@@ -1,0 +1,14 @@
+-----------------------------------------------
+Usage: huxley-cli COMMAND [arg...]
+-----------------------------------------------
+Follow any command with "help" for more information.
+
+A tool to manage CoreOS clusters and deploy them on AWS with your account.
+
+Commands:
+  cluster
+    create                 Spins up a cluster of the requested size using your AWS access.
+    delete                 Terminates the specified cluster.
+    wait                   Continuously checks cluster status until creation is successful.
+  user
+    create                 Creates user account.

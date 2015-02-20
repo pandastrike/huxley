@@ -1,0 +1,32 @@
+
+
+coffee --nodejs --harmony cli.coffee create_user
+
+
+coffee --nodejs --harmony cli.coffee create_cluster --token goMmqfnMi6xYXqE_TuKc7g
+
+
+coffee --nodejs --harmony cli.coffee wait_on_cluster -c ajNuwXGqPSrssVHXaczf2g -t t0lD2eVhAAdluXTvHM_JRA
+
+
+coffee --nodejs --harmony cli.coffee delete_cluster -c 9VGpFtKIHDVp0b6n62GPaQ -t JzRYxD6lI4Y9N98Ju3bTBA
+
+
+
+
+
+
+
+./bin/main user create
+
+
+./bin/main cluster create --name peter-cli-test --domain pandastrike.com --token zTcRofMNSwOKKATO4Yfqkw
+
+
+./bin/main cluster wait --cluster-id 0nBfXtHTEbF7T83Y_Z3qRA --token t0lD2eVhAAdluXTvHM_JRA
+
+
+./bin/main cluster delete --cluster-id qMCLSuIVe5m9HfvXtezRig --token goMmqfnMi6xYXqE_TuKc7g
+
+
+docker exec -it 72259530bf2b /bin/bash
