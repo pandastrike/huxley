@@ -115,19 +115,13 @@ call ->
         switch argv[1]
           when "create"
             options = parse_cli "create_cluster", argv[2..]
-            console.log "*****cluster create args: ", options
             res = (yield PC.create_cluster options)
-            console.log "*****cluster create results: ", res
           when "delete"
             options = parse_cli "delete_cluster", argv[2..]
-            console.log "*****cluster delete args: ", options
             res = (yield PC.delete_cluster options)
-            console.log "*****cluster delete results: ", res
           when "wait"
             options = parse_cli "wait_on_cluster", argv[2..]
-            console.log "*****waiting on cluster args: ", options
             res = (yield PC.wait_on_cluster options)
-            console.log "*****cluster wait results: ", res
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
@@ -136,9 +130,7 @@ call ->
         switch argv[1]
           when "create"
             options = parse_cli "create_user", argv[2..]
-            console.log "*****user create args: ", options
             res = (yield PC.create_user options)
-            console.log "*****user create results: ", res
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"

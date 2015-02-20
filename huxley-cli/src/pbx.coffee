@@ -20,6 +20,7 @@ module.exports =
     {response: {headers: {location}}}  =
       (yield clusters.create args)
     location
+    console.log "*****Created cluster ID: ", location
 
   delete_cluster: async ({cluster_url, secret_token, url}) ->
 
@@ -33,6 +34,7 @@ module.exports =
     cluster = (api.cluster cluster_url)
     {data} = (yield cluster.get())
     data = (yield data)
+    console.log "*****Cluster status: ", data
 
   wait_on_cluster: async ({cluster_url, secret_token, url}) ->
 
@@ -53,4 +55,5 @@ module.exports =
     users = (api.users)
     {data} = (yield users.create {aws, email, key_pair, public_keys})
     data = (yield data)
+    console.log "*****Create user secret_token: ", (JSON.parse data).user.secret_token
 
