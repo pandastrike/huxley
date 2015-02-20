@@ -25,6 +25,10 @@ ExecStartPre=/usr/bin/curl -XPOST hook.huxley.cluster:2000 -d '\
   "port": "3030",  \
   "type": "A"'
 
+# Delete any old containers that bear this service's name.
+ExecStartPre=-/usr/bin/docker kill huxley
+ExecStartPre=-/usr/bin/docker rm huxley
+
 # Pull The Service's Docker Container.
 ExecStartPre=/usr/bin/bash -c "if [ -d /home/core/launch/huxley ]; then /usr/bin/rm -rf /home/core/launch/huxley; fi"
 ExecStartPre=/usr/bin/echo "Directory Checked"
