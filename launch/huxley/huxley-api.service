@@ -1,9 +1,9 @@
 #===============================================================================
-# Vanilla - Service File
+# Huxley API - Service File
 #===============================================================================
 
 [Unit]
-Description=Spin Up Vanilla
+Description=Spin Up huxley-api
 After=docker.service
 
 [Service]
