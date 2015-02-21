@@ -10,9 +10,11 @@
 The Huxley API server can accept HTTP requests to create and delete CoreOS cluster formations.  It can also run "wait", which will poll a cluster's status until it is successfully created.
 
 ## Installation
-Huxley API + CLI is easily installed via npm.  The Huxley API server would be deployed on a running server, and the CLI tool would be run locally.
+Huxley API + CLI is easily installed via npm.  The Huxley API server would be deployed on a running server, and the CLI tool would be run locally.  
 
-Running the API simply involves `coffee --nodejs --harmony project_root/huxley-api/huxley-api/index.coffee`.  This requires Node.js version v0.11 or higher.
+Running the API simply involves `coffee --nodejs --harmony project_root/huxley-api/huxley-api/index.coffee`.  
+
+This requires Node.js version v0.11 or higher.
 
 ### Command-Line Tool
 If you'd like to use Huxley's command-line tool on your local machine, install it globally.
@@ -29,7 +31,7 @@ Usage: pandahook COMMAND [arg...]
 --------------------------------------------
 Follow any command with "help" for more information.
 
-A tool to manage githook scripts and deploy them to your hook-server.  [Better guide with examples here](https://github.com/pandastrike/huxley/blob/master/huxley-cli/README.md)
+A tool to manage githook scripts and deploy them to your hook-server.  
 
 Commands:
 cluster
@@ -42,9 +44,10 @@ user
 
 ### Configuration Dotfile for the CLI
 Reusable configuration data is stored in the dotfile `.pandacluster.cson`.  This keeps you from having to re-type the same data repeatedly into commands.  This data must be provided in your code if you plan to access the library programmatically.  Here is a sample file layout:
+
 An example configuration file is [detailed here](https://github.com/pandastrike/huxley/blob/master/.pandacluster.cson.example)
 
-## @TODO
+## TODO
 - Finish documentation (especially for "help" commands)
 - Write secret_token to config after creating user
 - Consider writing cluster_id to config after creating cluster
