@@ -7,7 +7,7 @@ A tool to manage CoreOS clusters and deploy them on AWS with your account.
 
 You must have a ~/.pandaconfig.cson file with the correct key value pairs.
 
-An example configuration file is detailed on the [GitHub repo](https://github.com/pandastrike/huxley/.pandacluster.cson.example)
+An example configuration file is [detailed here](https://github.com/pandastrike/huxley/blob/master/.pandacluster.cson.example)
 
 
 -----------------------------------------------

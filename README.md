@@ -22,14 +22,14 @@ npm install -g huxley-cli
 This gives you a symlinked executable to invoke on your command-line. See *Command-Line Guide* below for more information on this executable.
 
 ## Command-Line Guide
-The command-line tool is accessed via several sub-commands. Information is available at any time by placing "help" or "-h" after most commands. Here is a list of currently available sub-commands.
+The command-line tool is accessed via several sub-commands. Here is a list of currently available sub-commands.
 ```
 --------------------------------------------
 Usage: pandahook COMMAND [arg...]
 --------------------------------------------
 Follow any command with "help" for more information.
 
-A tool to manage githook scripts and deploy them to your hook-server.  [Better guide with examples here](https://github.com/pandastrike/huxley/.pandacluster.cson.example)
+A tool to manage githook scripts and deploy them to your hook-server.  [Better guide with examples here](https://github.com/pandastrike/huxley/blob/master/huxley-cli/README.md)
 
 Commands:
 cluster
@@ -40,8 +40,11 @@ user
   create      Creates user account with a secret token.
 ```
 
-In particular, the **build** sub-command is meant to be flexible and powerful.  Please see *build_subcommand.md* for more information.
-
 ### Configuration Dotfile for the CLI
 Reusable configuration data is stored in the dotfile `.pandacluster.cson`.  This keeps you from having to re-type the same data repeatedly into commands.  This data must be provided in your code if you plan to access the library programmatically.  Here is a sample file layout:
-An example configuration file is detailed on the [GitHub repo](https://github.com/pandastrike/panda-cluster/tree/feature/refactor-to-sketch)
+An example configuration file is [detailed here](https://github.com/pandastrike/huxley/blob/master/.pandacluster.cson.example)
+
+## @TODO
+- Finish documentation (especially for "help" commands)
+- Write secret_token to config after creating user
+- Consider writing cluster_id to config after creating cluster
