@@ -29,8 +29,7 @@ module.exports = async ->
       {stack_name, cluster_name, email, secret_token, key_pair, public_keys} = data
       user = yield users.get email
 
-      #if user && data.secret_token == user.secret_token
-      if user
+      if user && data.secret_token == user.secret_token
         cluster_entry =
           email: email
           url: cluster_url

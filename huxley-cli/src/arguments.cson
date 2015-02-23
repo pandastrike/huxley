@@ -16,7 +16,7 @@ wait_on_cluster: [
   {
     name: "secret_token"
     flag: "--token"
-    required: true
+    required: false
   }
 ]
 
@@ -24,7 +24,7 @@ create_cluster:[
   {
     name: "secret_token"
     flag: "--token"
-    required: true
+    required: false
   }
   {
     name: "cluster_name"
@@ -47,6 +47,6 @@ delete_cluster:[
   {
     name: "secret_token"
     flag: "--token"
-    required: true
+    required: false
   }
 ]
