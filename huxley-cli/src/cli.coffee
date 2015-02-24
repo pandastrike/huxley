@@ -10,9 +10,11 @@
 {argv} = process
 {resolve} = require "path"
 {read, write, remove} = require "fairmont" # Awesome utility functions.
-{parse} = require "c50n"                   # Awesome .cson file parsing
+
+Configurator = require "panda-config"
 
 {call} = require "when/generator"
+async = (require "when/generator").lift
 
 # Awesome manipulations in the functional style.
 {pluck, where, flatten} = require "underscore"
@@ -49,13 +51,18 @@ allow_between = (min, max, value, flag) ->
     throw "\nError: Value Is Outside Allowed Range For Flag: #{flag}\n\n"
 
 # Parse the arguments passed to a sub-command.  Construct an "options" object to pass to the main library.
-parse_cli = (command, argv) ->
+parse_cli = async (command, argv) ->
   # Deliver an info blurb if neccessary.
   usage command   if argv[0] == "-h" || argv[0] == "help"
 
   # Begin constructing the "options" object by pulling persistent configuration data
   # from the CSON file in the user's $HOME directory.
-  options = parse( read( resolve("#{process.env.HOME}/.pandacluster.cson")))
+  configurator = Configurator.make
+    prefix: "."
+    paths: [ process.env.HOME ]
+  configuration = configurator.make name: "huxley"
+  yield configuration.load()
+  options = configuration.data
 
   # Extract flag data from the argument definition for this sub-command.
   definitions = parse( read( resolve(  __dirname, "arguments.cson")))
@@ -114,14 +121,14 @@ call ->
       when "cluster"
         switch argv[1]
           when "create"
-            options = parse_cli "create_cluster", argv[2..]
+            options = yield parse_cli "create_cluster", argv[2..]
             console.log "***** create options: ", options
             res = (yield PC.create_cluster options)
           when "delete"
-            options = parse_cli "delete_cluster", argv[2..]
+            options = yield parse_cli "delete_cluster", argv[2..]
             res = (yield PC.delete_cluster options)
           when "wait"
-            options = parse_cli "wait_on_cluster", argv[2..]
+            options = yield parse_cli "wait_on_cluster", argv[2..]
             res = (yield PC.wait_on_cluster options)
           else
             # When the command cannot be identified, display the help guide.
@@ -130,7 +137,7 @@ call ->
       when "user"
         switch argv[1]
           when "create"
-            options = parse_cli "create_user", argv[2..]
+            options = yield parse_cli "create_user", argv[2..]
             res = (yield PC.create_user options)
           else
             # When the command cannot be identified, display the help guide.
