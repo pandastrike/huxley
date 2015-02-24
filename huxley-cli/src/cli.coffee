@@ -123,7 +123,6 @@ call ->
         switch argv[1]
           when "create"
             options = yield parse_cli "create_cluster", argv[2..]
-            console.log "***** create options: ", options
             res = (yield PC.create_cluster options)
           when "delete"
             options = yield parse_cli "delete_cluster", argv[2..]
@@ -134,6 +133,17 @@ call ->
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
+
+      when "init"
+        fs = require "fs"
+        prompt = require "prompt"
+        prompt.start()
+        console.log process.cwd()
+        prompt.get [ "name" ], (error, result) ->
+          {name} = result
+          console.log result
+          #yield fs.mkdir process.env.HOME + ".#{name}"
+          yield fs.writeFile process.cwd() + "/huxley.yaml"
 
       when "user"
         switch argv[1]

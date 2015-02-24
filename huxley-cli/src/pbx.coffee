@@ -87,6 +87,5 @@ module.exports =
     yield configuration.load()
     configuration.data.secret_token = secret_token
     configuration.save()
-    console.log configuration.data
 
     secret_token

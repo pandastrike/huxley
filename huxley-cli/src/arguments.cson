@@ -5,20 +5,8 @@
 # Each object returns an array of objects define values needed by the parsing function.
 
 # for now, create_user's data should be pulled from config
-create_user: []
 
-wait_on_cluster: [
-  {
-    name: "cluster_url"
-    flag: "--cluster-id"
-    required: true
-  }
-  {
-    name: "secret_token"
-    flag: "--token"
-    required: false
-  }
-]
+
 
 create_cluster:[
   {
@@ -38,7 +26,30 @@ create_cluster:[
   }
 ]
 
+create_user: []
+
 delete_cluster:[
+  {
+    name: "cluster_url"
+    flag: "--cluster-id"
+    required: true
+  }
+  {
+    name: "secret_token"
+    flag: "--token"
+    required: false
+  }
+]
+
+init: [
+  {
+    name: "name"
+    flag: "--name"
+    required: true
+  }
+]
+
+wait_on_cluster: [
   {
     name: "cluster_url"
     flag: "--cluster-id"
