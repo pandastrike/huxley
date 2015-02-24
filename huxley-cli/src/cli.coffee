@@ -115,6 +115,7 @@ call ->
         switch argv[1]
           when "create"
             options = parse_cli "create_cluster", argv[2..]
+            console.log "***** create options: ", options
             res = (yield PC.create_cluster options)
           when "delete"
             options = parse_cli "delete_cluster", argv[2..]

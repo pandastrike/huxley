@@ -5,6 +5,11 @@ async = (require "when/generator").lift
 {read, write} = require "fairmont"
 {resolve} = require "path"
 
+#Configurator = require "../../node_modules/panda-config/src/index.coffee"
+Configurator = require "panda-config"
+
+config_path = resolve("#{process.env.HOME}/.pandacluster.cson")
+
 {parse} = require "c50n"
 
 {discover} = require "./client"
@@ -73,15 +78,22 @@ module.exports =
     users = (api.users)
     {data} = (yield users.create {aws, email, key_pair, public_keys})
     data = (yield data)
+    secret_token = (JSON.parse data).user.secret_token
+
+    configurator = Configurator.make
+      prefix: "."
+      paths: [ process.env.HOME ]
+    configuration = configuration.make "pandacluster"
+    yield configuration.load()
+    console.log configuration.data
 
     try
-      secret_token = (JSON.parse data).user.secret_token
-      path = resolve("#{process.env.HOME}/.pandacluster.cson")
-      options = parse(read(path))
+      options = parse(read(config_path))
       options["secret_token"] = secret_token
-      console.log JSON.stringify options, null, 2
-      yield write_file path, (JSON.stringify options, null, 2)
-      console.log "*****secret_token: ", (JSON.parse data).user.secret_token
+      yield write_file config_path, (JSON.stringify options, null, 2)
+
+      #console.log JSON.stringify options, null, 2
+      #console.log "*****secret_token: ", (JSON.parse data).user.secret_token
     catch error
       console.log "Attempt to update pandacluster.cson with secret_token failed: #{error}"
       process.exit -1
