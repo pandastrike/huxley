@@ -10,6 +10,7 @@
 {argv} = process
 {resolve} = require "path"
 {read, write, remove} = require "fairmont" # Awesome utility functions.
+{parse} = require "c50n"                   # Awesome .cson file parsing
 
 Configurator = require "panda-config"
 

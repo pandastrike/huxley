@@ -85,17 +85,8 @@ module.exports =
       paths: [ process.env.HOME ]
     configuration = configurator.make name: "huxley"
     yield configuration.load()
-    configuration.data.secret_token = "asdf"
+    configuration.data.secret_token = secret_token
     configuration.save()
     console.log configuration.data
 
-    try
-      options = parse(read(config_path))
-      options["secret_token"] = secret_token
-      #yield write_file config_path, (JSON.stringify options, null, 2)
-      #cson = require "c50n"
-      #console.log cson.stringify options, null, 2
-      #console.log "*****secret_token: ", (JSON.parse data).user.secret_token
-    catch error
-      console.log "Attempt to update pandacluster.cson with secret_token failed: #{error}"
-      process.exit -1
+    secret_token
