@@ -4,7 +4,7 @@
   "description": "CLI for Huxley API",
   "main": "src/cli.coffee",
   "bin": {
-    "huxley-cli": "./bin/main"
+    "huxley": "./bin/main"
   },
   "scripts": {
     "test": "npm test"
@@ -22,6 +22,7 @@
     "fairmont": "^0.8.2",
     "panda-config": "^1.0.0-alpha-02",
     "prompt": "^0.2.14",
+    "shelljs": "^0.3.0",
     "shred": "^1.1.0-alpha-03",
     "underscore": "^1.7.0",
     "when": "^3.7.2"

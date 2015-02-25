@@ -7,21 +7,24 @@
 #===============================================================================
 # Modules
 #===============================================================================
-{argv} = process
+# Core Libraries
+fs = require "fs"
 {resolve} = require "path"
-{read, write, remove} = require "fairmont" # Awesome utility functions.
-{parse} = require "c50n"                   # Awesome .cson file parsing
+{argv} = process
 
-Configurator = require "panda-config"
+# Panda Strike Libraries
+panda_config = require "panda-config"           # data file parsing
+{read, write, remove} = require "fairmont"      # utility functions
 
-{call} = require "when/generator"
+# Third Party Libraries
+{extend} = require "underscore"                 # functional helpers
+{call} = require "when/generator"               # promise libraries
 async = (require "when/generator").lift
+{exec} = require "shelljs"                      # command-line access
+prompt = require "prompt"                       # interviewer generator
 
-# Awesome manipulations in the functional style.
-{pluck, where, flatten} = require "underscore"
-
-# Access PandaCluster!!
-PC = require "./pbx"
+# Huxley Components
+PBX = require "./pbx"
 
 
 #===============================================================================
@@ -51,58 +54,83 @@ allow_between = (min, max, value, flag) ->
   unless min <= value <= max
     throw "\nError: Value Is Outside Allowed Range For Flag: #{flag}\n\n"
 
-# Parse the arguments passed to a sub-command.  Construct an "options" object to pass to the main library.
-parse_cli = async (command, argv) ->
-  # Deliver an info blurb if neccessary.
-  usage command   if argv[0] == "-h" || argv[0] == "help"
 
-  # Begin constructing the "options" object by pulling persistent configuration data
-  # from the CSON file in the user's $HOME directory.
-  configurator = Configurator.make
+# In Huxley, configuration data is stored in two places.  The first is the huxley dotfile
+# in the user's $HOME directory, which holds persistent data attached to their account.
+# The second is the project repo's huxley manifest file, located in our execution path.
+pull_configuration = async () ->
+
+  # Load the configuration from the $HOME directory.
+  constructor = panda_config.make
     prefix: "."
+    format: "yaml"
     paths: [ process.env.HOME ]
-  configuration = configurator.make name: "huxley"
-  yield configuration.load()
-  options = configuration.data
 
-  # Extract flag data from the argument definition for this sub-command.
-  definitions = parse( read( resolve(  __dirname, "arguments.cson")))
-  cmd_def = definitions[command]  # Produces an array of objects describing this single sub-command.
-  flags = pluck cmd_def, "flag"
-  required_flags = pluck( where( cmd_def, {required: true}), "flag" )
+  home_config = constructor.make name: "huxley"
+  yield home_config.load()
 
-  # Loop over arguments.  Collect settings into "options" and validate where possible.
-  while argv.length > 0
-    # Check to see if the entered flag is valid.
-    if flags.indexOf(argv[0]) == -1
-      usage command, "\nError: Unrecognized Flag Provided: #{argv[0]}\n"
-    # Check to see if there is a "dangling" flag that has no content provided.
-    if argv.length == 1
-      usage command, "\nError: Valid Flag Provided But Not Defined: #{argv[0]}\n"
+  # Load the configuration from the execution path.
+  constructor = panda_config.make
+    extension: ".yml"
+    format: "yaml"
+    paths: [ process.cwd() ]
 
-    # Validate the argument against its defintion.
-    {name, type, required, allowed_values, min, max} = cmd_def[ flags.indexOf(argv[0]) ]
+  exec_config = constructor.make name: "huxley"
+  yield exec_config.load()
 
-    allow_only( allowed_values, argv[1], argv[0])  if allowed_values?
-    allow_between( min, max, argv[1], argv[0])     if min? and max?
-    remove( required_flags, argv[0])               if required? == true
+  # Create an object that is the union of the two configurations.
+  config = extend( {}, home_config.data, exec_config.data)
 
-    # Add data to the "options" object.
-    options[name] = argv[1]
+  # Return an object we can use to make requests, but also return the panda-config instances
+  # in case we need to save something.
+  return {
+    config: config
+    home: home_config
+    exec: exec_config
+  }
 
-    # Delete these two arguments.
-    argv = argv[2..]
 
-  options
+#===============================================================================
+# Sub-Command Handling
+#===============================================================================
+# This function prepares the "options" object to ask the API server to place a githook
+# on the cluster's hook server.  Then it adds to the local machine's git aliases.
+add_remote = async (argv) ->
+  # Start by reading configuration data from the local config files.
+  {config} = yield pull_configuration()
 
-  # Done looping.  Check to see if all required flags have been defined.
-  unless required_flags.length == 0
-    usage command, "\nError: Mandatory Flag(s) Remain Undefined: #{required_flags}\n"
+  # Now use this raw configuration as context to build an "options" object for panda-hook.
+  options =
+    cluster_address: "core@#{argv[0]}.#{config.public_domain}"
+    repo_name: config.repo_name
+    hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
+    url: config.huxley.url
 
-  # Parsing complete. Return the completed "options" object.
+  # Add a git remote alias using the cluster name. These are separated because the first
+  # command is allowed to fail.
+  exec "git remote rm  #{argv[0]}"
+  exec "git remote add #{argv[0]} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
+
   return options
 
 
+# This function prepares the "options" object to ask the API server to remove a githook
+# on the cluster's hook server.  Then it removes one of the local machine's git aliases.
+remote_rm = async (argv) ->
+  # Start by reading configuration data from the local config files.
+  {config} = yield pull_configuration()
+
+  # Now use this raw configuration as context to build an "options" object for panda-hook.
+  options =
+    repo_name: config.repo_name
+    hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
+    url: config.huxley.url
+
+  # Add a git remote alias using the cluster name. These are separated because the first
+  # command is allowed to fail.
+  exec "git remote rm  #{argv[0]}"
+
+  return options
 #===============================================================================
 # Main - Top-Level Command-Line Interface
 #===============================================================================
@@ -122,21 +150,19 @@ call ->
       when "cluster"
         switch argv[1]
           when "create"
-            options = yield parse_cli "create_cluster", argv[2..]
-            res = (yield PC.create_cluster options)
+            console.log "That feature is not available."
+            #res = (yield PBX.create_cluster options)
           when "delete"
-            options = yield parse_cli "delete_cluster", argv[2..]
-            res = (yield PC.delete_cluster options)
+            console.log "That feature is not available."
+            #res = (yield PBX.delete_cluster options)
           when "wait"
-            options = yield parse_cli "wait_on_cluster", argv[2..]
-            res = (yield PC.wait_on_cluster options)
+            console.log "That feature is not available."
+            #res = (yield PBX.wait_on_cluster options)
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        fs = require "fs"
-        prompt = require "prompt"
         prompt.start()
         console.log process.cwd()
         prompt.get [ "name" ], (error, result) ->
@@ -145,11 +171,20 @@ call ->
           #yield fs.mkdir process.env.HOME + ".#{name}"
           yield fs.writeFile process.cwd() + "/huxley.yaml"
 
+      when "remote"
+        switch argv[1]
+          when "add"
+            options = yield add_remote argv[2..]
+            console.log "reading from: ", options.url
+            res = yield PBX.add_remote options
+          when "rm"
+            console.log "That feature is not available."
+
       when "user"
         switch argv[1]
           when "create"
-            options = yield parse_cli "create_user", argv[2..]
-            res = (yield PC.create_user options)
+            console.log "That feature is not available."
+            res = (yield PBX.create_user options)
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
