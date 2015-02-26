@@ -151,10 +151,13 @@ add_remote = async (argv) ->
   # Now use this raw configuration as context to build an "options" object for panda-hook.
   options =
     cluster_address: "core@#{argv[0]}.#{config.public_domain}"
-    repo_name: config.repo_name
+    repo_name: config.app_name
     hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
     url: config.huxley.url
     secret_token: config.huxley.secret_token
+    email: config.huxley.email
+
+  console.log options
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.

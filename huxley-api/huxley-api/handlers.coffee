@@ -44,9 +44,8 @@ module.exports = async ->
     ###
 
     create: async ({respond, url, data}) ->
-      data = (yield data)
+      {cluster_name, email, secret_token} = yield data
       cluster_id = make_key()
-      {cluster_name, email, secret_token} = data
       user = yield users.get email
 
       # Check user authorization.
@@ -115,8 +114,9 @@ module.exports = async ->
     # This function uses panda-hook to push a githook script onto the target cluster's hook server.
     create: async (spec) ->
       {respond, url, data} = spec
-      respond 201, "You are awesome."
-      console.log "Server message: You are awesome."
+      # TODO validation
+      pandahook.push yield data
+      respond 201, "githook installed."
 
 
   remote:
