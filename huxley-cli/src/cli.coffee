@@ -314,7 +314,6 @@ call ->
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
->>>>>>> feature/init
 
       when "remote"
         switch argv[1]
