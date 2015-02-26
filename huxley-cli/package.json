@@ -4,7 +4,7 @@
   "description": "CLI for Huxley API",
   "main": "src/cli.coffee",
   "bin": {
-    "huxley-cli": "./bin/main"
+    "huxley": "./bin/main"
   },
   "scripts": {
     "test": "npm test"

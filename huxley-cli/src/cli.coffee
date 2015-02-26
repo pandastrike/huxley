@@ -13,6 +13,7 @@
 {parse} = require "c50n"                   # Awesome .cson file parsing
 
 Configurator = require "panda-config"
+fs = require "fs"
 
 {call} = require "when/generator"
 async = (require "when/generator").lift
@@ -23,6 +24,7 @@ async = (require "when/generator").lift
 # Access PandaCluster!!
 PC = require "./pbx"
 
+templates_dir_relative = __dirname + "/../templates/"
 
 #===============================================================================
 # Helper Fucntions
@@ -102,6 +104,61 @@ parse_cli = async (command, argv) ->
   # Parsing complete. Return the completed "options" object.
   return options
 
+# create directory if doesn't already exists
+mkdir_idempt = (path) ->
+  if !fs.existsSync path
+    fs.mkdirSync path
+  else
+    console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
+
+# copy file
+# create huxley.yaml
+copy_file = async (from_path, from_filename, destination_path, destination_filename) ->
+  fs.writeFileSync (destination_path + "/" + destination_filename + ".yaml"), ""
+
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
+
+  # edit huxley.yaml
+  configurator = Configurator.make
+    paths: [ destination_path ]
+    extension: ".yaml"
+  configuration = configurator.make name: destination_filename
+  yield configuration.load()
+  configuration.data = from_config
+  configuration.save()
+
+
+# huxley.yaml composition by copying template
+# FIXME: assuming .yaml for now
+append_file = async (from_path, from_filename, destination_path, destination_filename) ->
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
+
+  # edit huxley.yaml
+  configurator = Configurator.make
+    paths: [ destination_path ]
+    extension: ".yaml"
+  configuration = configurator.make name: destination_filename
+  yield configuration.load()
+  configuration.data[from_filename] = from_config
+  configuration.save()
+
+union_overwrite = async (data, file_path, file_name) ->
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
 
 #===============================================================================
 # Main - Top-Level Command-Line Interface
@@ -135,15 +192,47 @@ call ->
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        fs = require "fs"
-        prompt = require "prompt"
-        prompt.start()
-        console.log process.cwd()
-        prompt.get [ "name" ], (error, result) ->
-          {name} = result
-          console.log result
-          #yield fs.mkdir process.env.HOME + ".#{name}"
-          yield fs.writeFile process.cwd() + "/huxley.yaml"
+        # TODO: prompt for info, overwrite default
+
+        copy_file templates_dir_relative, "huxley-example", process.cwd(), "huxley"
+        # create /launch dir
+        launch_dir = process.cwd() + "/launch"
+        mkdir_idempt launch_dir
+
+        # create ~/.dotfile
+        # FIXME: make idempotent
+        app_name = "donuts"
+        fs.writeFileSync (process.env.HOME + "/.#{app_name}"), ""
+
+      when "mixin"
+        switch argv[1]
+
+          when "node"
+            # TODO: prompt for info, overwrite default
+            component_name = "node"
+            mkdir_idempt process.cwd() + "/launch/#{component_name}"
+
+            append_file templates_dir_relative, "#{component_name}", process.cwd(), "huxley"
+            #union_overwrite prompt_response, process.cwd(), "huxley"
+            files = [ "Dockerfile", "node.@service", "node.yaml" ]
+            for file in files
+              fs.writeFileSync process.cwd() + "/launch/node/#{file}",
+                fs.readFileSync(templates_dir_relative + "node/#{file}")
+
+          when "redis"
+            # TODO: prompt for info, overwrite default
+            append_file templates_dir_relative, "redis", process.cwd(), "huxley"
+
+            files = [ "Dockerfile", "redis.@service", "redis.yaml" ]
+            for file in files
+              fs.writeFileSync process.cwd() + "/launch/redis/#{file}",
+                fs.readFileSync(templates_dir_relative + "redis/#{file}")
+
+            #union_overwrite prompt_response, process.cwd(), "huxley"
+
+          else
+            # When the command cannot be identified, display the help guide.
+            usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "user"
         switch argv[1]
