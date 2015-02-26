@@ -71,6 +71,14 @@ module.exports =
       else
         yield pause 5000  # Not complete, keep going.
 
+  add_remote: async (spec) ->
+    {url} = spec
+
+    api = yield discover url
+    remotes = api.remotes
+    result = yield remotes.create spec
+    console.log result
+
   # FIXME: filter out secret keys in response
   create_user: async ({aws, email, url, key_pair, public_keys}) ->
 

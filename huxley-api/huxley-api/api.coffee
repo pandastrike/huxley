@@ -1,5 +1,5 @@
 {Builder} = require "../src"
-builder = new Builder "blog-api"
+builder = new Builder "huxley-api"
 
 builder.define "clusters",
   path: "/clusters"
@@ -10,6 +10,16 @@ builder.define "clusters",
 builder.define "cluster",
   template: "/cluster/:cluster_url"
 .get()
+.delete()
+
+builder.define "remotes",
+  template: "/remotes"
+.post
+  as: "create"
+  creates: "remote"
+
+builder.define "remote",
+  template: "/remote/:remote_id"
 .delete()
 
 builder.define "users",

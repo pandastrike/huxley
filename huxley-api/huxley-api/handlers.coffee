@@ -1,14 +1,31 @@
-async = (require "when/generator").lift
+#===============================================================================
+# Modules
+#===============================================================================
+# PandaStrike Libraries
+{Memory} = require "pirate"               # database adapter
+key_forge = require "key-forge"           # cryptography
+
+# Third Party Libraries
+async = (require "when/generator").lift   # promise library
 {call} = require "when/generator"
-{Memory} = require "pirate"
 
-pandacluster = require "panda-cluster"
+# Huxley Open Source Component Family
+pandacluster = require "panda-cluster"    # cluster management
+pandahook = require "panda-hook"          # githook management
 
-make_key = -> (require "key-forge").randomKey 16, "base64url"
 
+#===============================================================================
+# Helpers
+#===============================================================================
+# This instantiates a database interface via Pirate.
 adapter = Memory.Adapter.make()
 
+# This creates the random authorization token associated with a given user.
+make_key = () -> key_forge.randomKey 16, "base64url"
 
+#===============================================================================
+# Module Definition
+#===============================================================================
 module.exports = async ->
 
   clusters = yield adapter.collection "clusters"
@@ -83,6 +100,20 @@ module.exports = async ->
       else
         respond 404, "cluster not found"
 
+  remotes:
+
+    # This function uses panda-hook to push a githook script onto the target cluster's hook server.
+    create: async (spec) ->
+      {respond, url, data} = spec
+      respond 201, "You are awesome."
+      console.log "Server message: You are awesome."
+
+
+  remote:
+
+    # This function
+    delete: (spec) ->
+
   users:
 
     ###
@@ -101,4 +132,3 @@ module.exports = async ->
       user.secret_token = key
       yield users.put user.email, user
       respond 201, {user}
-
