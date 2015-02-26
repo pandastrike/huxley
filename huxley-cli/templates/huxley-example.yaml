@@ -1,0 +1,10 @@
+app_name: donuts
+public_domain: acme.com
+cluster_name: test-cluster
+private_domain: test-cluster.cluster
+channel: stable
+region: us-west-1
+instance_type: m1.medium
+cluster_size: 3
+virtualization: pv
+spot_price: 0.009
