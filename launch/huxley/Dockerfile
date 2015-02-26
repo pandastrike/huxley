@@ -31,4 +31,5 @@ RUN git checkout remote_merge
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install
 
+ADD source destination
 CMD coffee --nodejs --harmony huxley/huxley-api/huxley-api/index.coffee
