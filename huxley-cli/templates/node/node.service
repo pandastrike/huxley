@@ -35,13 +35,13 @@ ExecStartPre=-/usr/bin/docker rm node
 # find the Dockerfile to launch a build.
 ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/node"
 ExecStartPre=/usr/bin/echo "Directory Checked"
-ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.test-cluster.cluster:2001/repos/node.git /home/core/launch/node"
+ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.test-cluster.cluster:2001/repos/donuts.git /home/core/launch/node"
 ExecStartPre=/usr/bin/docker build --tag="node_image" /home/core/launch/node/launch/node/.
 
 # Launch the container.
 ExecStart=/usr/bin/docker run --name node -p 3010:80 \
   node_image /bin/bash -c \
-  "cd node && coffee vanilla.coffee"
+  "cd node && npm start"
 
 [Install]
 WantedBy=multi-user.target

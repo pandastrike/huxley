@@ -10,7 +10,7 @@ RUN pacman-db-upgrade
 RUN pacman -S --noconfirm jre7-openjdk-headless wget vim tmux git nodejs 
 
 # Install Node
-RUN git clone git@github.com:pandastrike/vanilla.git node
+RUN git clone git://hook.test-cluster.cluster:2001/repos/donuts.git node
 
 # Install CoffeeScript
 RUN npm install -g coffee-script

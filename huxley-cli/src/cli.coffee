@@ -214,22 +214,22 @@ call ->
 
             append_file templates_dir_relative, "#{component_name}", process.cwd(), "huxley"
             #union_overwrite prompt_response, process.cwd(), "huxley"
-            files = [ "Dockerfile", "node.@service", "node.yaml" ]
+            files = [ "Dockerfile", "node.service", "node.yaml" ]
             for file in files
               fs.writeFileSync process.cwd() + "/launch/node/#{file}",
                 fs.readFileSync(templates_dir_relative + "node/#{file}")
 
           when "redis"
             # TODO: prompt for info, overwrite default
-            append_file templates_dir_relative, "redis", process.cwd(), "huxley"
+            component_name = "redis"
+            mkdir_idempt process.cwd() + "/launch/#{component_name}"
 
-            files = [ "Dockerfile", "redis.@service", "redis.yaml" ]
+            append_file templates_dir_relative, "#{component_name}", process.cwd(), "huxley"
+            #union_overwrite prompt_response, process.cwd(), "huxley"
+            files = [ "Dockerfile", "redis.service", "redis.yaml" ]
             for file in files
               fs.writeFileSync process.cwd() + "/launch/redis/#{file}",
                 fs.readFileSync(templates_dir_relative + "redis/#{file}")
-
-            #union_overwrite prompt_response, process.cwd(), "huxley"
-
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
