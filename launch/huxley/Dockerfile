@@ -23,7 +23,8 @@ RUN mkdir root/.ssh               && \
 RUN echo "Host *" >> root/.ssh/config                     && \
   echo "  ForwardAgent yes "  >> root/.ssh/config         && \
   echo "StrictHostKeyChecking no" >> root/.ssh/config     && \
-  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
+  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config && \
+  touch root/.ssh/environment
 
 RUN git clone https://github.com/pandastrike/huxley.git
 RUN git checkout remote_merge

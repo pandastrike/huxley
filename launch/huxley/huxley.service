@@ -34,7 +34,15 @@ ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/huxley"
 ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.huxley.cluster:2001/repos/huxley.git /home/core/launch/huxley"
 ExecStartPre=/usr/bin/docker build --tag="huxley_image" /home/core/launch/huxley/launch/huxley/.
 
-ExecStart=/usr/bin/docker run --name huxley -p 3030:8080 huxley_image
+ExecStart=/usr/bin/docker run --name huxley -p 3030:8080 huxley_image /bin/bash -c '
+  SSH_ENV="$HOME/.ssh/environment" && \
+  echo "Initialising new SSH agent..." && \
+  /usr/bin/ssh-agent | sed "s/^echo/#echo/" > "${SSH_ENV}" && \
+  echo succeeded && \
+  chmod 600 "${SSH_ENV}" && \
+  . "${SSH_ENV}" > /dev/null && \
+  /usr/bin/ssh-add && \
+  coffee --nodejs --harmony huxley/huxley-api/huxley-api/index.coffee'
 
 [Install]
 WantedBy=multi-user.target
