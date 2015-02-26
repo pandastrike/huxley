@@ -11,7 +11,7 @@ async = (require "when/generator").lift   # promise library
 
 # Huxley Open Source Component Family
 pandacluster = require "panda-cluster"    # cluster management
-#pandahook = require "panda-hook"          # githook management
+pandahook = require "panda-hook"          # githook management
 
 
 #===============================================================================
@@ -104,8 +104,10 @@ module.exports = async ->
 
     # This function uses panda-hook to push a githook script onto the target cluster's hook server.
     create: async (spec) ->
-      yield console.log "Server message: You are awesome."
-      return "You are awesome."
+      {respond, url, data} = spec
+      respond 201, "You are awesome."
+      console.log "Server message: You are awesome."
+
 
   remote:
 

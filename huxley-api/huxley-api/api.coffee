@@ -19,7 +19,7 @@ builder.define "remotes",
   creates: "remote"
 
 builder.define "remote",
-  template: "/remote/:remote_url"
+  template: "/remote/:remote_id"
 .delete()
 
 builder.define "users",

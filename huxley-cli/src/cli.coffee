@@ -54,6 +54,8 @@ allow_between = (min, max, value, flag) ->
   unless min <= value <= max
     throw "\nError: Value Is Outside Allowed Range For Flag: #{flag}\n\n"
 
+pull_configuration_default = async () ->
+  pull_configuration process.env.HOME, process.cwd()
 
 # In Huxley, configuration data is stored in two places.  The first is the huxley dotfile
 # in the user's $HOME directory, which holds persistent data attached to their account.
@@ -78,7 +80,9 @@ pull_configuration = async () ->
   exec_config = constructor.make name: "huxley"
   yield exec_config.load()
 
-  # Create an object that is the union of the two configurations.
+  # Create an object that is the union of the two configurations.  Because the config from the executable
+  # path appears second, its values will overwrite the $HOME configuration if the two objects share values.
+  # TODO USE FAIRMONT
   config = extend( {}, home_config.data, exec_config.data)
 
   # Return an object we can use to make requests, but also return the panda-config instances
