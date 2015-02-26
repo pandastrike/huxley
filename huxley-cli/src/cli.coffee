@@ -212,7 +212,7 @@ call ->
             component_name = "node"
             mkdir_idempt process.cwd() + "/launch/#{component_name}"
 
-            append_file templates_dir_relative, "#{component_name}", process.cwd(), "huxley"
+            append_file templates_dir_relative + "/node", "#{component_name}", process.cwd(), "huxley"
             #union_overwrite prompt_response, process.cwd(), "huxley"
             files = [ "Dockerfile", "node.service", "node.yaml" ]
             for file in files
@@ -224,7 +224,7 @@ call ->
             component_name = "redis"
             mkdir_idempt process.cwd() + "/launch/#{component_name}"
 
-            append_file templates_dir_relative, "#{component_name}", process.cwd(), "huxley"
+            append_file templates_dir_relative + "/redis", "#{component_name}", process.cwd(), "huxley"
             #union_overwrite prompt_response, process.cwd(), "huxley"
             files = [ "Dockerfile", "redis.service", "redis.yaml" ]
             for file in files
