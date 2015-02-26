@@ -23,6 +23,9 @@ adapter = Memory.Adapter.make()
 # This creates the random authorization token associated with a given user.
 make_key = () -> key_forge.randomKey 16, "base64url"
 
+# "Magic Number" placement of Huxley's public master SSH key. Temporary measure.
+public_master_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnWoZ69Bg023inDWveGiuraJQ2icamdTHutqwGogtaJJh4kdnTJL6y8OmmL5YtxoKbrY9pdUpwTrlF98XNFas8ysvvZZBKTWWI1jAMqLiwd4yhdeYcWfrIRtrgA/nVLNShoFi3866DruZ57/atlYVk/U3N9dz3N9m1enfhsKp39gM3X9hBDGJbNIwXZU/FDTCtTMhkL4mbB2YbFxRriq5xu6egvbyPySwuAeRHFEypg1tQS7CmYoIlfFu4LvElJ1lkpD/eBntaocsv78QMkgeXCIMgNK2MHTwji67nwYu1hxlqTWMLkb4bxoYqCFMk9X8fOg4ExSoOErGhVvTi4me/ david@pandastrike.com"
+
 #===============================================================================
 # Module Definition
 #===============================================================================
@@ -34,7 +37,7 @@ module.exports = async ->
   clusters:
 
     ###
-    cluster: cluster_url
+    cluster: cluster_id
       email: String
       url: String
       name: String
@@ -42,27 +45,34 @@ module.exports = async ->
 
     create: async ({respond, url, data}) ->
       data = (yield data)
-      cluster_url = make_key()
-      {stack_name, cluster_name, email, secret_token, key_pair, public_keys} = data
+      cluster_id = make_key()
+      {cluster_name, email, secret_token} = data
       user = yield users.get email
 
-      if user && data.secret_token == user.secret_token
+      # Check user authorization.
+      #if user && secret_token == user.secret_token
+      if true
+        # Add cluster to user records.
         cluster_entry =
           email: email
-          url: cluster_url
-          name: cluster_name || stack_name
-        cluster_res = yield clusters.put cluster_url, cluster_entry
+          url: cluster_id
+          name: cluster_name
+        cluster_res = yield clusters.put cluster_id, cluster_entry
 
+        # Add Huxley master key to the list of user keys.
+        data.public_keys.push public_master_key
+
+        # Create a CoreOS cluster using panda-cluster
         pandacluster.create_cluster data
-        respond 201, "", {location: (url "cluster", {cluster_url})}
+        respond 201, "", {location: (url "cluster", {cluster_id})}
       else
         respond 401, "invalid email or token"
 
   cluster:
 
     # FIXME: pass in secret token in auth header
-    delete: async ({respond, match: {path: {cluster_url}}, request: {headers: {authorization}}}) ->
-      cluster = yield clusters.get cluster_url
+    delete: async ({respond, match: {path: {cluster_id}}, request: {headers: {authorization}}}) ->
+      cluster = yield clusters.get cluster_id
       if cluster
         {email, name} = cluster
         user = yield users.get email
@@ -72,7 +82,7 @@ module.exports = async ->
           request_data =
             aws: user.aws
             cluster_name: name
-          clusters.delete cluster_url
+          clusters.delete cluster_id
           # FIXME: removed yield in clusters.delete
           pandacluster.delete_cluster request_data
           respond 200, "cluster #{name} is being processed for deletion"
@@ -81,9 +91,9 @@ module.exports = async ->
       else
         respond 404, "cluster not found"
 
-    get: async ({respond, match: {path: {cluster_url}}, request: {headers: {authorization}}}) ->
+    get: async ({respond, match: {path: {cluster_id}}, request: {headers: {authorization}}}) ->
       clusters = (yield clusters)
-      cluster = (yield clusters.get cluster_url)
+      cluster = (yield clusters.get cluster_id)
       if cluster
         {email} = cluster
         user = yield users.get email

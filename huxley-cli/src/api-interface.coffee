@@ -1,26 +1,29 @@
-{promise, lift} = require "when"
+#===============================================================================
+# Modules
+#===============================================================================
+# Core Libraries
+{resolve} = require "path"
+
+# PandaStrike Libraries
+{read, write} = require "fairmont"      # utility helpers
+Configurator = require "panda-config"   # config file parsing
+{discover} = require "./client"         # PBX component
+
+# Third Party Libraries
+{promise, lift} = require "when"        # promise library
 {liftAll} = require "when/node"
 async = (require "when/generator").lift
 
-{read, write} = require "fairmont"
-{resolve} = require "path"
 
-#Configurator = require "../../node_modules/panda-config/src/index.coffee"
-Configurator = require "panda-config"
-
-config_path = resolve("#{process.env.HOME}/.pandacluster.cson")
-
-{parse} = require "c50n"
-
-{discover} = require "./client"
-
+#===============================================================================
+# Helpers
+#===============================================================================
 # This is a wrap of setTimeout with ES6 technology that forces a non-blocking
-# # pause in execution for the specified duration (in ms).
+# pause in execution for the specified duration (in ms).
 pause = (duration) ->
  promise (resolve, reject) ->
    callback = -> resolve()
    setTimeout callback, duration
-
 
 # Lift Node's async read/write functions.
 {read_file, write_file} = do ->
@@ -32,12 +35,16 @@ pause = (duration) ->
   write_file: (path, content) ->
     writeFile path, content, "utf-8"
 
+
+#===============================================================================
+# Module Definition
+#===============================================================================
 module.exports =
 
   #create_cluster: async ({cluster_name, email, secret_token, url}) ->
   create_cluster: async (args) ->
     {url} = args
-
+    console.log "Inside interface create", url
     api = (yield discover url)
     clusters = (api.clusters)
     {response: {headers: {location}}}  =
@@ -45,24 +52,24 @@ module.exports =
     location
     console.log "*****Created cluster ID: ", location
 
-  delete_cluster: async ({cluster_url, secret_token, url}) ->
+  delete_cluster: async ({cluster_id, secret_token, url}) ->
 
     api = (yield discover url)
-    cluster = (api.cluster cluster_url)
+    cluster = (api.cluster cluster_id)
     result = (yield cluster.delete())
 
-  get_cluster_status: async ({cluster_url, secret_token, url}) ->
+  get_cluster_status: async ({cluster_id, secret_token, url}) ->
 
     api = (yield discover url)
-    cluster = (api.cluster cluster_url)
+    cluster = (api.cluster cluster_id)
     {data} = (yield cluster.get())
     data = (yield data)
     console.log "*****Cluster status: ", data
 
-  wait_on_cluster: async ({cluster_url, secret_token, url}) ->
+  wait_on_cluster: async ({cluster_id, secret_token, url}) ->
 
     api = (yield discover url)
-    cluster = (api.cluster cluster_url)
+    cluster = (api.cluster cluster_id)
     while true
       {data} = (yield cluster.get())
       {cluster_status} = yield data

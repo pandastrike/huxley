@@ -8,7 +8,7 @@ builder.define "clusters",
   creates: "cluster"
 
 builder.define "cluster",
-  template: "/cluster/:cluster_url"
+  template: "/cluster/:cluster_id"
 .get()
 .delete()
 

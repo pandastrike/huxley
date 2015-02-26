@@ -14,7 +14,8 @@ fs = require "fs"
 
 # Panda Strike Libraries
 panda_config = require "panda-config"           # data file parsing
-{read, write, remove} = require "fairmont"      # utility functions
+{read, shuffle} = require "fairmont"            # utility functions
+{parse} = require "c50n"                        # CSON parsing (temp)
 
 # Third Party Libraries
 {extend} = require "underscore"                 # functional helpers
@@ -24,7 +25,7 @@ async = (require "when/generator").lift
 prompt = require "prompt"                       # interviewer generator
 
 # Huxley Components
-PBX = require "./pbx"
+api = require "./api-interface"                 # interface for huxley api
 
 
 #===============================================================================
@@ -54,8 +55,6 @@ allow_between = (min, max, value, flag) ->
   unless min <= value <= max
     throw "\nError: Value Is Outside Allowed Range For Flag: #{flag}\n\n"
 
-pull_configuration_default = async () ->
-  pull_configuration process.env.HOME, process.cwd()
 
 # In Huxley, configuration data is stored in two places.  The first is the huxley dotfile
 # in the user's $HOME directory, which holds persistent data attached to their account.
@@ -93,10 +92,56 @@ pull_configuration = async () ->
     exec: exec_config
   }
 
+# This function selects and returns a random element from an input array.
+select_random = (list) ->
+  list = shuffle list
+  return list[0]
 
 #===============================================================================
 # Sub-Command Handling
 #===============================================================================
+# This function prepares the "options" object to ask the API server to create a
+# CoreOS cluster using your AWS credentials.
+create_cluster = async (argv) ->
+  # Start by reading configuration data from the local config files.
+  {config} = yield pull_configuration()
+
+  # Did the user input a cluster name?
+  if argv.length == 1
+    # The user gave us a name.  Use it.
+    cluster_name = argv[0]
+  else
+    # The user didn't give us anything.  Generate a cluster name from our list of ajectives and nouns.
+    {adjectives, nouns} = parse( read( resolve( __dirname, "names.cson")))
+    cluster_name = "#{select_random(adjectives)}-#{select_random(nouns)}"
+
+  # Build "options" object for panda-cluster's create function.
+  options =
+    # Required
+    aws: config.aws
+    key_name: config.aws.key_name
+    cluster_name: cluster_name
+    public_domain: config.public_domain
+    private_domain: "#{cluster_name}.cluster"
+
+    # Optional
+    channel: config.channel                   || 'stable'
+    cluster_size: config.cluster_size         || 3
+    instance_type: config.instance_type       || "m1.medium"
+    public_keys: config.public_keys           || []
+    region: config.region                     if config.region?
+    spot_price: config.spot_price             if config.spot_price?
+    virtualization: config.virtualization     || "pv"
+
+    # Huxley Access
+    url: config.huxley.url
+    secret_token: config.huxley.secret_token
+    email: config.huxley.email
+
+  return options
+
+
+
 # This function prepares the "options" object to ask the API server to place a githook
 # on the cluster's hook server.  Then it adds to the local machine's git aliases.
 add_remote = async (argv) ->
@@ -109,6 +154,7 @@ add_remote = async (argv) ->
     repo_name: config.repo_name
     hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
     url: config.huxley.url
+    secret_token: config.huxley.secret_token
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.
@@ -129,6 +175,7 @@ remote_rm = async (argv) ->
     repo_name: config.repo_name
     hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
     url: config.huxley.url
+    secret_token: config.huxley.secret_token
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.
@@ -145,8 +192,7 @@ argv = argv[2..]
 if argv.length == 0 || argv[0] == "-h" || argv[0] == "help"
   usage "main"
 
-# Now, look for the specified sub-command.
-
+# Now, look for the specified sub-command, assemble a configuration object, and hit the API.
 call ->
   try
     switch argv[0]
@@ -154,14 +200,14 @@ call ->
       when "cluster"
         switch argv[1]
           when "create"
-            console.log "That feature is not available."
-            #res = (yield PBX.create_cluster options)
+            options = yield create_cluster argv[2..]
+            res = yield api.create_cluster options
           when "delete"
             console.log "That feature is not available."
-            #res = (yield PBX.delete_cluster options)
+            #res = (yield api.delete_cluster options)
           when "wait"
             console.log "That feature is not available."
-            #res = (yield PBX.wait_on_cluster options)
+            #res = (yield api.wait_on_cluster options)
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
@@ -179,8 +225,7 @@ call ->
         switch argv[1]
           when "add"
             options = yield add_remote argv[2..]
-            console.log "reading from: ", options.url
-            res = yield PBX.add_remote options
+            res = yield api.add_remote options
           when "rm"
             console.log "That feature is not available."
 
@@ -188,7 +233,7 @@ call ->
         switch argv[1]
           when "create"
             console.log "That feature is not available."
-            res = (yield PBX.create_user options)
+            res = (yield api.create_user options)
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"

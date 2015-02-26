@@ -1,13 +1,12 @@
 FROM base/archlinux
 MAINTAINER Peter Nguyen (peter@pandastrike.com)
 #===============================================================================
-# Panda-Cluster: Huxley API Server
+# Huxley: Huxley API Server
 #===============================================================================
-# This Dockerfile describes a hook-server tailored to act upon an app running
-# the CoreOS stack.  Hook-servers contain "bare" git repositories with one or
-# more githooks, scripts you trigger with git commands.
+# This Dockerfile describes a container running Huxley's API server.  By accepting
+# requests over HTTPS, the server makes calls into your cloud provider and cluster
+# to get things setup for you.
 
-# Hook-Server & CoreOS Requirements: (1) git, (2) fleetctl
 # Install requirements, a couple dependencies, and some tools that make life easier.
 RUN pacman -Syu --noconfirm
 RUN pacman-db-upgrade
@@ -27,6 +26,7 @@ RUN echo "Host *" >> root/.ssh/config                     && \
   echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
 
 RUN git clone https://github.com/pandastrike/huxley.git
+RUN git checkout remote_merge
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install
 
