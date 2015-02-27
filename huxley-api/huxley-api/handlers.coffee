@@ -48,6 +48,7 @@ module.exports = async ->
       cluster_id = make_key()
       user = yield users.get data.email
 
+      console.log data
       # Check user authorization.
       #if user && secret_token == user.secret_token
       if true
