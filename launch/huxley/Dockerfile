@@ -23,7 +23,7 @@ RUN mkdir root/.ssh               && \
 RUN echo "Host *" >> root/.ssh/config                     && \
   echo "  ForwardAgent yes "  >> root/.ssh/config         && \
   echo "StrictHostKeyChecking no" >> root/.ssh/config     && \
-  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config && \
+  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
 
 # Pull the API's master SSH private key from the passive repo on the hook server.
 RUN git clone git://hook.huxley.cluster:2001/passive/huxley-key.git
