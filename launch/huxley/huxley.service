@@ -41,6 +41,7 @@ ExecStart=/usr/bin/docker run --name huxley -p 3030:8080 huxley_image /bin/bash 
   'coffee --nodejs --harmony ~/huxley/huxley-api/huxley-api/index.coffee'"
 
   docker run -it -p 3030:8080 huxley_test /bin/bash -c " \
+  cd huxley && git pull; \
   `ssh-agent` \
   cd /root/.ssh &&\
   ssh-add huxley; \

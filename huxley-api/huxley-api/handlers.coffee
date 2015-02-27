@@ -48,7 +48,7 @@ module.exports = async ->
       cluster_id = make_key()
       user = yield users.get data.email
 
-      console.log data
+      console.log yield data
       # Check user authorization.
       #if user && secret_token == user.secret_token
       if true
@@ -66,7 +66,7 @@ module.exports = async ->
         pandacluster.create_cluster data
         respond 201, "", {location: (url "cluster", {cluster_id})}
       else
-        respond 401, "invalid email or token"
+        respond 402, "invalid email or token"
 
   cluster:
 
