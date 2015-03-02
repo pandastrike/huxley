@@ -1,32 +1,32 @@
 {
-  "name": "pbx",
+  "name": "huxley-api",
   "version": "1.0.0-alpha-14",
-  "description": "Modular server implementation based on Patchboard API schema",
+  "description": "API server for Huxley",
   "scripts": {
-    "start": "coffee --nodejs --harmony lib/server.coffee"
+    "start": "coffee --nodejs --harmony src/server.coffee",
     "prepublish": "coffee --nodejs --harmony --compile -o ./lib ./src",
     "watch": "coffee --nodejs --harmony --compile --watch -o lib/ ./src",
     "test": "coffee --nodejs --harmony test/index.coffee"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/pandastrike/pbx.git"
+    "url": "git://github.com/pandastrike/huxley.git"
   },
   "author": "Dan Yoder <dan@pandastrike.com>",
   "license": "MIT",
   "devDependencies": {
-    "amen": "^1.0.0-alpha-03",
+    "amen": "^1.0.0-alpha-03"
   },
   "dependencies": {
     "pbx": "1.0.0-alpha-14",
     "fairmont": "^0.8.2",
-    "pirate": "^1.0.0-alpha-05"
+    "pirate": "^1.0.0-alpha-05",
     "key-forge": "^1.0.0-beta-01",
     "panda-cluster": "git://github.com/pandastrike/panda-cluster.git",
     "panda-hook": "git://github.com/pandastrike/panda-hook",
     "when": "^3.6.3"
   },
   "engines": {
-    "node": ">=0.11 < 0.12"
+    "node": ">=0.11"
   }
 }
