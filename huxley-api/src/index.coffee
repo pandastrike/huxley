@@ -1,9 +1,10 @@
-module.exports =
-  Builder:    require "./builder"
-  classifier: require "./classifier"
-  client:     require "./client"
-  Context:    require "./context"
-  errors:     require "./errors"
-  processor:  require "./processor"
-  filters:
-    validate: require "./filters/validate"
+{call} = require "when/generator"
+{processor} = require "pbx"
+initialize = require "./handlers"
+api = require "./api"
+api.base_url = "http://localhost:8080"
+
+call ->
+  (require "http")
+  .createServer yield (processor api, initialize)
+  .listen 8080, () -> console.log "listening on 8080"

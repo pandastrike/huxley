@@ -1,4 +1,4 @@
-{Builder} = require "../src"
+{Builder} = require "pbx"
 builder = new Builder "huxley-api"
 
 builder.define "clusters",
