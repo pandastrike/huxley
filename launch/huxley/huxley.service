@@ -35,7 +35,7 @@ ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone -b development/alpha-01 git://
 ExecStartPre=/usr/bin/docker build --tag="huxley_image" /home/core/launch/huxley/launch/huxley/.
 
 # Launch the service.
-ExecStart=/usr/bin/docker run -it -p 3030:8080 huxley_api /bin/bash -c ' \
+ExecStart=/usr/bin/docker run -it -p 3030:8080 --name huxley huxley_image /bin/bash -c ' \
   eval $(ssh-agent) ssh-add /root/.ssh/huxley; \
   coffee --nodejs --harmony ~/huxley/huxley-api/huxley-api/index.coffee'
 
