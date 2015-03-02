@@ -26,12 +26,11 @@ RUN echo "Host *" >> root/.ssh/config                     && \
   echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
 
 # Pull the API's master SSH private key from the passive repo on the hook server.
-RUN git clone git://hook.huxley.cluster:2001/passive/huxley-key.git
+RUN git clone git://hook.splendid-shield.cluster:2001/passive/huxley-key.git
 RUN cp huxley-key/huxley /root/.ssh/. && chmod 400 /root/.ssh/huxley
 RUN rm -rf huxley-key
 
 # Pull the API server repo from the hook server and install.
-RUN git clone git://hook.huxley.cluster:2001/repos/huxley.git
-RUN git checkout init_merge
+RUN git clone git://hook.splendid-shield.cluster:2001/repos/huxley.git
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install

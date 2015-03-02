@@ -82,7 +82,7 @@ module.exports =
     api = yield discover url
     remotes = api.remotes
     result = yield remotes.create spec
-    console.log result
+    console.log yield result.data
 
   # FIXME: filter out secret keys in response
   create_user: async ({aws, email, url, key_pair, public_keys}) ->

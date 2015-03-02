@@ -15,7 +15,7 @@
     "cli"
   ],
   "author": "Panda Strike",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "c50n": "^0.7.2",
     "coffee-script": "^1.9.0",

@@ -34,18 +34,10 @@ ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/huxley"
 ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.huxley.cluster:2001/repos/huxley.git /home/core/launch/huxley"
 ExecStartPre=/usr/bin/docker build --tag="huxley_image" /home/core/launch/huxley/launch/huxley/.
 
-ExecStart=/usr/bin/docker run --name huxley -p 3030:8080 huxley_image /bin/bash -c " \
-  `ssh-agent`; \
-  cd /root/.ssh &&\
-  'ssh-add huxley;'\
-  'coffee --nodejs --harmony ~/huxley/huxley-api/huxley-api/index.coffee'"
-
-  docker run -it -p 3030:8080 huxley_test /bin/bash -c " \
-  cd huxley && git pull; \
-  `ssh-agent` \
-  cd /root/.ssh &&\
-  ssh-add huxley; \
-  coffee --nodejs --harmony ~/huxley/huxley-api/huxley-api/index.coffee"
+# Launch the service.
+ExecStart=/usr/bin/docker run -it -p 3030:8080 huxley_api /bin/bash -c ' \
+  eval $(ssh-agent) ssh-add /root/.ssh/huxley; \
+  coffee --nodejs --harmony ~/huxley/huxley-api/huxley-api/index.coffee'
 
 [Install]
 WantedBy=multi-user.target

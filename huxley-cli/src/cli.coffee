@@ -175,6 +175,8 @@ create_cluster = async (argv) ->
     instance_type: config.instance_type       || "m1.medium"
     public_keys: config.public_keys           || []
     region: config.region                     if config.region?
+    formation_service_templates:
+      config.extra_storage                    || true
     spot_price: config.spot_price             if config.spot_price?
     virtualization: config.virtualization     || "pv"
 
@@ -201,8 +203,6 @@ add_remote = async (argv) ->
     url: config.huxley.url
     secret_token: config.huxley.secret_token
     email: config.huxley.email
-
-  console.log options
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.
