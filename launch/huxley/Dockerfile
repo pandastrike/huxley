@@ -31,6 +31,6 @@ RUN cp huxley-key/huxley /root/.ssh/. && chmod 400 /root/.ssh/huxley
 RUN rm -rf huxley-key
 
 # Pull the API server repo from the hook server and install.
-RUN git clone git://hook.splendid-shield.cluster:2001/repos/huxley.git
+RUN git clone -b development/alpha-01 git://hook.splendid-shield.cluster:2001/repos/huxley.git
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install
