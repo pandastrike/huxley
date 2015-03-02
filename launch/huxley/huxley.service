@@ -19,7 +19,7 @@ ExecStartPre=/usr/bin/echo "Public IP Address: ${COREOS_PUBLIC_IPV4}"
 ExecStartPre=/usr/bin/echo "Private IP Address: ${COREOS_PRIVATE_IPV4}"
 
 # Register this service with Sidekick Server.
-ExecStartPre=/usr/bin/curl -XPOST hook.spendid-shield.cluster:2000 -d '\
+ExecStartPre=/usr/bin/curl -XPOST hook.splendid-shield.cluster:2000 -d '\
   "hostname": "api.splendid-shield.pandastrike.com",      \
   "ip_address": "${COREOS_PUBLIC_IPV4}",  \
   "port": "3030",  \

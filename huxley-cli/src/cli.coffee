@@ -235,8 +235,8 @@ passive_remote = async (argv) ->
   yield execute command
 
   # Next, we will add this repository to the user's git remotes.  Allow "remote rm" to fail if neccessary, so do it separately.
-  yield execute "git remote rm  #{config.repo_name}"
-  yield execute "git remote add #{config.repo_name} ssh://root@#{argv[0]}.#{config.public_domain}:3000/root/passive/#{config.repo_name}.git"
+  yield execute "git remote rm  #{argv[0]}"
+  yield execute "git remote add #{argv[0]} ssh://root@#{argv[0]}.#{config.public_domain}:3000/root/passive/#{config.repo_name}.git"
 
   # Because this does not cause a deployment, we can actually go ahead and push the
   # local repository to the passive remote. Initialize a git repo in the executable
