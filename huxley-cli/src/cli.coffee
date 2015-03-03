@@ -143,7 +143,7 @@ pull_configuration = async () ->
 
 
 #===============================================================================
-# file manipulation and templatizing - huxley cli init and mixin 
+# file manipulation and templatizing - huxley cli init and mixin
 #===============================================================================
 # TODO: move to separate file
 
@@ -402,17 +402,17 @@ call ->
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        prompt_list = [
-          name: "project_name"
-          description: "Application name?"
-          default: process.cwd().split("/").pop()
-        ,
-          name: "cluster_name"
-          description: "Cluster name?"
-          default: "test-cluster"
-        ]
-        res = yield prompt_wrapper prompt_list
-        {project_name} = res
+        # prompt_list = [
+        #   name: "project_name"
+        #   description: "Application name?"
+        #   default: process.cwd().split("/").pop()
+        # ,
+        #   name: "cluster_name"
+        #   description: "Cluster name?"
+        #   default: "test-cluster"
+        # ]
+        # res = yield prompt_wrapper prompt_list
+        # {project_name} = res
         copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
         # create /launch dir
         launch_dir = process.cwd() + "/launch"
@@ -422,20 +422,20 @@ call ->
         switch argv[1]
 
           when "node"
-            prompt_list = [
-              name: "app_name"
-              description: "Service name?"
-              default: "node"
-            ,
-              name: "start"
-              description: "Service start?"
-              default: "npm start"
-            ,
-              name: "component"
-              description: "Component name?"
-              default: "web"
-            ]
-            res = yield prompt_wrapper prompt_list
+            # prompt_list = [
+            #   name: "app_name"
+            #   description: "Service name?"
+            #   default: "node"
+            # ,
+            #   name: "start"
+            #   description: "Service start?"
+            #   default: "npm start"
+            # ,
+            #   name: "component"
+            #   description: "Component name?"
+            #   default: "web"
+            # ]
+            # res = yield prompt_wrapper prompt_list
 
             init_mixin "node"
             yield render_template_wrapper
