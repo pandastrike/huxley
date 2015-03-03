@@ -23,13 +23,14 @@ RUN mkdir root/.ssh               && \
 RUN echo "Host *" >> root/.ssh/config                     && \
   echo "  ForwardAgent yes "  >> root/.ssh/config         && \
   echo "StrictHostKeyChecking no" >> root/.ssh/config     && \
-  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config && \
-  touch root/.ssh/environment
+  echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
 
-RUN git clone https://github.com/pandastrike/huxley.git
-RUN git checkout remote_merge
+# Pull the API's master SSH private key from the passive repo on the hook server.
+RUN git clone git://hook.splendid-shield.cluster:2001/passive/huxley-key.git
+RUN cp huxley-key/huxley /root/.ssh/. && chmod 400 /root/.ssh/huxley
+RUN rm -rf huxley-key
+
+# Pull the API server repo from the hook server and install.
+RUN git clone -b development/alpha-01 git://hook.splendid-shield.cluster:2001/repos/huxley.git
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install
-
-ADD source destination
-CMD coffee --nodejs --harmony huxley/huxley-api/huxley-api/index.coffee

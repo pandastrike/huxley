@@ -44,12 +44,10 @@ module.exports =
   #create_cluster: async ({cluster_name, email, secret_token, url}) ->
   create_cluster: async (args) ->
     {url} = args
-    console.log "Inside interface create", url
+
     api = (yield discover url)
     clusters = (api.clusters)
-    {response: {headers: {location}}}  =
-      (yield clusters.create args)
-    location
+    {response: {headers: {location}}}  = yield clusters.create args
     console.log "*****Created cluster ID: ", location
 
   delete_cluster: async ({cluster_id, secret_token, url}) ->
@@ -84,7 +82,7 @@ module.exports =
     api = yield discover url
     remotes = api.remotes
     result = yield remotes.create spec
-    console.log result
+    console.log yield result.data
 
   # FIXME: filter out secret keys in response
   create_user: async ({aws, email, url, key_pair, public_keys}) ->

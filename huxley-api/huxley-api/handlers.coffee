@@ -44,18 +44,18 @@ module.exports = async ->
     ###
 
     create: async ({respond, url, data}) ->
-      {cluster_name, email, secret_token} = yield data
+      data = yield data
       cluster_id = make_key()
-      user = yield users.get email
+      user = yield users.get data.email
 
       # Check user authorization.
       #if user && secret_token == user.secret_token
       if true
         # Add cluster to user records.
         cluster_entry =
-          email: email
+          email: data.email
           url: cluster_id
-          name: cluster_name
+          name: data.cluster_name
         cluster_res = yield clusters.put cluster_id, cluster_entry
 
         # Add Huxley master key to the list of user keys.
