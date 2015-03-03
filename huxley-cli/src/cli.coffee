@@ -16,7 +16,7 @@ panda_config = require "panda-config"           # data file parsing
 Configurator = require "panda-config"
 {read, shuffle} = require "fairmont"            # utility functions
 {parse} = require "c50n"                        # CSON parsing (temp)
-fs = require "fs"
+{simple_render} = require "./templatize"
 
 # Third Party Libraries
 {extend} = require "underscore"                 # functional helpers
@@ -100,6 +100,106 @@ select_random = (list) ->
   return list[0]
 
 #===============================================================================
+# file manipulation and templatizing - huxley cli init and mixin 
+#===============================================================================
+# TODO: move to separate file
+
+# removes the default settings, starts prompt
+prompt_setup = ->
+  prompt.message = ""
+  prompt.delimiter = ""
+  prompt.start()
+
+# makes prompt yield-able
+prompt_wrapper = (prompt_list) ->
+  new Promise (resolve, reject) ->
+    prompt.get prompt_list, (err, res) ->
+      if err
+        return rejecet err
+      resolve res
+
+# create directory if doesn't already exists
+mkdir_idempt = (path) ->
+  if !fs.existsSync path
+    fs.mkdirSync path
+  else
+    console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
+
+# copy file
+copy_file = async (from_path, from_filename, destination_path, destination_filename) ->
+  fs.writeFileSync (destination_path + "/" + destination_filename + ".yaml"), ""
+
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
+
+  # edit huxley.yaml
+  configurator = Configurator.make
+    paths: [ destination_path ]
+    extension: ".yaml"
+  configuration = configurator.make name: destination_filename
+  yield configuration.load()
+  configuration.data = from_config
+  configuration.save()
+
+# initialize mixin folders, copy over templates
+init_mixin = (component_name) ->
+  mkdir_idempt process.cwd() + "/launch/#{component_name}"
+
+  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
+  #union_overwrite prompt_response, process.cwd(), "huxley"
+  #files = [ "Dockerfile", "#{component_name}.service", "#{component_name}.yaml" ]
+  files = [ "#{component_name}.yaml" ]
+  for file in files
+    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
+      fs.readFileSync(templates_dir_relative + "#{component_name}/#{file}")
+
+# huxley.yaml composition by copying template
+# FIXME: assuming .yaml for now
+append_file = async (from_path, from_filename, destination_path, destination_filename) ->
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
+
+  # edit huxley.yaml
+  configurator = Configurator.make
+    paths: [ destination_path ]
+    extension: ".yaml"
+  configuration = configurator.make name: destination_filename
+  yield configuration.load()
+  configuration.data[from_filename] = from_config
+  configuration.save()
+
+union_overwrite = async (data, file_path, file_name) ->
+  from_configurator = Configurator.make
+    paths: [ from_path ]
+    extension: ".yaml"
+  from_configuration = from_configurator.make name: from_filename
+  yield from_configuration.load()
+  from_config = from_configuration.data
+
+render_template_wrapper = async ({component_name, template_filename, output_filename}) ->
+  template_path = templates_dir_relative + "#{component_name}/#{template_filename}"
+
+  # read in the default component.yaml (to make accessable as CSON)
+  configurator = Configurator.make
+    paths: [ process.cwd() ]
+    extension: ".yaml"
+  configuration = configurator.make name: "huxley"
+  yield configuration.load()
+  console.log configuration.data
+
+  rendered_string = yield simple_render configuration.data, template_path
+  fs.writeFileSync (process.cwd() + "/launch/#{component_name}/#{output_filename}"), rendered_string
+  yield configuration.save()
+
+#===============================================================================
 # Sub-Command Handling
 #===============================================================================
 # This function prepares the "options" object to ask the API server to create a
@@ -168,61 +268,8 @@ add_remote = async (argv) ->
 
   return options
 
-# create directory if doesn't already exists
-mkdir_idempt = (path) ->
-  if !fs.existsSync path
-    fs.mkdirSync path
-  else
-    console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
-
-# copy file
-# create huxley.yaml
-copy_file = async (from_path, from_filename, destination_path, destination_filename) ->
-  fs.writeFileSync (destination_path + "/" + destination_filename + ".yaml"), ""
-
-  from_configurator = Configurator.make
-    paths: [ from_path ]
-    extension: ".yaml"
-  from_configuration = from_configurator.make name: from_filename
-  yield from_configuration.load()
-  from_config = from_configuration.data
-
-  # edit huxley.yaml
-  configurator = Configurator.make
-    paths: [ destination_path ]
-    extension: ".yaml"
-  configuration = configurator.make name: destination_filename
-  yield configuration.load()
-  configuration.data = from_config
-  configuration.save()
 
 
-# huxley.yaml composition by copying template
-# FIXME: assuming .yaml for now
-append_file = async (from_path, from_filename, destination_path, destination_filename) ->
-  from_configurator = Configurator.make
-    paths: [ from_path ]
-    extension: ".yaml"
-  from_configuration = from_configurator.make name: from_filename
-  yield from_configuration.load()
-  from_config = from_configuration.data
-
-  # edit huxley.yaml
-  configurator = Configurator.make
-    paths: [ destination_path ]
-    extension: ".yaml"
-  configuration = configurator.make name: destination_filename
-  yield configuration.load()
-  configuration.data[from_filename] = from_config
-  configuration.save()
-
-union_overwrite = async (data, file_path, file_name) ->
-  from_configurator = Configurator.make
-    paths: [ from_path ]
-    extension: ".yaml"
-  from_configuration = from_configurator.make name: from_filename
-  yield from_configuration.load()
-  from_config = from_configuration.data
 
 # This function prepares the "options" object to ask the API server to remove a githook
 # on the cluster's hook server.  Then it removes one of the local machine's git aliases.
@@ -253,6 +300,7 @@ if argv.length == 0 || argv[0] == "-h" || argv[0] == "help"
   usage "main"
 
 # Now, look for the specified sub-command, assemble a configuration object, and hit the API.
+prompt_setup()
 call ->
   try
     switch argv[0]
@@ -273,44 +321,57 @@ call ->
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        # TODO: prompt for info, overwrite default
-
-        copy_file templates_dir_relative, "huxley-example", process.cwd(), "huxley"
+        prompt_list = [
+          name: "project_name"
+          description: "Project name?"
+          default: process.cwd().split("/").pop()
+        ,
+          name: "cluster_name"
+          description: "Cluster name?"
+          default: "test-cluster"
+        ]
+        res = yield prompt_wrapper prompt_list
+        {project_name} = res
+        copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
         # create /launch dir
         launch_dir = process.cwd() + "/launch"
         mkdir_idempt launch_dir
-
-        # create ~/.dotfile
-        # FIXME: make idempotent
-        app_name = "donuts"
-        fs.writeFileSync (process.env.HOME + "/.#{app_name}"), ""
 
       when "mixin"
         switch argv[1]
 
           when "node"
-            # TODO: prompt for info, overwrite default
-            component_name = "node"
-            mkdir_idempt process.cwd() + "/launch/#{component_name}"
+            prompt_list = [
+              name: "app_name"
+              description: "Application name?"
+              default: "node"
+            ,
+              name: "start"
+              description: "Application start?"
+              default: "npm start"
+            ,
+              name: "component"
+              description: "Component name?"
+              default: "web"
+            ]
+            res = yield prompt_wrapper prompt_list
 
-            append_file templates_dir_relative + "/node", "#{component_name}", process.cwd(), "huxley"
-            #union_overwrite prompt_response, process.cwd(), "huxley"
-            files = [ "Dockerfile", "node.service", "node.yaml" ]
-            for file in files
-              fs.writeFileSync process.cwd() + "/launch/node/#{file}",
-                fs.readFileSync(templates_dir_relative + "node/#{file}")
+            init_mixin "node"
+            yield render_template_wrapper
+              component_name: "node"
+              template_filename: "node.service.template"
+              output_filename: "node.service"
+            yield render_template_wrapper
+              component_name: "node"
+              template_filename: "Dockerfile.template"
+              output_filename: "Dockerfile"
 
           when "redis"
             # TODO: prompt for info, overwrite default
-            component_name = "redis"
-            mkdir_idempt process.cwd() + "/launch/#{component_name}"
-
-            append_file templates_dir_relative + "/redis", "#{component_name}", process.cwd(), "huxley"
-            #union_overwrite prompt_response, process.cwd(), "huxley"
-            files = [ "Dockerfile", "redis.service", "redis.yaml" ]
-            for file in files
-              fs.writeFileSync process.cwd() + "/launch/redis/#{file}",
-                fs.readFileSync(templates_dir_relative + "redis/#{file}")
+            init_mixin "redis"
+          when "es" || "elasticsearch"
+            # TODO: prompt for info, overwrite default
+            init_mixin "elasticsearch"
           else
             # When the command cannot be identified, display the help guide.
             usage "main", "\nError: Command Not Found: #{argv[1]} \n"

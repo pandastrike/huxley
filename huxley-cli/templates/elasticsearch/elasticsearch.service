@@ -1,0 +1,62 @@
+#===============================================================================
+# panda-cluster - Service Template
+#===============================================================================
+# This unit spins up a CoreOS service.
+
+[Unit]
+Description=Spin Up Service
+
+# List any services that must be online before this service is activated.
+{{#before}}
+Before={{.}}
+{{/before}}
+
+# List any services that must wait for this service before starting.
+{{#after}}
+After={{.}}
+{{/after}}
+
+[Service]
+TimeoutStartSec=0
+
+ExecStartPre=/usr/bin/echo "========================"
+ExecStartPre=/usr/bin/echo "  New Service Starting"
+ExecStartPre=/usr/bin/echo "========================"
+
+# Display this service's IP addresses.
+EnvironmentFile=/etc/environment
+ExecStartPre=/usr/bin/echo "Public IP Address: ${COREOS_PUBLIC_IPV4}"
+ExecStartPre=/usr/bin/echo "Private IP Address: ${COREOS_PRIVATE_IPV4}"
+
+
+# Pull The Service's Docker Container.
+ExecStartPre=-/usr/bin/docker kill {{{container_name}}}
+ExecStartPre=-/usr/bin/docker rm {{{container_name}}}
+ExecStartPre=/usr/bin/docker pull {{{image_name}}}
+
+# Register this service with DNS.
+ExecStartPre=/usr/bin/curl -XPOST {{{kick_address}}} -d '\
+  "hostname": "{{{hostname}}}",      \
+  "ip_address": "{{{ip_address}}}",  \
+  "port": "{{{port}}}",  \
+  "type": "{{{type}}}"'
+
+ExecStart=/usr/bin/docker run --name {{{container_name}}} -p {{{port}}}:9200 \
+  {{{image_name}}} /bin/bash -c \
+  'cd elasticsearch-1.4.2/bin && ./elasticsearch'
+
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+
+# List any services that *must* be on the same machine as this service.
+{{#machine_of}}
+MachineOf={{.}}
+{{/machine_of}}
+
+# List any services that *cannot* be on the same machine as this service (ex. They share ports).
+{{#conflicts}}
+Conflicts={{.}}
+{{/conflicts}}
