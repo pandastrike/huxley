@@ -10,7 +10,7 @@ RUN pacman-db-upgrade
 RUN pacman -S --noconfirm jre7-openjdk-headless wget vim tmux git nodejs 
 
 # Install Node
-RUN git clone git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{project_name}}}.git node
+RUN git clone git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{app_name}}}.git node
 
 # Install CoffeeScript
 RUN npm install -g coffee-script

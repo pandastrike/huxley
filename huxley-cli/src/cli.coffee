@@ -193,7 +193,6 @@ render_template_wrapper = async ({component_name, template_filename, output_file
     extension: ".yaml"
   configuration = configurator.make name: "huxley"
   yield configuration.load()
-  console.log configuration.data
 
   rendered_string = yield simple_render configuration.data, template_path
   fs.writeFileSync (process.cwd() + "/launch/#{component_name}/#{output_filename}"), rendered_string
@@ -323,7 +322,7 @@ call ->
       when "init"
         prompt_list = [
           name: "project_name"
-          description: "Project name?"
+          description: "Application name?"
           default: process.cwd().split("/").pop()
         ,
           name: "cluster_name"
@@ -343,11 +342,11 @@ call ->
           when "node"
             prompt_list = [
               name: "app_name"
-              description: "Application name?"
+              description: "Service name?"
               default: "node"
             ,
               name: "start"
-              description: "Application start?"
+              description: "Service start?"
               default: "npm start"
             ,
               name: "component"

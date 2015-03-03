@@ -1,5 +1,5 @@
-project_name: donuts
-app_name: node
+app_name: donuts
+service_name: node
 public_domain: acme.com
 cluster_name: test-cluster
 private_domain: test-cluster.cluster
