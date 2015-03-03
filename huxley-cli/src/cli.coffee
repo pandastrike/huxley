@@ -121,7 +121,7 @@ pull_configuration = async () ->
 
   # Load the configuration from the execution path.
   constructor = panda_config.make
-    extension: ".yml"
+    extension: ".yaml"
     format: "yaml"
     paths: [ process.cwd() ]
 
@@ -311,7 +311,6 @@ add_remote = async (argv) ->
   return options
 
 
-=======
 # Not everything we place onto the cluster needs to trigger a cascade of deployment events.
 # Sometimes we just need to store data at the scope of the cluster and have it available to
 # be pulled when required.  Compared to what we do with other repos on the hook server,

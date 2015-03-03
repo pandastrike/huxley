@@ -7,4 +7,6 @@ api.base_url = "http://localhost:8080"
 call ->
   (require "http")
   .createServer yield (processor api, initialize)
-  .listen 8080
+  .listen 8080, ->
+    console.log "listening on 8080"
+    console.log api

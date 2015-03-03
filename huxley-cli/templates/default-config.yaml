@@ -2,7 +2,6 @@ app_name: donuts
 service_name: node
 public_domain: acme.com
 cluster_name: test-cluster
-private_domain: test-cluster.cluster
 channel: stable
 region: us-west-1
 instance_type: m1.medium
