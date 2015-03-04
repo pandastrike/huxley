@@ -264,6 +264,7 @@ create_cluster = async (argv) ->
     # Required
     aws: config.aws
     key_name: config.aws.key_name
+    availability_zone: config.aws.availability_zone
     cluster_name: cluster_name
     public_domain: config.public_domain
     private_domain: "#{cluster_name}.cluster"
