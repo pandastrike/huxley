@@ -1,14 +1,20 @@
------------------------------------------------
-Usage: huxley-cli COMMAND [arg...]
------------------------------------------------
+--------------------------------------------
+Usage: huxley RESOURCE [command] [name]
+--------------------------------------------
 Follow any command with "help" for more information.
 
-A tool to manage CoreOS clusters and deploy them on AWS with your account.
+A tool to manage applications on CoreOS clusters.
 
 Commands:
-  cluster
-    create                 Spins up a cluster of the requested size using your AWS access.
-    delete                 Terminates the specified cluster.
-    wait                   Continuously checks cluster status until creation is successful.
-  user
-    create                 Creates user account.
+init          Generates the basic files Huxley needs to function and adds them the application's repository.
+
+cluster
+  create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
+  delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
+  wait        Polls cluster status until creation is successful.
+
+mixin         Adds a Huxley mixin to the application's "launch/" directory.  Includes template Dockerfile and CoreOS unit file (*.service)
+
+remote
+  add       Place a githook on a targeted cluster.
+  passive   Place arbitrary data on a targeted cluster.  Avoids deployment cascade.

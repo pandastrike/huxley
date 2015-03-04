@@ -23,7 +23,7 @@ Before we get started, you should know that Huxley actually has two parts, a CLI
 2. You can use an API server that someone else you know already has setup
 3. You can launch your own API server.
 
-If (1) or (2) describe your situation, you can skip directly to the [CLI tutorial][4].
+If (1) or (2) describe your situation, make sure you know the API server's address and then read the [CLI tutorial][4] next.
 <br>
 <br>
 **Please Note:** that both the CLI and API require the ES6 technologies included in Node 0.12+ and CoffeeScript 1.9+.  Tutorials in the next sections assume you have the following installed.
@@ -35,15 +35,21 @@ npm install -g coffee-script
 
 ## API Server
 ### Installation
-The Huxley API server is easily installed via npm.  You can run the server locally on your machine, in a Docker container, or on a cloud instance.
-
-There are a couple prerequisites.
-
+The Huxley API server is easily installed.  You can run the server locally on your machine, in a Docker container, or on a cloud instance.  **You must make sure that your platform has openssh installed.**
 
 Now, install the API server and activate.
 ```shell
-npm install pandastrike/huxley
-coffee --nodejs --harmony huxley/huxley-api/src/index.coffee
+# Activate your ssh-agent.
+eval $(ssh-agent)
+
+# Pull down the huxley repository and install dependencies.
+git clone https://github.com/pandastrike/huxley.git
+cd huxley/huxley-api
+npm install
+
+# Activate the server.  Just beforehand, this code generates a unique SSH keypair and
+# adds it to your agent's identity.  This gives your API access to clusters for configuration.
+coffee --nodejs --harmony src/server.coffee
 ```
 By default, the API server responds to HTTP requests on port 8080.  Wherever you end up running the API server, you'll need to point your CLI tool at it (see below).  So remember the server's URL and share it with your team.
 
@@ -51,7 +57,7 @@ By default, the API server responds to HTTP requests on port 8080.  Wherever you
 ### Installation
 The CLI tool is a globally installed npm package that yields a symlinked executable.
 ```shell
-npm install pandastrike/huxley
+git clone https://github.com/pandastrike/huxley.git
 npm install -g huxley/huxley-cli
 ```
 Next, you'll need to establish some configuration information.  Huxley stores reusable configuration data so you don't have to type the same things over and over.  You'll end up only needed to enter simple commands, while Huxley uses various config files as the context to fill in the gaps.
@@ -77,7 +83,8 @@ aws:
   id: My_AWS_ID
   key: Password123
   region: us-west-1
-  key_name: Name-of-SSH-Key   # This is key you have associated with your AWS account.
+  availability_zone: us-west-1c
+  key_name: Name-of-SSH-Key   # Name of a key you have associated with your AWS account, not the actual value.
 
 #==========
 # Optional
@@ -88,28 +95,47 @@ public_keys:
   - Grants cluster-wide access to whomever holds the paired private key.
 ```
 
-### Command-Line Guide
-The command-line tool is accessed via several sub-commands. Here is a list of currently available sub-commands.
+### Command Guide
+The command-line tool is organized with respect to several resources.  To get the whole list of resources and commands available to the CLI, simply type `huxley` into the command-line.
+
 ```
 --------------------------------------------
-Usage: pandahook COMMAND [arg...]
+Usage: huxley RESOURCE [command] [name]
 --------------------------------------------
 Follow any command with "help" for more information.
 
-A tool to manage githook scripts and deploy them to your hook-server.  
+A tool to manage applications on CoreOS clusters.
 
 Commands:
+init          Generates the basic files Huxley needs to function and adds them the application's repository.
+
 cluster
   create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
   delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
   wait        Polls cluster status until creation is successful.
-user
-  create      Creates user account with a secret token.
+
+mixin         Adds a Huxley mixin to the application's "launch/" directory.  Includes template Dockerfile and CoreOS unit file (*.service)
+
+remote
+  add       Place a githook on a targeted cluster.
+  passive   Place arbitrary data on a targeted cluster.  Avoids deployment cascade.
 ```
+
+So, whenever you want to take an action on a resource, like a cluster, just name it before stating the command.
+
+```shell
+# To create a cluster named panda, specify "cluster" and then the "create" command.
+huxley cluster create panda
+```
+
+Please see [command-line-guide.md][5] for an end-to-end walkthrough.
+
+
 
 
 
 [1]:https://www.pandastrike.com/
-[2]:https://github.com/pandastrike/huxley/blob/feature/init-merge/cluster-architecture.md
-[3]:https://github.com/pandastrike/huxley/blob/feature/init-merge/huxley-model.md
+[2]:https://github.com/pandastrike/huxley/blob/feature/master/cluster-architecture.md
+[3]:https://github.com/pandastrike/huxley/blob/feature/master/huxley-model.md
 [4]:https://github.com/pandastrike/huxley#cli-tool
+[5]:https://github.com/pandastrike/huxley/blob/feature/master/command-line-guide.md

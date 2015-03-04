@@ -34,11 +34,17 @@ templates_dir_relative = __dirname + "/../templates/"
 #===============================================================================
 # Helper Fucntions
 #===============================================================================
+# Output an Info Blurb and optional message.
+usage = (entry, message) ->
+  if message?
+    throw "#{message}\n" + read( resolve( __dirname, "..", "docs", entry ) )
+  else
+    throw read( resolve( __dirname, "..", "docs", entry ) )
+
 # This function selects and returns a random element from an input array.
 select_random = (list) ->
   list = shuffle list
   return list[0]
-
 
 # create directory if doesn't already exists
 mkdir_idempt = (path) ->
@@ -247,6 +253,11 @@ render_template_wrapper = async ({component_name, template_filename, output_file
 # This function prepares the "options" object to ask the API server to create a
 # CoreOS cluster using your AWS credentials.
 create_cluster = async (argv) ->
+  # Detect if we should provide a help blurb.
+  if argv[0] == "help" || argv[0] == "-h"
+    usage "cluster_create"
+
+
   # Start by reading configuration data from the local config files.
   {config} = yield pull_configuration()
 
@@ -276,7 +287,7 @@ create_cluster = async (argv) ->
     public_keys: config.public_keys           || []
     region: config.region                     if config.region?
     formation_service_templates:
-      config.extra_storage                    || true
+            config.extra_storage              || true
     spot_price: config.spot_price             if config.spot_price?
     virtualization: config.virtualization     || "pv"
 
@@ -287,11 +298,28 @@ create_cluster = async (argv) ->
 
   return options
 
+# This function prepares the "options" object to ask the API server to delete a
+# CoreOS cluster using your AWS credentials.
+delete_cluster = async (argv) ->
+  # Detect if we should provide a help blurb.
+  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    usage "cluster_delete"
+
+# This function prepares the "options" object to ask the API server to poll AWS
+# about the status of your cluster.
+wait_cluster = aysnc (argv) ->
+  # Detect if we should provide a help blurb.
+  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    usage "cluster_wait"
 
 
 # This function prepares the "options" object to ask the API server to place a githook
 # on the cluster's hook server.  Then it adds to the local machine's git aliases.
 add_remote = async (argv) ->
+  # Detect if we should provide a help blurb.
+  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    usage "remote_add"
+
   # Start by reading configuration data from the local config files.
   {config} = yield pull_configuration()
 
@@ -317,6 +345,10 @@ add_remote = async (argv) ->
 # be pulled when required.  Compared to what we do with other repos on the hook server,
 # these are referred to as "passive" repositories, available at git:<hook-server>:3000/passive/<repo-name>
 passive_remote = async (argv) ->
+  # Detect if we should provide a help blurb.
+  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    usage "remote_passive"
+
   # Start by reading configuration data from the local config files.
   {config} = yield pull_configuration()
 
@@ -374,16 +406,17 @@ rm_remote = async (argv) ->
 #===============================================================================
 # Main - Top-Level Command-Line Interface
 #===============================================================================
-# Chop off the argument array so that only the useful arguments remain.
-argv = argv[2..]
-
-# Deliver an info blurb if neccessary.
-if argv.length == 0 || argv[0] == "-h" || argv[0] == "help"
-  usage "main"
-
-# Now, look for the specified sub-command, assemble a configuration object, and hit the API.
-prompt_setup()
 call ->
+  # Chop off the argument array so that only the useful arguments remain.
+  argv = argv[2..]
+
+  # Deliver an info blurb if neccessary.
+  if argv.length == 0 || argv[0] == "-h" || argv[0] == "help"
+    usage "main"
+
+  # Now, look for the specified sub-command, assemble a configuration object, and hit the API.
+  prompt_setup()
+
   try
     switch argv[0]
 
@@ -400,7 +433,7 @@ call ->
             #res = (yield api.wait_on_cluster options)
           else
             # When the command cannot be identified, display the help guide.
-            usage "main", "\nError: Command Not Found: #{argv[1]} \n"
+            usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
         # prompt_list = [
@@ -455,8 +488,8 @@ call ->
             # TODO: prompt for info, overwrite default
             init_mixin "elasticsearch"
           else
-            # When the command cannot be identified, display the help guide.
-            usage "main", "\nError: Command Not Found: #{argv[1]} \n"
+            # When the mixin cannot be identified, display the help guide.
+            usage "mixin", "\nError: Unknown Mixin: #{argv[1]} \n"
 
       when "remote"
         switch argv[1]
@@ -467,15 +500,18 @@ call ->
             yield passive_remote argv[2..]
           when "rm"
             console.log "That feature is not available."
-
-      when "user"
-        switch argv[1]
-          when "create"
-            console.log "That feature is not available."
-            res = (yield api.create_user options)
           else
             # When the command cannot be identified, display the help guide.
-            usage "main", "\nError: Command Not Found: #{argv[1]} \n"
+            usage "remote", "\nError: Command Not Found: #{argv[1]} \n"
+
+      # when "user"
+      #   switch argv[1]
+      #     when "create"
+      #       console.log "That feature is not available."
+      #       res = (yield api.create_user options)
+      #     else
+      #       # When the command cannot be identified, display the help guide.
+      #       usage "main", "\nError: Command Not Found: #{argv[1]} \n"
 
       else
         # When the command cannot be identified, display the help guide.

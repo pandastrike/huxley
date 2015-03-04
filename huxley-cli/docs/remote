@@ -1,0 +1,9 @@
+--------------------------------------------
+Usage: huxley remote [command] [name]
+--------------------------------------------
+Follow any command with "help" for more information.
+
+This sub-command allows you to manipulate githook scripts on the cluster of your choice.
+
+add       Place a githook on a targeted cluster.
+passive   Place arbitrary data on a targeted cluster.  Avoids deployment cascade.
