@@ -4,6 +4,7 @@
 # PandaStrike Libraries
 {Memory} = require "pirate"               # database adapter
 key_forge = require "key-forge"           # cryptography
+panda_config = require "panda-config"
 
 # Third Party Libraries
 async = (require "when/generator").lift   # promise library

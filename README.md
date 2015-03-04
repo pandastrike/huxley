@@ -13,14 +13,20 @@ We encourage you to learn more abut Huxley through its documentation. Where you 
 - **What:** If you'd like to know what gets constructed when you build a Huxley cluster, check out [cluster-architecture.md][2].
 - **Why:** We started this project because we see that modern web development needs a new model, a new way of thinking about the problem.  To see how Huxley's approach, checkout [huxley-model.md][3].
 - **How:** The remainder of this document is dedicated to the user experience and how you accomplish what has been described.
----
+
 
 # Quick Start
 ## Requirements
-Before we get started, you should know that Huxley actually has two parts, a CLI and an API.  The CLI accepts simple user commands and fills in the gaps for you with context it has stored.  The API holds a multitude of other components and does cool things on your behalf, like interfacing with your cloud provider and your cluster.  The API server must be online, but if someone on your team already has it setup, you can skip to the [CLI tutorial][4].
+Before we get started, you should know that Huxley actually has two parts, a CLI and an API.  The API holds a multitude of components and does cool things on your behalf, like interfacing with your cloud provider and your cluster.  The CLI accepts simple user commands and prepares a fully-formed (and sometimes complex) configuration with context it has stored.  Then it hits the API server with this request and asks it to act.  Therefore, to use Huxley, an API server must be running somewhere.  You have three options:
+
+1. You can use Panda Strike's API server that we have running for your convenience at `api.huxley.pandastrike.com`
+2. You can use an API server that someone else you know already has setup
+3. You can launch your own API server.
+
+If (1) or (2) describe your situation, you can skip directly to the [CLI tutorial][4].
 <br>
 <br>
-Both the CLI and API require the ES6 technologies included in Node 0.12+ and CoffeeScript 1.9+.
+**Please Note:** that both the CLI and API require the ES6 technologies included in Node 0.12+ and CoffeeScript 1.9+.  Tutorials in the next sections assume you have the following installed.
 ```shell
 git clone https://github.com/creationix/nvm.git ~/.nvm
 source ~/.nvm/nvm.sh && nvm install 0.12
@@ -29,12 +35,17 @@ npm install -g coffee-script
 
 ## API Server
 ### Installation
-The Huxley API server is easily installed via npm.  You can run this locally on your machine, in a Docker container, or on a cloud instance.
+The Huxley API server is easily installed via npm.  You can run the server locally on your machine, in a Docker container, or on a cloud instance.
+
+There are a couple prerequisites.
+
+
+Now, install the API server and activate.
 ```shell
 npm install pandastrike/huxley
 coffee --nodejs --harmony huxley/huxley-api/src/index.coffee
 ```
-By default, the API server responds to HTTP requests on port 8080.  Wherever you end up running the API server, you'll need to point your CLI tool at it (see below).  So remember its URL and share it with your team.
+By default, the API server responds to HTTP requests on port 8080.  Wherever you end up running the API server, you'll need to point your CLI tool at it (see below).  So remember the server's URL and share it with your team.
 
 ## CLI Tool
 ### Installation

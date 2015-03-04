@@ -24,6 +24,7 @@
     "jsck": "^0.2.1",
     "key-forge": "^1.0.0-beta-01",
     "panda-cluster": "git://github.com/pandastrike/panda-cluster.git",
+    "panda-config": "^1.0.0-alpha-02",
     "panda-hook": "git://github.com/pandastrike/panda-hook",
     "routington": "^1.0.2",
     "shred": "^1.1.0-alpha-03",
