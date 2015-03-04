@@ -4,7 +4,7 @@
 # PandaStrike Libraries
 {Memory} = require "pirate"               # database adapter
 key_forge = require "key-forge"           # cryptography
-panda_config = require "panda-config"     # config file reading
+{read} = require "fairmont"               # utils and functional helper library
 
 # Third Party Libraries
 async = (require "when/generator").lift   # promise library
@@ -24,8 +24,9 @@ adapter = Memory.Adapter.make()
 # This creates the random authorization token associated with a given user.
 make_key = () -> key_forge.randomKey 16, "base64url"
 
-# "Magic Number" placement of Huxley's public master SSH key. Temporary measure.
-public_master_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDnWoZ69Bg023inDWveGiuraJQ2icamdTHutqwGogtaJJh4kdnTJL6y8OmmL5YtxoKbrY9pdUpwTrlF98XNFas8ysvvZZBKTWWI1jAMqLiwd4yhdeYcWfrIRtrgA/nVLNShoFi3866DruZ57/atlYVk/U3N9dz3N9m1enfhsKp39gM3X9hBDGJbNIwXZU/FDTCtTMhkL4mbB2YbFxRriq5xu6egvbyPySwuAeRHFEypg1tQS7CmYoIlfFu4LvElJ1lkpD/eBntaocsv78QMkgeXCIMgNK2MHTwji67nwYu1hxlqTWMLkb4bxoYqCFMk9X8fOg4ExSoOErGhVvTi4me/ david@pandastrike.com"
+# Temporary measure.  Read in the master SSH public key from a file in this code's
+# path.  The key gets placed on every cluster this server creates.
+get_master_key = async () -> yield read "#{__dirname}/huxley_master.pub"
 
 #===============================================================================
 # Module Definition
@@ -60,7 +61,7 @@ module.exports = async ->
         cluster_res = yield clusters.put cluster_id, cluster_entry
 
         # Add Huxley master key to the list of user keys.
-        data.public_keys.push public_master_key
+        data.public_keys.push yield get_master_key()
 
         # Create a CoreOS cluster using panda-cluster
         pandacluster.create_cluster data
