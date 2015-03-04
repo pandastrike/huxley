@@ -18,7 +18,7 @@ http = require "http"
 {processor} = require "pbx"
 
 # Third Party Libraries
-{exec} = require "shelljs"
+{shell} = require "fairmont"
 {promise} = require "when"
 {call} = require "when/generator"
 
@@ -32,24 +32,17 @@ api = require "./api"
 # Address where the server is listening for requests.
 api.base_url = "http://localhost:8080"
 
-# ShellJS's "exec" command can run non-blocking, so we wrap it here with a promise to use with
-# generators.  Future iterations should include error handling refinements here.
-execute = (command) ->
-  promise (resolve, reject) ->
-    exec command, (code, output) ->
-      resolve output
-
 #===============================================================================
 # Server Spinup
 #===============================================================================
 call ->
   # Generate an SSH keypair that will serve as the API's master key.
   command = "ssh-keygen -t rsa -C 'huxley_api_master' -N '' -f huxley_master"
-  yield execute command
+  yield shell command
 
   # Store the public key in the src directory so handlers.coffee may find it.
   command = "mv #{process.cwd()}/huxley_master.pub #{__dirname}/."
-  yield execute command
+  yield shell command
 
   # Store the private key in the $HOME directory so it hopefully remains safe.
   command =
@@ -60,11 +53,11 @@ call ->
     "mkdir #{process.env.HOME}/.huxley_ssh; " +
     "mv #{process.cwd()}/huxley_master #{process.env.HOME}/.huxley_ssh/.; " +
     "chmod 400 #{process.env.HOME}/.huxley_ssh/huxley_master"
-  yield execute command
+  yield shell command
 
   # Add the private key to this machine's ssh-agent identity.
   command = "ssh-add #{process.env.HOME}/.huxley_ssh/huxley_master"
-  yield execute command
+  yield shell command
 
   # Finally, spinup the server.
   http

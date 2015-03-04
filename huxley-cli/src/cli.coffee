@@ -14,7 +14,7 @@ fs = require "fs"
 
 panda_config = require "panda-config"           # data file parsing
 Configurator = require "panda-config"           # -----------------
-{read, shuffle} = require "fairmont"            # utility functions
+{read, shuffle, shell} = require "fairmont"     # utility functions
 {parse} = require "c50n"                        # CSON parsing (temp)
 {simple_render} = require "./templatize"
 
@@ -23,7 +23,6 @@ Configurator = require "panda-config"           # -----------------
 {promise} = require "when"                 # promise libraries
 {call} = require "when/generator"          # -----------------
 async = (require "when/generator").lift    # -----------------
-{exec} = require "shelljs"                 # command-line access
 prompt = require "prompt"                  # interviewer generator
 
 # Huxley Components
@@ -52,14 +51,6 @@ mkdir_idempt = (path) ->
     fs.mkdirSync path
   else
     console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
-
-
-# ShellJS's "exec" command can run non-blocking, so we wrap it here with a promise to use with
-# generators.  Future iterations will probably include error handling refinements here.
-execute = (command) ->
-  promise (resolve, reject) ->
-    exec command, (code, output) ->
-      resolve output
 
 
 # copy file
@@ -334,8 +325,8 @@ add_remote = async (argv) ->
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.
-  yield execute "git remote rm  #{argv[0]}"
-  yield execute "git remote add #{argv[0]} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
+  yield shell "git remote rm  #{argv[0]}"
+  yield shell "git remote add #{argv[0]} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
 
   return options
 
@@ -365,11 +356,11 @@ passive_remote = async (argv) ->
     "/usr/bin/git init --bare \n " +
     "EOF"
 
-  yield execute command
+  yield shell command
 
   # Next, we will add this repository to the user's git remotes.  Allow "remote rm" to fail if neccessary, so do it separately.
-  yield execute "git remote rm  #{argv[0]}"
-  yield execute "git remote add #{argv[0]} ssh://root@#{argv[0]}.#{config.public_domain}:3000/root/passive/#{config.repo_name}.git"
+  yield shell "git remote rm  #{argv[0]}"
+  yield shell "git remote add #{argv[0]} ssh://root@#{argv[0]}.#{config.public_domain}:3000/root/passive/#{config.repo_name}.git"
 
   # Because this does not cause a deployment, we can actually go ahead and push the
   # local repository to the passive remote. Initialize a git repo in the executable
@@ -381,7 +372,7 @@ passive_remote = async (argv) ->
     "git commit -m 'Repo commited by Huxley to place on cluster.'; " +
     "git push #{config.repo_name} master"
 
-  yield execute command
+  yield shell command
 
 
 # This function prepares the "options" object to ask the API server to remove a githook
@@ -400,7 +391,7 @@ rm_remote = async (argv) ->
 
   # Add a git remote alias using the cluster name. These are separated because the first
   # command is allowed to fail.
-  yield execute "git remote rm  #{argv[0]}"
+  yield shell "git remote rm  #{argv[0]}"
 
   return options
 #===============================================================================
