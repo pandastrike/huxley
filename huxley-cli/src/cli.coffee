@@ -389,8 +389,7 @@ rm_remote = async (argv) ->
     secret_token: config.huxley.secret_token
     email: config.huxley.email
 
-  # Add a git remote alias using the cluster name. These are separated because the first
-  # command is allowed to fail.
+  # Remove a git remote alias using the cluster name. T
   yield shell "git remote rm  #{argv[0]}"
 
   return options
@@ -490,7 +489,8 @@ call ->
           when "passive"
             yield passive_remote argv[2..]
           when "rm"
-            console.log "That feature is not available."
+            options = yield rm_remote argv[2..]
+            res = yield api.rm_remote options
           else
             # When the command cannot be identified, display the help guide.
             usage "remote", "\nError: Command Not Found: #{argv[1]} \n"

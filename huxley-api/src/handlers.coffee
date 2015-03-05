@@ -124,7 +124,11 @@ module.exports = async ->
   remote:
 
     # This function
-    delete: (spec) ->
+    delete: async (spec) ->
+      {respond, url, data} = spec
+      # TODO validation
+      pandahook.destroy spec
+      respond 201, "remote repository deleted. git alias removed."
 
   users:
 
