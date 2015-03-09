@@ -15,10 +15,11 @@
 http = require "http"
 
 # PandaStrike Libraries
-{processor} = require "pbx"
+{shell} = require "fairmont"              # utility library
+{processor} = require "pbx"               # API library
 
 # Third Party Libraries
-{shell} = require "fairmont"
+async = (require "when/generator").lift   # promise library
 {promise} = require "when"
 {call} = require "when/generator"
 
@@ -32,10 +33,10 @@ api = require "./api"
 # Address where the server is listening for requests.
 api.base_url = "http://localhost:8080"
 
-#===============================================================================
-# Server Spinup
-#===============================================================================
-call ->
+# This function allows the server to generate its own SSH keypair.  The private key
+# is safely placed in the $HOME directory and the public key is made accessable
+# to "handlers.coffee" so it can be put on every cluster for access.
+generate_keypair = async () ->
   # Generate an SSH keypair that will serve as the API's master key.
   command = "ssh-keygen -t rsa -C 'huxley_api_master' -N '' -f huxley_master"
   yield shell command
@@ -59,7 +60,18 @@ call ->
   command = "ssh-add #{process.env.HOME}/.huxley_ssh/huxley_master"
   yield shell command
 
-  # Finally, spinup the server.
+#===============================================================================
+# Server Spinup
+#===============================================================================
+call ->
+  # Chop off the argument array so that only the useful arguments remain.
+  argv = process.argv[2..]
+
+  # By defualt the server generates its own SSH key.  If we place "restart" after
+  # the startup command, the user can ask the server to reuse whatever keys are in place.
+  yield generate_keypair()  unless argv.length != 0 && argv[0] == "restart"
+
+  # Spinup the server.
   http
   .createServer yield (processor api, initialize)
   .listen 8080, () -> console.log "listening on 8080"

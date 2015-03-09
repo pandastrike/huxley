@@ -1,5 +1,5 @@
 -----------------------------------------------------------------
-Usage: huxley cluster wait [name]
+Usage: huxley cluster poll [name]
 -----------------------------------------------------------------
 Follow any command with "help" for more information.
 

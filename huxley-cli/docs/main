@@ -6,12 +6,12 @@ Follow any command with "help" for more information.
 A tool to manage applications on CoreOS clusters.
 
 Commands:
-init          Generates the basic files Huxley needs to function and adds them the application's repository.
-
 cluster
   create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
   delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
-  wait        Polls cluster status until creation is successful.
+  poll        Polls cluster status until creation is successful.
+
+init          Generates the basic files Huxley needs to function and adds them the application's repository.
 
 mixin         Adds a Huxley mixin to the application's "launch/" directory.  Includes template Dockerfile and CoreOS unit file (*.service)
 
