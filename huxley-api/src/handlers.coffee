@@ -51,16 +51,27 @@ module.exports = async ->
   #-------------------------------------------------------
 
   clusters:
-    create: async ({respond, url, data}) ->
+    create: async (request) ->
+      {respond, data} = request
       data = yield data
+      # TODO: validation (see below).
+
+      # Create a record to be stored in the server's database.
+      record =
+        aws: data.aws
+        cluster_name: data.cluster_name
+        region: data.region             if data.region?
+
+      # Store the record using a unique token as the key.
       cluster_id = make_key()
+      clusters.put cluster_id, record
 
       # Add Huxley master key to the list of user keys.
       data.public_keys.push yield get_master_key()
 
       # Create a CoreOS cluster using panda-cluster
       pandacluster.create_cluster data
-      respond 201, "", {location: (url "cluster", {cluster_id})}
+      respond 201, "Cluster creation underway.", {cluster_id: cluster_id}
 
       # Related to authorization
       #-----------------------------------------
@@ -78,18 +89,37 @@ module.exports = async ->
       #   respond 401, "invalid email or token"
 
   cluster:
-    delete: async (spec) ->
-      {respond, url, data} = spec
+    delete: async (request) ->
+      {respond, match: {path: {cluster_id}}} = request
       # TODO: validation (see below).
-      pandacluster.delete_cluster yield data
-      respond 201, "Cluster deletion underway."
+
+      # Lookup info about this remote using its ID.
+      cluster = yield clusters.get yield cluster_id
+
+      # Use panda-cluster to delete the cluster.
+      if cluster?
+        pandacluster.delete_cluster cluster
+        respond 200, "Cluster deletion underway."
+      else
+        respond 404, "Unknown cluster ID."
 
 
-    get: async (spec) ->
-      {respond, url, data} = spec
+    get: async (request) ->
+      {respond, match: {path: {cluster_id}}} = request
       # TODO: validation (see below).
-      result = pandacluster.get_cluster_status data
-      respond 200, "", {cluster_status: yield result}
+
+      # Lookup info about this remote using its ID.
+      cluster = yield clusters.get yield cluster_id
+
+      # Use panda-cluster to detect cluster status.
+      if cluster?
+        result = yield pandacluster.get_cluster_status cluster
+        if result
+          respond 200, {cluster_status: "The cluster is confirmed to be online and ready."}
+        else
+          respond 200, {cluster_status: "Cluster formation is underway"}
+      else
+        respond 404, "Unknown cluster ID."
 
 
       #========================================
@@ -172,7 +202,7 @@ module.exports = async ->
       # Lookup info about this remote using its ID.
       remote = yield remotes.get remote_id
 
-      # Use pandahook to delete the remote repository.
+      # Use panda-hook to delete the remote repository.
       console.log remote
       if remote?
         pandahook.destroy remote

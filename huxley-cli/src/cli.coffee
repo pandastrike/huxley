@@ -14,9 +14,8 @@ fs = require "fs"
 
 # Panda Strike Libraries
 Configurator = require "panda-config"           # data file parsing
-{parse} = require "c50n"                        # CSON parsing (temp)
-{read, shuffle, shell, merge, partial,
- map, pluck} =
+{read, shell, merge, partial,
+ map, pluck, sleep} =
                     require "fairmont"          # utility functions
 
 
@@ -42,11 +41,6 @@ catch_fail = (f) ->
     f()
   catch e
     throw e
-
-# This function selects and returns a random element from an input array.
-select_random = (list) ->
-  list = shuffle list
-  return list[0]
 
 # Output an Info Blurb and optional message.
 usage = async (entry, message) ->
@@ -222,67 +216,45 @@ create_cluster = async (argv) ->
   if argv[0] == "help" || argv[0] == "-h"
     yield usage "cluster_create"
 
-
   # Start by reading configuration data from the local config files.
-  {config} = yield pull_configuration()
+  {config, home_config} = yield pull_configuration()
 
-  # Did the user input a cluster name?
-  if argv.length == 1
-    # The user gave us a name.  Use it.
-    cluster_name = argv[0]
-  else
-    # The user didn't give us anything.  Generate a cluster name from our list of ajectives and nouns.
-    {adjectives, nouns} = parse( read( resolve( __dirname, "names.cson")))
-    cluster_name = "#{select_random(adjectives)}-#{select_random(nouns)}"
+  # Check to see if this cluster has already been registered in the API.
+  yield config_helpers.check_create_cluster config, argv
 
-  # Build "options" object for panda-cluster's create function.
-  options =
-    # Required
-    aws: config.aws
-    key_name: config.aws.key_name
-    availability_zone: config.aws.availability_zone
-    cluster_name: cluster_name
-    public_domain: config.public_domain
-    private_domain: "#{cluster_name}.cluster"
+  # Now use this raw configuration as context to build an "options" object for panda-hook.
+  options = yield config_helpers.build_create_cluster config, argv
 
-    # Optional
-    channel: config.channel                   || 'stable'
-    cluster_size: config.cluster_size         || 3
-    instance_type: config.instance_type       || "m1.medium"
-    public_keys: config.public_keys           || []
-    region: config.region                     if config.region?
-    formation_service_templates:
-            config.extra_storage              || true
-    spot_price: config.spot_price             if config.spot_price?
-    virtualization: config.virtualization     || "pv"
+  # With our object built, call the Huxley API.
+  response = yield api.create_cluster options
 
-    # Huxley Access
-    url: config.huxley.url
-    secret_token: config.huxley.secret_token
-    email: config.huxley.email
+  # Save the cluster ID to the root-level configuration.
+  yield config_helpers.update_create_cluster home_config, options, response
 
-  return options
 
 # This function prepares the "options" object to ask the API server to delete a
 # CoreOS cluster using your AWS credentials.
 delete_cluster = async (argv) ->
-  # Detect if we should provide a help blurb.
-  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
-    yield usage "cluster_delete"
+  catch_fail ->
+    # Detect if we should provide a help blurb.
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+      yield usage "cluster_delete"
 
-  # Start by reading configuration data from the local config files.
-  {config} = yield pull_configuration()
+    # Start by reading configuration data from the local config files.
+    {config, home_config} = yield pull_configuration()
 
-  # Now use this raw configuration as context to build an "options" object for panda-cluster.
-  options =
-    # Required
-    aws: config.aws
-    cluster_name: cluster_name
+    # Check to see if this cluster is registered in the API. We cannot delete what does not exist.
+    yield config_helpers.check_delete_cluster config, argv
 
-    # Optional
-    region: config.region                     if config.region?
+    # Now use this raw configuration as context to build an "options" object for panda-cluster.
+    options = yield config_helpers.build_delete_cluster config, argv
 
-  return options
+    # With our object built, call the Huxley API.
+    yield api.delete_cluster options
+
+    # Save the deletion to the root-level configuration.
+    yield config_helpers.update_delete_cluster home_config, argv
+
 
 # This function prepares the "options" object to ask the API server to poll AWS
 # about the status of your cluster.
@@ -294,16 +266,15 @@ poll_cluster = async (argv) ->
   # Start by reading configuration data from the local config files.
   {config} = yield pull_configuration()
 
+  # Check to see if this cluster is registered in the API. We cannot delete what does not exist.
+  yield config_helpers.check_poll_cluster config, argv
+
   # Now use this raw configuration as context to build an "options" object for panda-cluster.
-  options =
-    # Required
-    aws: config.aws
-    cluster_name: cluster_name
+  options = yield config_helpers.build_poll_cluster config, argv
 
-    # Optional
-    region: config.region                     if config.region?
+  # With our object built, call the Huxley API.
+  yield api.poll_cluster options
 
-  return options
 
 
 # This function prepares the "options" object to ask the API server to place a githook
@@ -400,14 +371,11 @@ call ->
       when "cluster"
         switch argv[1]
           when "create"
-            options = yield create_cluster argv[2..]
-            res = yield api.create_cluster options
+            yield create_cluster argv[2..]
           when "delete"
-            opitions = yield delete_cluster argv[2..]
-            res = yield api.delete_cluster options
+            yield delete_cluster argv[2..]
           when "poll"
-            options = yield poll_cluster
-            res = yield api.poll_cluster options
+            yield poll_cluster argv[2..]
           else
             # When the command cannot be identified, display the help guide.
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"

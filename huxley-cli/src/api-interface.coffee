@@ -1,3 +1,6 @@
+# This is the client's interface to the Huxley API.  Objects are transported from
+# here to the server and the results are interpreted.  The interface functions
+# are grouped based on which resource they affect.
 #===============================================================================
 # Modules
 #===============================================================================
@@ -30,56 +33,58 @@ build_error = (message, value) ->
 #===============================================================================
 module.exports =
 
-  #create_cluster: async ({cluster_name, email, secret_token, url}) ->
+  #--------------------------------
+  # Cluster
+  #--------------------------------
   create_cluster: async (spec) ->
-    {url} = spec
-
-    api = yield discover url
-    clusters = api.clusters
-
-    {response: {headers: {location}}}  = yield clusters.create spec
-    console.log "*****Created cluster ID: ", location
+    try
+      api = yield discover spec.url
+      clusters = api.clusters
+      {response: {headers: {cluster_id}}}  = yield clusters.create spec
+      console.log "*****Creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
+      return {cluster_id: cluster_id}
+    catch error
+      throw build_error "Unable to construct Huxley cluster.", error
 
   delete_cluster: async (spec) ->
-    {url} = spec
-
-    api = yield discover url
-    cluster = api.cluster
-    result = yield cluster.delete spec
-    console.log result
+    try
+      api = yield discover spec.url
+      cluster = api.cluster spec.cluster_id
+      yield cluster.delete()
+      console.log "****Deletion In Progress."
+    catch error
+      throw build_error "Unable to delete Huxley cluster.", error
 
   poll_cluster: async (spec) ->
-    {url} = spec
-
-    api = yield discover url
-    cluster = api.cluster
+    api = yield discover spec.url
+    cluster = api.cluster spec.cluster_id
     while true
-      response = yield cluster.get spec
-      {cluster_status} = yield response
-      console.log "*****Cluster status: ", cluster_status.data
-      if cluster_status.message == "The cluster is confirmed to be online and ready."
-        return cluster_status # The cluster formation complete.
+      response = yield cluster.get()
+      data = yield response.data
+      console.log "*****Cluster status: ", data.cluster_status
+      if data.cluster_status == "The cluster is confirmed to be online and ready."
+        return data.cluster_status # The cluster formation complete.
       else
         yield sleep 5000  # Not complete, keep going.
 
+
+  #--------------------------------
+  # Remote
+  #--------------------------------
   add_remote: async (spec) ->
     try
-      {url} = spec
-      api = yield discover url
+      api = yield discover spec.url
       remotes = api.remotes
       {response: {headers: {remote_id}}}  = yield remotes.create spec
       console.log "*****Created githook ID: ", remote_id
-      return {
-        remote_id: remote_id
-      }
+      return {remote_id: remote_id}
 
     catch error
       throw build_error "Unable to install remote githook.", error
 
   rm_remote: async (spec) ->
     try
-      {url} = spec
-      api = yield discover url
+      api = yield discover spec.url
       remote = api.remote spec.remote_id
       result = yield remote.delete()
       console.log yield result.data
