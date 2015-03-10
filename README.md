@@ -39,17 +39,11 @@ The Huxley API server is easily installed.  You can run the server locally on yo
 
 Now, install the API server and activate.
 ```shell
-# Activate your ssh-agent.
-eval $(ssh-agent)
-
 # Pull down the huxley repository and install dependencies.
 git clone https://github.com/pandastrike/huxley.git
 cd huxley/huxley-api
 npm install
-
-# Activate the server.  Just beforehand, this code generates a unique SSH keypair and
-# adds it to your agent's identity.  This gives your API access to clusters for configuration.
-coffee --nodejs --harmony src/server.coffee
+npm start
 ```
 By default, the API server responds to HTTP requests on port 8080.  Wherever you end up running the API server, you'll need to point your CLI tool at it (see below).  So remember the server's URL and share it with your team.
 
