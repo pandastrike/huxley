@@ -213,7 +213,7 @@ init_mixin = (component_name) ->
 # CoreOS cluster using your AWS credentials.
 create_cluster = async (argv) ->
   # Detect if we should provide a help blurb.
-  if argv[0] == "help" || argv[0] == "-h"
+  if argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
     yield usage "cluster_create"
 
   # Start by reading configuration data from the local config files.
@@ -237,7 +237,7 @@ create_cluster = async (argv) ->
 delete_cluster = async (argv) ->
   catch_fail ->
     # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
       yield usage "cluster_delete"
 
     # Start by reading configuration data from the local config files.
@@ -260,7 +260,7 @@ delete_cluster = async (argv) ->
 # about the status of your cluster.
 poll_cluster = async (argv) ->
   # Detect if we should provide a help blurb.
-  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+  if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
     yield usage "cluster_poll"
 
   # Start by reading configuration data from the local config files.
@@ -282,7 +282,7 @@ poll_cluster = async (argv) ->
 add_remote = async (argv) ->
   catch_fail ->
     # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
       yield usage "remote_add"
 
     # Start by reading configuration data from the local config files.
@@ -312,7 +312,7 @@ add_remote = async (argv) ->
 passive_remote = async (argv) ->
   catch_fail ->
     # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
       yield usage "remote_passive"
 
     # Start by reading configuration data from the local config files.
@@ -327,7 +327,7 @@ passive_remote = async (argv) ->
 rm_remote = async (argv) ->
   catch_fail ->
     # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h"
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
       yield usage "remote_passive"
 
     # Start by reading configuration data from the local config files.
@@ -359,7 +359,7 @@ call ->
   argv = process.argv[2..]
 
   # Deliver an info blurb if neccessary.
-  if argv.length == 0 || argv[0] == "-h" || argv[0] == "help"
+  if argv.length == 0 || argv[0] == "-h" || argv[0] == "--help" || argv[0] == "help"
     yield usage "main"
 
   # Now, look for the specified sub-command, assemble a configuration object, and hit the API.
