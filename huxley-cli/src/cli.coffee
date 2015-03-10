@@ -175,9 +175,15 @@ append_file = async (from_path, from_filename, destination_path, destination_fil
     configuration.data.services[from_filename] = from_config
   configuration.save()
 
+run_interview = async (questions) ->
+  res = yield prompt_wrapper questions
+
 # init huxley
-init = ->
+init = async ->
   # create huxley.yaml
+  init_questions = c50n.parse "./interviews/init"
+  res = yield run_interviews init_questions
+  {app_name, cluster_name} = res
   huxley_path = join process.cwd(), "huxley.yaml"
   if fs.existsSync huxley_path
     console.log "Warning: Path #{huxley_path} already exists"
