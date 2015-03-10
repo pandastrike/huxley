@@ -15,7 +15,7 @@ fs = require "fs"
 # Panda Strike Libraries
 Configurator = require "panda-config"           # data file parsing
 {read, shell, merge, partial,
- map, pluck, sleep} =
+ map, sleep} =
                     require "fairmont"          # utility functions
 
 
@@ -70,36 +70,43 @@ force = async (f, args...) ->
 #     manifest file.  TODO: Currently, we only look in the execution path, so we require the
 #     CLI  to be run in the repo's root directory.  This should use an env variable like Node and git.
 pull_configuration = async () ->
+  catch_fail ->
+    if fs.existsSync join process.env.HOME, ".huxley"
+      # Load the configuration from the $HOME directory.
+      constructor = Configurator.make
+        prefix: "."
+        format: "yaml"
+        paths: [ process.env.HOME ]
 
-  # Load the configuration from the $HOME directory.
-  constructor = Configurator.make
-    prefix: "."
-    format: "yaml"
-    paths: [ process.env.HOME ]
+      home_config = constructor.make name: "huxley"
+      yield home_config.load()
+    else
+      throw "You must establish a dotfile configuration in your $HOME directory, ~/.huxley"
 
-  home_config = constructor.make name: "huxley"
-  yield home_config.load()
+    if fs.existsSync join process.cwd(), "huxley.yaml"
+      # Load the application level configuration.
+      constructor = Configurator.make
+        extension: ".yaml"
+        format: "yaml"
+        paths: [ process.cwd() ]
 
-  # Load the application level configuration.
-  constructor = Configurator.make
-    extension: ".yaml"
-    format: "yaml"
-    paths: [ process.cwd() ]
+      app_config = constructor.make name: "huxley"
+      yield app_config.load()
 
-  app_config = constructor.make name: "huxley"
-  yield app_config.load()
+    # Create an object that is the union of the two configurations.  Huxley observes
+    # configuration scope, so application configuration will override values set in the home-configuration.
+    if app_config?
+      config = merge home_config.data, app_config.data
+    else
+      config = home_config.data
 
-  # Create an object that is the union of the two configurations.  Huxley observes
-  # configuration scope, so application configuration will override values set in the home-configuration.
-  config = merge home_config.data, app_config.data
-
-  # Return an object we can use to make requests, but also return the panda-config instances
-  # in case we need to save something.
-  return {
-    config: config
-    home_config: home_config
-    app_config: app_config
-  }
+    # Return an object we can use to make requests, but also return the panda-config instances
+    # in case we need to save something.
+    return {
+      config: config
+      home_config: home_config
+      app_config: app_config    if app_config?
+    }
 
 
 #===============================================================================
