@@ -308,6 +308,7 @@ add_remote = async (argv) ->
     options = yield config_helpers.build_add_remote config, argv
 
     # With our object built, call the Huxley API.
+    console.log "Installing....  One moment."
     response = yield api.add_remote options
 
     # Now, add a "git remote" alias using the cluster name. The first command is allowed to fail.
