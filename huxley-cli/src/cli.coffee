@@ -148,10 +148,17 @@ copy_file = async (from_path, from_filename, destination_path, destination_filen
   configuration.data = from_config
   configuration.save()
 
-
+#  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
+#  #union_overwrite prompt_response, process.cwd(), "huxley"
+#  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
+#  #files = [ "#{component_name}.yaml" ]
+#  for file in files
+#    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
+#      fs.readFileSync(templates_dir_relative + "#{component_name}/#{file}")
 
 # huxley.yaml composition by copying template
 # FIXME: assuming .yaml for now
+
 append_file = async (from_path, from_filename, destination_path, destination_filename) ->
   from_configurator = Configurator.make
     paths: [ from_path ]
@@ -166,7 +173,12 @@ append_file = async (from_path, from_filename, destination_path, destination_fil
     extension: ".yaml"
   configuration = configurator.make name: destination_filename
   yield configuration.load()
-  configuration.data[from_filename] = from_config
+  #configuration.data.services[component_name] = from_config
+  if configuration.data.services?
+    configuration.data.services[from_filename] = from_config
+  else
+    configuration.data.services = {}
+    configuration.data.services[from_filename] = from_config
   configuration.save()
 
 union_overwrite = async (data, file_path, file_name) ->
@@ -198,11 +210,12 @@ init_mixin = (component_name) ->
 
   append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
   #union_overwrite prompt_response, process.cwd(), "huxley"
-  #files = [ "Dockerfile", "#{component_name}.service", "#{component_name}.yaml" ]
-  files = [ "#{component_name}.yaml" ]
+  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
   for file in files
+    template_read_path = templates_dir_relative + "#{component_name}/#{file}"
+    #console.log "****** template read path: ", template_read_path
     fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
-      fs.readFileSync(templates_dir_relative + "#{component_name}/#{file}")
+      fs.readFileSync(template_read_path)
 
 
 
@@ -381,17 +394,6 @@ call ->
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        # prompt_list = [
-        #   name: "project_name"
-        #   description: "Application name?"
-        #   default: process.cwd().split("/").pop()
-        # ,
-        #   name: "cluster_name"
-        #   description: "Cluster name?"
-        #   default: "test-cluster"
-        # ]
-        # res = yield prompt_wrapper prompt_list
-        # {project_name} = res
         copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
         # create /launch dir
         launch_dir = process.cwd() + "/launch"
@@ -401,31 +403,7 @@ call ->
         switch argv[1]
 
           when "node"
-            # prompt_list = [
-            #   name: "app_name"
-            #   description: "Service name?"
-            #   default: "node"
-            # ,
-            #   name: "start"
-            #   description: "Service start?"
-            #   default: "npm start"
-            # ,
-            #   name: "component"
-            #   description: "Component name?"
-            #   default: "web"
-            # ]
-            # res = yield prompt_wrapper prompt_list
-
             init_mixin "node"
-            yield render_template_wrapper
-              component_name: "node"
-              template_filename: "node.service.template"
-              output_filename: "node.service"
-            yield render_template_wrapper
-              component_name: "node"
-              template_filename: "Dockerfile.template"
-              output_filename: "Dockerfile"
-
           when "redis"
             # TODO: prompt for info, overwrite default
             init_mixin "redis"

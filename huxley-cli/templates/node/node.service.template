@@ -35,7 +35,7 @@ ExecStartPre=-/usr/bin/docker rm {{{service_name}}}
 # find the Dockerfile to launch a build.
 ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/{{{service_name}}}"
 ExecStartPre=/usr/bin/echo "Directory Checked"
-ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{app_name}}}.git /home/core/launch/{{{service_name}}}"
+ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{app_name}}} /home/core/launch/{{{service_name}}}"
 ExecStartPre=/usr/bin/docker build --tag="{{{service_name}}}_image" /home/core/launch/{{{service_name}}}/launch/{{{service_name}}}/.
 
 # Launch the container.
