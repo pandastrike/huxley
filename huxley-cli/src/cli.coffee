@@ -14,10 +14,9 @@ fs = require "fs"
 
 # Panda Strike Libraries
 Configurator = require "panda-config"           # data file parsing
-{read, shell, merge, partial,
- map, pluck, sleep} =
+{exists, map, merge, partial,
+pluck, read, shell, sleep, write} =
                     require "fairmont"          # utility functions
-
 
 # Third Party Libraries
 {promise} = require "when"                   #|promise library
@@ -118,19 +117,24 @@ prompt_wrapper = (prompt_list) ->
   new Promise (resolve, reject) ->
     prompt.get prompt_list, (err, res) ->
       if err
-        return rejecet err
+        return reject err
       resolve res
 
 # create directory if doesn't already exists
 mkdir_idempt = (path) ->
+  # FIXME: write separate test case check "exists"
+  #console.log "****exists path: ", (yield exists path)
+  #if !(yield exists path)
   if !fs.existsSync path
     fs.mkdirSync path
+    true
   else
-    console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
+    console.log "Warning: Path #{path} already exists.\n"
+    false
 
 # copy file
 copy_file = async (from_path, from_filename, destination_path, destination_filename) ->
-  fs.writeFileSync (destination_path + "/" + destination_filename + ".yaml"), ""
+  yield write (destination_path + "/" + destination_filename + ".yaml"), ""
 
   from_configurator = Configurator.make
     paths: [ from_path ]
@@ -148,17 +152,7 @@ copy_file = async (from_path, from_filename, destination_path, destination_filen
   configuration.data = from_config
   configuration.save()
 
-#  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
-#  #union_overwrite prompt_response, process.cwd(), "huxley"
-#  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
-#  #files = [ "#{component_name}.yaml" ]
-#  for file in files
-#    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
-#      fs.readFileSync(templates_dir_relative + "#{component_name}/#{file}")
-
-# huxley.yaml composition by copying template
-# FIXME: assuming .yaml for now
-
+# appends mixin configs to manifest
 append_file = async (from_path, from_filename, destination_path, destination_filename) ->
   from_configurator = Configurator.make
     paths: [ from_path ]
@@ -181,42 +175,29 @@ append_file = async (from_path, from_filename, destination_path, destination_fil
     configuration.data.services[from_filename] = from_config
   configuration.save()
 
-union_overwrite = async (data, file_path, file_name) ->
-  from_configurator = Configurator.make
-    paths: [ from_path ]
-    extension: ".yaml"
-  from_configuration = from_configurator.make name: from_filename
-  yield from_configuration.load()
-  from_config = from_configuration.data
-
-render_template_wrapper = async ({component_name, template_filename, output_filename}) ->
-  template_path = join templates_dir_relative, "#{component_name}/#{template_filename}"
-
-  # read in the default component.yaml (to make accessable as CSON)
-  configurator = Configurator.make
-    paths: [ process.cwd() ]
-    extension: ".yaml"
-  configuration = configurator.make name: "huxley"
-  yield configuration.load()
-
-  template = yield read resolve template_path
-
-  rendered_string = yield render template, configuration.data
-  yield write join( process.cwd(), "/launch/#{component_name}/#{output_filename}"), rendered_string
+# init huxley
+init = ->
+  # create huxley.yaml
+  huxley_path = join process.cwd(), "huxley.yaml"
+  if fs.existsSync huxley_path
+    console.log "Warning: Path #{huxley_path} already exists"
+  else
+    copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
+  # create /launch dir
+  launch_dir = process.cwd() + "/launch"
+  mkdir_idempt launch_dir
 
 # initialize mixin folders, copy over templates
-init_mixin = (component_name) ->
-  mkdir_idempt process.cwd() + "/launch/#{component_name}"
-
-  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
-  #union_overwrite prompt_response, process.cwd(), "huxley"
-  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
-  for file in files
-    template_read_path = templates_dir_relative + "#{component_name}/#{file}"
-    #console.log "****** template read path: ", template_read_path
-    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
-      fs.readFileSync(template_read_path)
-
+init_mixin = async (component_name) ->
+  if (mkdir_idempt process.cwd() + "/launch/#{component_name}")
+    append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
+    files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
+    for file in files
+      template_read_path = templates_dir_relative + "#{component_name}/#{file}"
+      yield write process.cwd() + "/launch/#{component_name}/#{file}",
+        fs.readFileSync(template_read_path)
+  else
+    console.log "Command failed, mixin folder #{component_name} already exists"
 
 
 #===============================================================================
@@ -394,16 +375,13 @@ call ->
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
-        # create /launch dir
-        launch_dir = process.cwd() + "/launch"
-        mkdir_idempt launch_dir
+        init()
 
       when "mixin"
         switch argv[1]
 
           when "node"
-            init_mixin "node"
+            yield init_mixin "node"
           when "redis"
             # TODO: prompt for info, overwrite default
             init_mixin "redis"
