@@ -1,13 +1,12 @@
 FROM base/archlinux
 MAINTAINER Peter Nguyen (peter@pandastrike.com)
 #===============================================================================
-# Panda-Cluster: Huxley API Server
+# Huxley: Huxley API Server
 #===============================================================================
-# This Dockerfile describes a hook-server tailored to act upon an app running
-# the CoreOS stack.  Hook-servers contain "bare" git repositories with one or
-# more githooks, scripts you trigger with git commands.
+# This Dockerfile describes a container running Huxley's API server.  By accepting
+# requests over HTTPS, the server makes calls into your cloud provider and cluster
+# to get things setup for you.
 
-# Hook-Server & CoreOS Requirements: (1) git, (2) fleetctl
 # Install requirements, a couple dependencies, and some tools that make life easier.
 RUN pacman -Syu --noconfirm
 RUN pacman-db-upgrade
@@ -26,8 +25,12 @@ RUN echo "Host *" >> root/.ssh/config                     && \
   echo "StrictHostKeyChecking no" >> root/.ssh/config     && \
   echo "UserKnownHostsFile=/dev/null" >> root/.ssh/config
 
-RUN git clone https://github.com/pandastrike/huxley.git
+# Pull the API's master SSH private key from the passive repo on the hook server.
+RUN git clone git://hook.splendid-shield.cluster:2001/passive/huxley-key.git
+RUN cp huxley-key/huxley /root/.ssh/. && chmod 400 /root/.ssh/huxley
+RUN rm -rf huxley-key
+
+# Pull the API server repo from the hook server and install.
+RUN git clone -b development/alpha-01 git://hook.splendid-shield.cluster:2001/repos/huxley.git
 RUN cd huxley/huxley-api && npm install
 RUN cd huxley/huxley-cli && npm install
-
-CMD coffee --nodejs --harmony huxley/huxley-api/huxley-api/index.coffee

@@ -1,0 +1,16 @@
+FROM pandastrike/arch_plus
+MAINTAINER Peter Nguyen (peter@pandastrike.com)
+#===============================================================================
+# Node.js
+#===============================================================================
+# This Dockerfile describes a Node.js web server.
+
+# Arch-Plus is a container with all this stuff installed to speed dev iterations.
+# However, when running production, uncomment these lines and get the latest.
+#RUN pacman -Syu --noconfirm
+#RUN pacman-db-upgrade
+#RUN pacman -S --noconfirm jre7-openjdk-headless wget vim tmux git nodejs
+#RUN npm install -g coffee-script
+
+# Pull in your source code.
+RUN git clone -b {{{branch_name}}} git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{app_name}}} {{{app_name}}}

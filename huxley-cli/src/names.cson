@@ -1,0 +1,15 @@
+adjectives: [
+  "threatening", "malicious", "elegant", "defeated", "cheap",
+  "venomous", "productive", "halting", "pastoral", "tranquil",
+  "fearless", "humdrum", "mellow", "splendid", "broad",
+  "nasty", "yellow", "wise", "sad", "ragged",
+  "combative", "dark", "auspicious", "outstanding", "ornery"
+]
+
+nouns:[
+  "panda", "apparel", "carpenter", "jacket", "surgeon",
+  "yacht", "chef", "ghost","night", "shovel",
+  "mimosa", "sled", "vault", "plains", "sphere",
+  "cube", "rhombus","star", "core", "shield",
+  "sword", "rhino", "sword", "vacation", "film"
+]

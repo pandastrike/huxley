@@ -1,0 +1,47 @@
+#===============================================================================
+# {{{service_name}}} - service file generated from Huxley's "node" mixin
+#===============================================================================
+
+[Unit]
+Description={{{service_name}}}
+# List any services that must be online before or wait untl after this service is activated.
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+
+ExecStartPre=/usr/bin/echo "========================"
+ExecStartPre=/usr/bin/echo "  New Service Starting"
+ExecStartPre=/usr/bin/echo "========================"
+
+# Display this service's IP addresses.
+EnvironmentFile=/etc/environment
+ExecStartPre=/usr/bin/echo "Public IP Address: ${COREOS_PUBLIC_IPV4}"
+ExecStartPre=/usr/bin/echo "Private IP Address: ${COREOS_PRIVATE_IPV4}"
+
+# Register this service with Sidekick Server.
+ExecStartPre=/usr/bin/echo "Registering Service with DNS.  This will take a moment..."
+ExecStartPre=/usr/bin/curl -XPOST kick.{{{cluster_name}}}.cluster:2000 -d '\
+  "hostname": "{{{service_name}}}.{{{cluster_name}}}.pandastrike.com",      \
+  "ip_address": "${COREOS_PUBLIC_IPV4}",  \
+  "port": "{{{port}}}",  \
+  "type": "A"'
+
+# Delete any old containers with this image.
+ExecStartPre=-/usr/bin/docker kill {{{service_name}}}
+ExecStartPre=-/usr/bin/docker rm {{{service_name}}}
+
+# Build the service's Docker container.  We clone the project repo from the hook-server and then
+# find the Dockerfile to launch a build.
+ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/{{{service_name}}}"
+ExecStartPre=/usr/bin/echo "Directory Checked"
+ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone -b {{{branch_name}}} git://hook.{{{cluster_name}}}.cluster:2001/repos/{{{app_name}}} /home/core/launch/{{{service_name}}}"
+ExecStartPre=/usr/bin/docker build --tag="{{{service_name}}}_image" /home/core/launch/{{{service_name}}}/launch/{{{service_name}}}/.
+
+# Launch the container.
+ExecStart=/usr/bin/docker run --name {{{service_name}}} -p {{{port}}}:80 \
+  {{{service_name}}}_image /bin/bash -c \
+  "cd {{{app_name}}} && npm start"
+
+[Install]
+WantedBy=multi-user.target

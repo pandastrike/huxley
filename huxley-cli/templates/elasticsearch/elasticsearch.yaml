@@ -1,0 +1,4 @@
+mixin: elasticsearch
+port: 80
+host: "192.0.0.1"
+

@@ -1,0 +1,6 @@
+-----------------------------------------------------------------
+Usage: huxley cluster poll [name]
+-----------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Polls the status of the specified cluster until creation is successful.
