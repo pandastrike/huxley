@@ -19,7 +19,7 @@ We encourage you to learn more abut Huxley through its documentation. Where you 
 ## Requirements
 Before we get started, you should know that Huxley actually has two parts, a CLI and an API.  The API holds a multitude of components and does cool things on your behalf, like interfacing with your cloud provider and your cluster.  The CLI accepts simple user commands and prepares a fully-formed (and sometimes complex) configuration with context it has stored.  Then it hits the API server with this request and asks it to act.  Therefore, to use Huxley, an API server must be running somewhere.  You have three options:
 
-1. You can use Panda Strike's API server that we have running for your convenience at `api.huxley.pandastrike.com`
+1. You can use Panda Strike's API server that we have running for your convenience at `huxley.pandastrike.com`
 2. You can use an API server that someone else you know already has setup
 3. You can launch your own API server.
 
@@ -32,6 +32,45 @@ git clone https://github.com/creationix/nvm.git ~/.nvm
 source ~/.nvm/nvm.sh && nvm install 0.12
 npm install -g coffee-script
 ```
+
+## CLI Tool
+### Installation
+The CLI tool is a globally installed npm package that yields a symlinked executable.
+```shell
+npm install -g huxley-cli
+```
+Next, you'll need to establish some configuration information.  Huxley stores reusable configuration data so you don't have to type the same things over and over.  You'll end up only needed to enter simple commands, while Huxley uses various config files as the context to fill in the gaps.
+
+The first thing to establish is your Huxley home config. Place a yaml file in your $HOME directory, `~/.huxley`.  You will be placing some sensitive information here, so we're going to make this clear:  
+
+>**NEVER Include this File in a Repository or Share this Information Publicly!!**
+
+<br>
+**.huxley**
+```yaml
+huxley:
+url: "http://huxley.pandastrike.com"    # Specify the API server location
+
+aws:
+id: MyAWSIdentity
+key: Password123
+region: us-west-1
+availability_zone: us-west-1c
+key_name: My-AWS-Key            # SSH key associated with your AWS account.
+
+public_keys:
+- List of public SSH keys
+- One key per line
+- Grants cluster access to listed users
+
+spot_price: 0.009
+public_domain: acme.com
+```
+
+### Command Guide
+The command-line tool is organized with respect to several resources.  To get the whole list of resources and commands available to the CLI, simply type `huxley` into the command-line.
+
+Please see [this example project][5] for an end-to-end walkthrough.
 
 ## API Server
 ### Installation
@@ -47,89 +86,10 @@ npm start
 ```
 By default, the API server responds to HTTP requests on port 8080.  Wherever you end up running the API server, you'll need to point your CLI tool at it (see below).  So remember the server's URL and share it with your team.
 
-## CLI Tool
-### Installation
-The CLI tool is a globally installed npm package that yields a symlinked executable.
-```shell
-git clone https://github.com/pandastrike/huxley.git
-npm install -g huxley/huxley-cli
-```
-Next, you'll need to establish some configuration information.  Huxley stores reusable configuration data so you don't have to type the same things over and over.  You'll end up only needed to enter simple commands, while Huxley uses various config files as the context to fill in the gaps.
-
-The first thing to establish is your Huxley home config. Place a yaml file in your $HOME directory, `~/.huxley`.  You will be placing some sensitive information here, so we're going to make this clear:  
-
->**NEVER Include this File in a Repository or Share this Information Publicly!!**
-
-<br>
-**.huxley**
-```yaml
-#==========
-# Required
-#==========
-huxley:
-  email: pat@acme.com
-  secret_token: Random_Token_Huxley_Gives_You
-  url: "http://myserver.acme.com:3000"  
-  # Fully formed URL pointing at the API server.
-  # YAML requires quotes if a colon is used in a string.
-
-aws:
-  id: My_AWS_ID
-  key: Password123
-  region: us-west-1
-  availability_zone: us-west-1c
-  key_name: Name-of-SSH-Key   # Name of a key you have associated with your AWS account, not the actual value.
-
-#==========
-# Optional
-#==========
-public_keys:
-  - List of public SSH keys
-  - Specify one key per line
-  - Grants cluster-wide access to whomever holds the paired private key.
-```
-
-### Command Guide
-The command-line tool is organized with respect to several resources.  To get the whole list of resources and commands available to the CLI, simply type `huxley` into the command-line.
-
-```
---------------------------------------------
-Usage: huxley RESOURCE [command] [name]
---------------------------------------------
-Follow any command with "help" for more information.
-
-A tool to manage applications on CoreOS clusters.
-
-Commands:
-init          Generates the basic files Huxley needs to function and adds them the application's repository.
-
-cluster
-  create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
-  delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
-  wait        Polls cluster status until creation is successful.
-
-mixin         Adds a Huxley mixin to the application's "launch/" directory.  Includes template Dockerfile and CoreOS unit file (*.service)
-
-remote
-  add       Place a githook on a targeted cluster.
-  passive   Place arbitrary data on a targeted cluster.  Avoids deployment cascade.
-```
-
-So, whenever you want to take an action on a resource, like a cluster, just name it before stating the command.
-
-```shell
-# To create a cluster named panda, specify "cluster" and then the "create" command.
-huxley cluster create panda
-```
-
-Please see [command-line-guide.md][5] for an end-to-end walkthrough.
-
-
-
 
 
 [1]:https://www.pandastrike.com/
 [2]:https://github.com/pandastrike/huxley/blob/feature/master/cluster-architecture.md
 [3]:https://github.com/pandastrike/huxley/blob/feature/master/huxley-model.md
 [4]:https://github.com/pandastrike/huxley#cli-tool
-[5]:https://github.com/pandastrike/huxley/blob/feature/master/command-line-guide.md
+[5]:https://github.com/pandastrike/vanilla.md
