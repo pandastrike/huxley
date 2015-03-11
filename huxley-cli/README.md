@@ -89,6 +89,6 @@ By default, the API server responds to HTTP requests on port 8080.  Wherever you
 
 
 [1]:https://www.pandastrike.com/
-[2]:https://github.com/pandastrike/panda-cluster/blob/feature/master/cluster-architecture.md
+[2]:https://github.com/pandastrike/panda-cluster/blob/master/cluster-architecture.md
 [3]:https://github.com/pandastrike/huxley/blob/feature/master/huxley-model.md
 [4]:https://github.com/pandastrike/vanilla
