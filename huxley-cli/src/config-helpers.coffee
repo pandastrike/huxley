@@ -183,6 +183,7 @@ module.exports =
   build_add_remote: async (config, argv) ->
     catch_fail ->
       return yield {
+        cluster_name: argv[0]
         cluster_address: "core@#{argv[0]}.#{config.public_domain}"
         repo_name: config.app_name
         hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"

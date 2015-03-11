@@ -188,7 +188,7 @@ module.exports = async ->
       remotes.put remote_id, record
 
       # Access panda-hook to create a githook and place it on the cluster.
-      pandahook.push data
+      yield pandahook.push data
       respond 201, "githook installed", {remote_id: remote_id}
 
 
@@ -205,7 +205,7 @@ module.exports = async ->
       # Use panda-hook to delete the remote repository.
       console.log remote
       if remote?
-        pandahook.destroy remote
+        yield pandahook.destroy remote
         respond 200, "remote repository deleted. git alias removed."
       else
         respond 404, "unknown remote repository ID."

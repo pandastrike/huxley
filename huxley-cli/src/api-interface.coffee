@@ -76,7 +76,7 @@ module.exports =
       api = yield discover spec.url
       remotes = api.remotes
       {response: {headers: {remote_id}}}  = yield remotes.create spec
-      console.log "*****Created githook ID: ", remote_id
+      console.log "*****Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
       return {remote_id: remote_id}
 
     catch error

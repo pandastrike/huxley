@@ -39,7 +39,8 @@ api.base_url = "http://localhost:8080"
 generate_keypair = async () ->
   # Generate an SSH keypair that will serve as the API's master key.
   command = "ssh-keygen -t rsa -C 'huxley_api_master' -N '' -f huxley_master"
-  yield shell command
+  {stdout} = yield shell command
+  console.log stdout
 
   # Store the public key in the src directory so handlers.coffee may find it.
   command = "mv #{process.cwd()}/huxley_master.pub #{__dirname}/."
@@ -74,4 +75,4 @@ call ->
   # Spinup the server.
   http
   .createServer yield (processor api, initialize)
-  .listen 8080, () -> console.log "listening on 8080"
+  .listen 8080, () -> console.log "Huxley API is online.  Listening on 8080."
