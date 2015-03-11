@@ -11,7 +11,7 @@ Huxley is a tool meant to manage the deployment of your application.  It launche
 We encourage you to learn more abut Huxley through its documentation. Where you begin depends on what you want to know:
 - **Who:** [Panda Strike][1] is a shop that specializes in providing both development and DevOps at scale.  Huxley represents the culmination of those skill sets.  We're committed to open source software and wish to foster a community to adopt, grow, and refine this technology.
 - **What:** If you'd like to know what gets constructed when you build a Huxley cluster, check out [cluster-architecture.md][2].
-- **Why:** We started this project because we see that modern web development needs a new model, a new way of thinking about the problem.  To see how Huxley's approach, checkout [huxley-model.md][3].
+- **Why:** We started this project because we see that modern web development needs a new model, a new way of thinking about the problem.  To see how Huxley's approach, checkout [huxley-model.md (Coming Soon)][3].
 - **How:** The remainder of this document is dedicated to the user experience and how you accomplish what has been described.
 
 
@@ -23,7 +23,7 @@ Before we get started, you should know that Huxley actually has two parts, a CLI
 2. You can use an API server that someone else you know already has setup
 3. You can launch your own API server.
 
-If (1) or (2) describe your situation, make sure you know the API server's address and then read the [CLI tutorial][4] next.
+If (1) or (2) describe your situation, make sure you know the API server's address and then read the *CLI tutorial* next.
 <br>
 <br>
 **Please Note:** that both the CLI and API require the ES6 technologies included in Node 0.12+ and CoffeeScript 1.9+.  Tutorials in the next sections assume you have the following installed.
@@ -49,19 +49,19 @@ The first thing to establish is your Huxley home config. Place a yaml file in yo
 **.huxley**
 ```yaml
 huxley:
-  url: "http://huxley.pandastrike.com"    # Specify the API server location
+url: "http://huxley.pandastrike.com"    # Specify the API server location
 
 aws:
-  id: MyAWSIdentity
-  key: Password123
-  region: us-west-1
-  availability_zone: us-west-1c
-  key_name: My-AWS-Key            # SSH key associated with your AWS account.
+id: MyAWSIdentity
+key: Password123
+region: us-west-1
+availability_zone: us-west-1c
+key_name: My-AWS-Key            # SSH key associated with your AWS account.
 
 public_keys:
-  - List of public SSH keys
-  - One key per line
-  - Grants cluster access to listed users
+- List of public SSH keys
+- One key per line
+- Grants cluster access to listed users
 
 spot_price: 0.009
 public_domain: acme.com
@@ -70,7 +70,7 @@ public_domain: acme.com
 ### Command Guide
 The command-line tool is organized with respect to several resources.  To get the whole list of resources and commands available to the CLI, simply type `huxley` into the command-line.
 
-Please see [this example project][5] for an end-to-end walkthrough.
+Please see [this example project][4] for an end-to-end walkthrough.
 
 ## API Server
 ### Installation
@@ -89,7 +89,6 @@ By default, the API server responds to HTTP requests on port 8080.  Wherever you
 
 
 [1]:https://www.pandastrike.com/
-[2]:https://github.com/pandastrike/huxley/blob/feature/master/cluster-architecture.md
+[2]:https://github.com/pandastrike/panda-cluster/blob/feature/master/cluster-architecture.md
 [3]:https://github.com/pandastrike/huxley/blob/feature/master/huxley-model.md
-[4]:https://github.com/pandastrike/huxley#cli-tool
-[5]:https://github.com/pandastrike/vanilla.md
+[4]:https://github.com/pandastrike/vanilla
