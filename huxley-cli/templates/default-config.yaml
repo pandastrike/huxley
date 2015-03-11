@@ -1,5 +1,1 @@
-app_name: donuts
-public_domain: acme.com
-cluster_name: test-cluster
-region: us-west-1
-spot_price: 0.009
+app_name: vanilla
