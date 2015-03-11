@@ -129,7 +129,7 @@ mkdir_idempt = (path) ->
     fs.mkdirSync path
     true
   else
-    console.log "Warning: Path #{path} already exists.\n"
+    console.log "Warning: #{path} already exists.\n"
     false
 
 # copy file
@@ -178,20 +178,37 @@ append_file = async (from_path, from_filename, destination_path, destination_fil
 run_interview = async (questions) ->
   res = yield prompt_wrapper questions
 
+merge_interview_to_file = async ({answers, write_path, write_filename}) ->
+  configurator = Configurator.make
+    paths: [ write_path ]
+    extension: ".yaml"
+  configuration = configurator.make name: destination_filename
+  yield configuration.load()
+  # merge arguments are added from left to right, meaning the right-most arg will override all previous
+  configuration.data = merge configuration.data, answers
+  console.log "*****configuration: ", configuration.data
+  configuration.save()
+
 # init huxley
 init = async ->
-  # create huxley.yaml
-  init_questions = c50n.parse "./interviews/init"
-  res = yield run_interviews init_questions
-  {app_name, cluster_name} = res
-  huxley_path = join process.cwd(), "huxley.yaml"
-  if fs.existsSync huxley_path
-    console.log "Warning: Path #{huxley_path} already exists"
-  else
-    copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
   # create /launch dir
   launch_dir = process.cwd() + "/launch"
   mkdir_idempt launch_dir
+  # create default huxley.yaml
+  huxley_path = join process.cwd(), "huxley.yaml"
+  if fs.existsSync huxley_path
+    console.log "Warning: #{huxley_path} already exists"
+  else
+    copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
+    # begin interviews
+    {questions} = require (join __dirname, "./interviews/init")
+    answers = yield run_interview questions
+    console.log answers
+    # overwrite default with interview answers
+    yield merge_interview_to_file
+      answers: answers
+      write_path: process.cwd()
+      write_filename: "huxley"
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
