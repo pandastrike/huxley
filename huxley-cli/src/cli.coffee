@@ -109,6 +109,14 @@ pull_configuration = async () ->
 
 
 #===============================================================================
+# User creation and deletion
+#===============================================================================
+create_user = async ->
+  {questions} = require (join __dirname, "./interviews/user")
+  answers = yield run_interview questions.create
+  console.log answers
+
+#===============================================================================
 # Templatizing - huxley "init" & "mixin"
 #===============================================================================
 # TODO: move to separate file
@@ -189,11 +197,10 @@ merge_interview_to_file = async ({answers, write_path, write_filename}) ->
   configurator = Configurator.make
     paths: [ write_path ]
     extension: ".yaml"
-  configuration = configurator.make name: destination_filename
+  configuration = configurator.make name: write_filename
   yield configuration.load()
   # merge arguments are added from left to right, meaning the right-most arg will override all previous
   configuration.data = merge configuration.data, answers
-  console.log "*****configuration: ", configuration.data
   configuration.save()
 
 # init huxley
@@ -392,6 +399,17 @@ call ->
 
   try
     switch argv[0]
+
+      when "user"
+        switch argv[1]
+          when "register"
+            yield create_user()
+          when "delete"
+            #yield delete_user()
+          else
+            # When the command cannot be identified, display the help guide.
+            #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
+            console.log "bad user command"
 
       when "cluster"
         switch argv[1]

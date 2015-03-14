@@ -41,7 +41,7 @@ ExecStartPre=/usr/bin/docker build --tag="{{{service_name}}}_image" /home/core/l
 # Launch the container.
 ExecStart=/usr/bin/docker run --name {{{service_name}}} -p {{{port}}}:80 \
   {{{service_name}}}_image /bin/bash -c \
-  "cd {{{app_name}}} && npm start"
+  "cd {{{app_name}}} && {{{start_command}}}"
 
 [Install]
 WantedBy=multi-user.target

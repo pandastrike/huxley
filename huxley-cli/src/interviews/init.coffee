@@ -9,5 +9,5 @@ module.exports =
     ,
       name: "cluster_name"
       description: "Cluster name?"
-      default: "test-cluster"
+      #default: "test-cluster"
     ]
