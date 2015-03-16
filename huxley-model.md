@@ -1,1 +1,0 @@
-# Huxley Model

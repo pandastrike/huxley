@@ -58,7 +58,7 @@ generate_keypair = async () ->
   yield shell command
 
   # Add the private key to this machine's ssh-agent identity.
-  command = "eval $(ssh-agent) ssh-add #{process.env.HOME}/.huxley_ssh/huxley_master"
+  command = "ssh-add #{process.env.HOME}/.huxley_ssh/huxley_master"
   yield shell command
 
 #===============================================================================
