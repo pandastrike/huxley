@@ -14,21 +14,12 @@
 
 module.exports =
 
-  # FIXME: missing public_keys, aws_id, aws_key
+  # TODO: if we store email in dotfile, consider defaulting
   # object, not function
-
   questions:
-    create:
-      [
-        name: "email"
-        description: "Email?"
-        required: true
-        #default: email
-      ]
-    delete:
-      [
-        name: "email"
-        description: "Email?"
-        required: true
-        #default: email
-      ]
+    [
+      name: "email"
+      description: "Email?"
+      required: true
+      #default: email
+    ]

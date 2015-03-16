@@ -111,10 +111,18 @@ pull_configuration = async () ->
 #===============================================================================
 # User creation and deletion
 #===============================================================================
-create_user = async ->
-  {questions} = require (join __dirname, "./interviews/user")
-  answers = yield run_interview questions.create
+create_user = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/user-create")
+  answers = yield run_interview questions
   console.log answers
+  config.user_details = answers
+  #yield api.create_user config
+
+delete_user = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/user-delete")
+  answers = yield run_interview questions
+  console.log answers
+  #yield api.delete_user answers
 
 #===============================================================================
 # Templatizing - huxley "init" & "mixin"
@@ -226,6 +234,9 @@ init = async ->
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
+  {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
+  answers = yield run_interview questions
+  console.log answers
   if (mkdir_idempt process.cwd() + "/launch/#{component_name}")
     append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
     files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
@@ -403,13 +414,13 @@ call ->
       when "user"
         switch argv[1]
           when "register"
-            yield create_user()
+            yield create_user config: argv[2..]
           when "delete"
-            #yield delete_user()
+            yield delete_user config: argv[2..]
           else
             # When the command cannot be identified, display the help guide.
             #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
-            console.log "bad user command"
+            console.log "Bad user command"
 
       when "cluster"
         switch argv[1]
@@ -424,7 +435,7 @@ call ->
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        init()
+        yield init()
 
       when "mixin"
         switch argv[1]
@@ -433,10 +444,10 @@ call ->
             yield init_mixin "node"
           when "redis"
             # TODO: prompt for info, overwrite default
-            init_mixin "redis"
+            yield init_mixin "redis"
           when "es" || "elasticsearch"
             # TODO: prompt for info, overwrite default
-            init_mixin "elasticsearch"
+            yield init_mixin "elasticsearch"
           else
             # When the mixin cannot be identified, display the help guide.
             yield usage "mixin", "\nError: Unknown Mixin: #{argv[1]} \n"
