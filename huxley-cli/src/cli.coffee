@@ -234,9 +234,13 @@ init = async ->
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
+
+  # begin interview
   {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
   answers = yield run_interview questions
   console.log answers
+
+  # if component directory doesn't already exist
   if (mkdir_idempt process.cwd() + "/launch/#{component_name}")
     append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
     files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
@@ -244,6 +248,11 @@ init_mixin = async (component_name) ->
       template_read_path = templates_dir_relative + "#{component_name}/#{file}"
       yield write process.cwd() + "/launch/#{component_name}/#{file}",
         fs.readFileSync(template_read_path)
+
+    yield merge_interview_to_file
+      answers: answers
+      write_path: join templates_dir_relative, "#{component_name}"
+      write_filename: "#{component_name}.yaml"
   else
     console.log "Command failed, mixin folder #{component_name} already exists"
 
@@ -255,11 +264,26 @@ init_mixin = async (component_name) ->
 # CoreOS cluster using your AWS credentials.
 create_cluster = async (argv) ->
   # Detect if we should provide a help blurb.
+
   if argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
     yield usage "cluster_create"
 
+  # If no cluster name specified in argv, will attempt interview
+  # Empty interview answer will use randomly generated name
+  if !argv[0]
+    {questions} = require (join __dirname, "./interviews/cluster-create")
+    {cluster_name, spot_price, public_domain} = yield run_interview questions
+    if cluster_name
+      argv[0] = cluster_name
+
   # Start by reading configuration data from the local config files.
   {config, home_config} = yield pull_configuration()
+
+  # Merge interview answers into defaults
+  if spot_price?
+    config = merge config, {spot_price}
+  if public_domain?
+    config = merge config, {public_domain}
 
   # Check to see if this cluster has already been registered in the API.
   yield config_helpers.check_create_cluster config, argv
@@ -267,11 +291,11 @@ create_cluster = async (argv) ->
   # Now use this raw configuration as context to build an "options" object for panda-hook.
   options = yield config_helpers.build_create_cluster config, argv
 
-  # With our object built, call the Huxley API.
-  response = yield api.create_cluster options
-
-  # Save the cluster ID to the root-level configuration.
-  yield config_helpers.update_create_cluster home_config, options, response
+#  # With our object built, call the Huxley API.
+#  response = yield api.create_cluster options
+#
+#  # Save the cluster ID to the root-level configuration.
+#  yield config_helpers.update_create_cluster home_config, options, response
 
 
 # This function prepares the "options" object to ask the API server to delete a
