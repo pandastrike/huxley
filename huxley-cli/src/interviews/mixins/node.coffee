@@ -4,7 +4,7 @@ module.exports =
   questions:
     [
       name: "service_name"
-      description: "What is the service name of this mixin?"
+      description: "What is the service name?"
       default: process.cwd().split("/").pop()
     ,
       name: "port"

@@ -111,15 +111,17 @@ pull_configuration = async () ->
 #===============================================================================
 # User creation and deletion
 #===============================================================================
-create_user = async ({config}) ->
-  {questions} = require (join __dirname, "./interviews/user-create")
+# TODO
+create_profile = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/profile-create")
   answers = yield run_interview questions
   console.log answers
   config.user_details = answers
   #yield api.create_user config
 
-delete_user = async ({config}) ->
-  {questions} = require (join __dirname, "./interviews/user-delete")
+# TODO
+rm_profile = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/profile-rm")
   answers = yield run_interview questions
   console.log answers
   #yield api.delete_user answers
@@ -208,8 +210,12 @@ merge_interview_to_file = async ({answers, write_path, write_filename}) ->
   configuration = configurator.make name: write_filename
   yield configuration.load()
   # merge arguments are added from left to right, meaning the right-most arg will override all previous
-  configuration.data = merge configuration.data, answers
-  configuration.save()
+  console.log "****answers: ", answers
+  #configuration.data = yield merge configuration.data, answers
+  configuration.data = "foobar"
+  console.log "****upated configuration data: ", configuration.data
+  yield configuration.save()
+  console.log configuration
 
 # init huxley
 init = async ->
@@ -222,19 +228,22 @@ init = async ->
     console.log "Warning: #{huxley_path} already exists"
   else
     copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
-    # begin interviews
-    {questions} = require (join __dirname, "./interviews/init")
-    answers = yield run_interview questions
-    console.log answers
-    # overwrite default with interview answers
+
+    folder_name = process.cwd().split("/").pop()
+    console.log folder_name
+    console.log process.cwd()
     yield merge_interview_to_file
-      answers: answers
+      answers: {app_name: folder_name}
       write_path: process.cwd()
       write_filename: "huxley"
+#    # begin interviews
+#    {questions} = require (join __dirname, "./interviews/init")
+#    answers = yield run_interview questions
+#    console.log answers
+#    # overwrite default with interview answers
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
-  console.log "node mixin"
 
   # begin interview
   {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
@@ -242,27 +251,30 @@ init_mixin = async (component_name) ->
   {service_name, port, start_command} = answers
   console.log answers
 
-  # if component directory doesn't already exist
+  # if service_name directory doesn't already exist
   service_dir = join process.cwd(), "/launch/#{service_name}"
   if (mkdir_idempt service_dir)
-    append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
     files = [
               { source: "Dockerfile.template", destination: "Dockerfile.template" },
               { source: "#{component_name}.service.template", destination: "#{service_name}.service.template" },
               { source: "#{component_name}.yaml", destination: "#{service_name}.yaml" }
             ]
+    # copy each template file to mixin directory
     for file in files
       {source, destination} = file
       template_read_path = templates_dir_relative + "#{component_name}/#{source}"
       yield write join(service_dir, destination),
         fs.readFileSync(template_read_path)
 
+    delete answers.service_name
     yield merge_interview_to_file
       answers: answers
       write_path: service_dir
       write_filename: service_name
+    #append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
+    append_file service_dir, service_name, process.cwd(), "huxley"
   else
-    console.log "Command failed, mixin folder #{component_name} already exists"
+    console.log "Command failed, mixin folder #{service_name} already exists"
 
 
 #===============================================================================
@@ -444,12 +456,14 @@ call ->
   try
     switch argv[0]
 
-      when "user"
+      when "profile"
         switch argv[1]
-          when "register"
-            yield create_user config: argv[2..]
-          when "delete"
-            yield delete_user config: argv[2..]
+          when "create"
+            # TODO
+            yield create_profile config: argv[2..]
+          when "rm"
+            # TODO
+            yield rm_profile config: argv[2..]
           else
             # When the command cannot be identified, display the help guide.
             #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"

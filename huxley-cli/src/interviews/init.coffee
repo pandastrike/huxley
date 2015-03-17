@@ -7,7 +7,7 @@ module.exports =
 #      description: "Application name?"
 #      default: process.cwd().split("/").pop()
 #    ,
-      name: "cluster_name"
-      description: "Cluster name?"
-      #default: "test-cluster"
+#      name: "cluster_name"
+#      description: "Cluster name?"
+#      #default: "test-cluster"
     ]
