@@ -234,25 +234,33 @@ init = async ->
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
+  console.log "node mixin"
 
   # begin interview
   {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
   answers = yield run_interview questions
+  {service_name, port, start_command} = answers
   console.log answers
 
   # if component directory doesn't already exist
-  if (mkdir_idempt process.cwd() + "/launch/#{component_name}")
+  service_dir = join process.cwd(), "/launch/#{service_name}"
+  if (mkdir_idempt service_dir)
     append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
-    files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
+    files = [
+              { source: "Dockerfile.template", destination: "Dockerfile.template" },
+              { source: "#{component_name}.service.template", destination: "#{service_name}.service.template" },
+              { source: "#{component_name}.yaml", destination: "#{service_name}.yaml" }
+            ]
     for file in files
-      template_read_path = templates_dir_relative + "#{component_name}/#{file}"
-      yield write process.cwd() + "/launch/#{component_name}/#{file}",
+      {source, destination} = file
+      template_read_path = templates_dir_relative + "#{component_name}/#{source}"
+      yield write join(service_dir, destination),
         fs.readFileSync(template_read_path)
 
     yield merge_interview_to_file
       answers: answers
-      write_path: join templates_dir_relative, "#{component_name}"
-      write_filename: "#{component_name}.yaml"
+      write_path: service_dir
+      write_filename: service_name
   else
     console.log "Command failed, mixin folder #{component_name} already exists"
 
@@ -268,16 +276,17 @@ create_cluster = async (argv) ->
   if argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
     yield usage "cluster_create"
 
+  # Start by reading configuration data from the local config files.
+  {config, home_config} = yield pull_configuration()
+
   # If no cluster name specified in argv, will attempt interview
   # Empty interview answer will use randomly generated name
   if !argv[0]
     {questions} = require (join __dirname, "./interviews/cluster-create")
-    {cluster_name, spot_price, public_domain} = yield run_interview questions
+    # TODO: the questions.coffee returns a function instead of an object
+    {cluster_name, spot_price, public_domain} = yield run_interview questions(config)
     if cluster_name
       argv[0] = cluster_name
-
-  # Start by reading configuration data from the local config files.
-  {config, home_config} = yield pull_configuration()
 
   # Merge interview answers into defaults
   if spot_price?
@@ -291,11 +300,11 @@ create_cluster = async (argv) ->
   # Now use this raw configuration as context to build an "options" object for panda-hook.
   options = yield config_helpers.build_create_cluster config, argv
 
-#  # With our object built, call the Huxley API.
-#  response = yield api.create_cluster options
-#
-#  # Save the cluster ID to the root-level configuration.
-#  yield config_helpers.update_create_cluster home_config, options, response
+  # With our object built, call the Huxley API.
+  response = yield api.create_cluster options
+
+  # Save the cluster ID to the root-level configuration.
+  yield config_helpers.update_create_cluster home_config, options, response
 
 
 # This function prepares the "options" object to ask the API server to delete a
