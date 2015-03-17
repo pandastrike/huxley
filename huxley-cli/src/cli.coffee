@@ -115,7 +115,6 @@ pull_configuration = async () ->
 create_profile = async ({config}) ->
   {questions} = require (join __dirname, "./interviews/profile-create")
   answers = yield run_interview questions
-  console.log answers
   config.user_details = answers
   #yield api.create_user config
 
@@ -123,7 +122,6 @@ create_profile = async ({config}) ->
 rm_profile = async ({config}) ->
   {questions} = require (join __dirname, "./interviews/profile-rm")
   answers = yield run_interview questions
-  console.log answers
   #yield api.delete_user answers
 
 #===============================================================================
@@ -210,15 +208,11 @@ merge_interview_to_file = async ({answers, write_path, write_filename}) ->
   configuration = configurator.make name: write_filename
   yield configuration.load()
   # merge arguments are added from left to right, meaning the right-most arg will override all previous
-  console.log "****answers: ", answers
-  #configuration.data = yield merge configuration.data, answers
-  configuration.data = "foobar"
-  console.log "****upated configuration data: ", configuration.data
+  configuration.data = yield merge configuration.data, answers
   yield configuration.save()
-  console.log configuration
 
 # init huxley
-init = async ->
+init_huxley = async () ->
   # create /launch dir
   launch_dir = process.cwd() + "/launch"
   mkdir_idempt launch_dir
@@ -227,20 +221,15 @@ init = async ->
   if fs.existsSync huxley_path
     console.log "Warning: #{huxley_path} already exists"
   else
-    copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
+    # FIXME: can't overwrite variables to manifest template, so just creating a new file instead
+    #copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
+    yield write join(process.cwd(), "huxley.yaml"), ""
 
     folder_name = process.cwd().split("/").pop()
-    console.log folder_name
-    console.log process.cwd()
     yield merge_interview_to_file
       answers: {app_name: folder_name}
       write_path: process.cwd()
       write_filename: "huxley"
-#    # begin interviews
-#    {questions} = require (join __dirname, "./interviews/init")
-#    answers = yield run_interview questions
-#    console.log answers
-#    # overwrite default with interview answers
 
 # initialize mixin folders, copy over templates
 init_mixin = async (component_name) ->
@@ -249,7 +238,6 @@ init_mixin = async (component_name) ->
   {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
   answers = yield run_interview questions
   {service_name, port, start_command} = answers
-  console.log answers
 
   # if service_name directory doesn't already exist
   service_dir = join process.cwd(), "/launch/#{service_name}"
@@ -467,7 +455,7 @@ call ->
           else
             # When the command cannot be identified, display the help guide.
             #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
-            console.log "Bad user command"
+            console.log "Bad 'user' command"
 
       when "cluster"
         switch argv[1]
@@ -482,7 +470,7 @@ call ->
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        yield init()
+        yield init_huxley()
 
       when "mixin"
         switch argv[1]
