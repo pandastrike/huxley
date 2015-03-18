@@ -281,12 +281,11 @@ create_cluster = async (argv) ->
 
   # If no cluster name specified in argv, will attempt interview
   # Empty interview answer will use randomly generated name
-  if !argv[0]
-    {questions} = require (join __dirname, "./interviews/cluster-create")
-    # TODO: the questions.coffee returns a function instead of an object
-    {cluster_name, spot_price, public_domain} = yield run_interview questions(config)
-    if cluster_name
-      argv[0] = cluster_name
+  {questions} = require (join __dirname, "./interviews/cluster-create")
+  # TODO: the questions.coffee returns a function instead of an object
+  {cluster_name, spot_price, public_domain} = yield run_interview questions(config)
+  if cluster_name
+    argv[0] = cluster_name
 
   # Merge interview answers into defaults
   if spot_price?
