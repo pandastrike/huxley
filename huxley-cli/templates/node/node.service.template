@@ -25,7 +25,12 @@ ExecStartPre=/usr/bin/curl -XPOST kick.{{{cluster_name}}}.cluster:2000 -d '\
   "hostname": "{{{service_name}}}.{{{cluster_name}}}.pandastrike.com",      \
   "ip_address": "${COREOS_PUBLIC_IPV4}",  \
   "port": "{{{port}}}",  \
-  "type": "A"'
+  "type": "A" \
+  -H "Content-Type: application/vnd.kick.record+json"'
+
+ExecStartPre=/usr/bin/echo "until curl kick.{{{cluster_name}}}.cluster:2000/record/{{{service_name}}}.{{{cluster_name}}}.pandastrike.com | grep -o 'INSYNC'; do \
+    sleep 5 \
+  done"
 
 # Delete any old containers with this image.
 ExecStartPre=-/usr/bin/docker kill {{{service_name}}}
