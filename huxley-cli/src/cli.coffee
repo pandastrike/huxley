@@ -14,10 +14,9 @@ fs = require "fs"
 
 # Panda Strike Libraries
 Configurator = require "panda-config"           # data file parsing
-{read, shell, merge, partial,
- map, sleep} =
+{exists, map, merge, partial,
+pluck, read, shell, sleep, write} =
                     require "fairmont"          # utility functions
-
 
 # Third Party Libraries
 {promise} = require "when"                   #|promise library
@@ -110,6 +109,22 @@ pull_configuration = async () ->
 
 
 #===============================================================================
+# User creation and deletion
+#===============================================================================
+# TODO
+create_profile = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/profile-create")
+  answers = yield run_interview questions
+  config.user_details = answers
+  #yield api.create_user config
+
+# TODO
+rm_profile = async ({config}) ->
+  {questions} = require (join __dirname, "./interviews/profile-rm")
+  answers = yield run_interview questions
+  #yield api.delete_user answers
+
+#===============================================================================
 # Templatizing - huxley "init" & "mixin"
 #===============================================================================
 # TODO: move to separate file
@@ -125,19 +140,24 @@ prompt_wrapper = (prompt_list) ->
   new Promise (resolve, reject) ->
     prompt.get prompt_list, (err, res) ->
       if err
-        return rejecet err
+        return reject err
       resolve res
 
 # create directory if doesn't already exists
 mkdir_idempt = (path) ->
+  # FIXME: write separate test case check "exists"
+  #console.log "****exists path: ", (yield exists path)
+  #if !(yield exists path)
   if !fs.existsSync path
     fs.mkdirSync path
+    true
   else
-    console.log "Warning: Launch folder #{path} already exists.\nProceeding to create huxley.yaml"
+    console.log "Warning: #{path} already exists.\n"
+    false
 
 # copy file
 copy_file = async (from_path, from_filename, destination_path, destination_filename) ->
-  fs.writeFileSync (destination_path + "/" + destination_filename + ".yaml"), ""
+  yield write (destination_path + "/" + destination_filename + ".yaml"), ""
 
   from_configurator = Configurator.make
     paths: [ from_path ]
@@ -155,17 +175,7 @@ copy_file = async (from_path, from_filename, destination_path, destination_filen
   configuration.data = from_config
   configuration.save()
 
-#  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
-#  #union_overwrite prompt_response, process.cwd(), "huxley"
-#  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
-#  #files = [ "#{component_name}.yaml" ]
-#  for file in files
-#    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
-#      fs.readFileSync(templates_dir_relative + "#{component_name}/#{file}")
-
-# huxley.yaml composition by copying template
-# FIXME: assuming .yaml for now
-
+# appends mixin configs to manifest
 append_file = async (from_path, from_filename, destination_path, destination_filename) ->
   from_configurator = Configurator.make
     paths: [ from_path ]
@@ -188,42 +198,71 @@ append_file = async (from_path, from_filename, destination_path, destination_fil
     configuration.data.services[from_filename] = from_config
   configuration.save()
 
-union_overwrite = async (data, file_path, file_name) ->
-  from_configurator = Configurator.make
-    paths: [ from_path ]
-    extension: ".yaml"
-  from_configuration = from_configurator.make name: from_filename
-  yield from_configuration.load()
-  from_config = from_configuration.data
+run_interview = async (questions) ->
+  res = yield prompt_wrapper questions
 
-render_template_wrapper = async ({component_name, template_filename, output_filename}) ->
-  template_path = join templates_dir_relative, "#{component_name}/#{template_filename}"
-
-  # read in the default component.yaml (to make accessable as CSON)
+merge_interview_to_file = async ({answers, write_path, write_filename}) ->
   configurator = Configurator.make
-    paths: [ process.cwd() ]
+    paths: [ write_path ]
     extension: ".yaml"
-  configuration = configurator.make name: "huxley"
+  configuration = configurator.make name: write_filename
   yield configuration.load()
+  # merge arguments are added from left to right, meaning the right-most arg will override all previous
+  configuration.data = yield merge configuration.data, answers
+  yield configuration.save()
 
-  template = yield read resolve template_path
+# init huxley
+init_huxley = async () ->
+  # create /launch dir
+  launch_dir = process.cwd() + "/launch"
+  mkdir_idempt launch_dir
+  # create default huxley.yaml
+  huxley_path = join process.cwd(), "huxley.yaml"
+  if fs.existsSync huxley_path
+    console.log "Warning: #{huxley_path} already exists"
+  else
+    # FIXME: can't overwrite variables to manifest template, so just creating a new file instead
+    #copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
+    yield write join(process.cwd(), "huxley.yaml"), ""
 
-  rendered_string = yield render template, configuration.data
-  yield write join( process.cwd(), "/launch/#{component_name}/#{output_filename}"), rendered_string
+    folder_name = process.cwd().split("/").pop()
+    yield merge_interview_to_file
+      answers: {app_name: folder_name}
+      write_path: process.cwd()
+      write_filename: "huxley"
 
 # initialize mixin folders, copy over templates
-init_mixin = (component_name) ->
-  mkdir_idempt process.cwd() + "/launch/#{component_name}"
+init_mixin = async (component_name) ->
 
-  append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
-  #union_overwrite prompt_response, process.cwd(), "huxley"
-  files = [ "Dockerfile.template", "#{component_name}.service.template", "#{component_name}.yaml" ]
-  for file in files
-    template_read_path = templates_dir_relative + "#{component_name}/#{file}"
-    #console.log "****** template read path: ", template_read_path
-    fs.writeFileSync process.cwd() + "/launch/#{component_name}/#{file}",
-      fs.readFileSync(template_read_path)
+  # begin interview
+  {questions} = require (join __dirname, "./interviews/mixins/#{component_name}")
+  answers = yield run_interview questions
+  {service_name, port, start_command} = answers
 
+  # if service_name directory doesn't already exist
+  service_dir = join process.cwd(), "/launch/#{service_name}"
+  if (mkdir_idempt service_dir)
+    files = [
+              { source: "Dockerfile.template", destination: "Dockerfile.template" },
+              { source: "#{component_name}.service.template", destination: "#{service_name}.service.template" },
+              { source: "#{component_name}.yaml", destination: "#{service_name}.yaml" }
+            ]
+    # copy each template file to mixin directory
+    for file in files
+      {source, destination} = file
+      template_read_path = templates_dir_relative + "#{component_name}/#{source}"
+      yield write join(service_dir, destination),
+        fs.readFileSync(template_read_path)
+
+    delete answers.service_name
+    yield merge_interview_to_file
+      answers: answers
+      write_path: service_dir
+      write_filename: service_name
+    #append_file templates_dir_relative + "/#{component_name}", "#{component_name}", process.cwd(), "huxley"
+    append_file service_dir, service_name, process.cwd(), "huxley"
+  else
+    console.log "Command failed, mixin folder #{service_name} already exists"
 
 
 #===============================================================================
@@ -233,11 +272,26 @@ init_mixin = (component_name) ->
 # CoreOS cluster using your AWS credentials.
 create_cluster = async (argv) ->
   # Detect if we should provide a help blurb.
+
   if argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
     yield usage "cluster_create"
 
   # Start by reading configuration data from the local config files.
   {config, home_config} = yield pull_configuration()
+
+  # If no cluster name specified in argv, will attempt interview
+  # Empty interview answer will use randomly generated name
+  {questions} = require (join __dirname, "./interviews/cluster-create")
+  # TODO: the questions.coffee returns a function instead of an object
+  {cluster_name, spot_price, public_domain} = yield run_interview questions(config)
+  if cluster_name
+    argv[0] = cluster_name
+
+  # Merge interview answers into defaults
+  if spot_price?
+    config = merge config, {spot_price}
+  if public_domain?
+    config = merge config, {public_domain}
 
   # Check to see if this cluster has already been registered in the API.
   yield config_helpers.check_create_cluster config, argv
@@ -389,6 +443,19 @@ call ->
   try
     switch argv[0]
 
+      when "profile"
+        switch argv[1]
+          when "create"
+            # TODO
+            yield create_profile config: argv[2..]
+          when "rm"
+            # TODO
+            yield rm_profile config: argv[2..]
+          else
+            # When the command cannot be identified, display the help guide.
+            #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
+            console.log "Bad 'user' command"
+
       when "cluster"
         switch argv[1]
           when "create"
@@ -402,22 +469,19 @@ call ->
             yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"
 
       when "init"
-        copy_file templates_dir_relative, "default-config", process.cwd(), "huxley"
-        # create /launch dir
-        launch_dir = process.cwd() + "/launch"
-        mkdir_idempt launch_dir
+        yield init_huxley()
 
       when "mixin"
         switch argv[1]
 
           when "node"
-            init_mixin "node"
+            yield init_mixin "node"
           when "redis"
             # TODO: prompt for info, overwrite default
-            init_mixin "redis"
+            yield init_mixin "redis"
           when "es" || "elasticsearch"
             # TODO: prompt for info, overwrite default
-            init_mixin "elasticsearch"
+            yield init_mixin "elasticsearch"
           else
             # When the mixin cannot be identified, display the help guide.
             yield usage "mixin", "\nError: Unknown Mixin: #{argv[1]} \n"
