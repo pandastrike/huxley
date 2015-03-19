@@ -1,0 +1,9 @@
+#==========
+# Required
+#==========
+app_name: huxley
+
+#==========
+# Optional
+#==========
+spot_price: 0.009
