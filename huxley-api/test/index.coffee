@@ -42,6 +42,7 @@ amen.describe "Huxley API", (context) ->
 
       assert.equal response.id, Status.deployment_id
       assert.equal response.cluster, Status.cluster
+      assert.equal response.application_id, Status.application_id
       assert response.services?
       assert typeof response.services == 'object'
       assert response.services[Status.service] instanceof Array

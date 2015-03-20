@@ -241,12 +241,15 @@ module.exports = async ->
 
   status:
     post: async ({respond, data}) ->
-      {deployment_id, cluster} = status = yield data
+      {deployment_id, cluster, application_id} = status = yield data
       deployment = yield deployments.get deployment_id
 
       # create deployment if not exists
       unless deployment?
-        deployment = id: deployment_id, cluster: cluster
+        deployment =
+          id: deployment_id
+          cluster: cluster
+          application_id: application_id
 
       # add status to appropriate queue
       deployment.services ?= {}
