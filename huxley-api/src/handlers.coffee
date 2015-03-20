@@ -38,6 +38,7 @@ module.exports = async ->
   #-------------------------------------------------------
   clusters = yield adapter.collection "clusters"
   remotes = yield adapter.collection "remotes"
+  deployments = yield adapter.collection "deployments"
   #users = yield adapter.collection "users"
 
   #
@@ -209,6 +210,52 @@ module.exports = async ->
         respond 200, "remote repository deleted. git alias removed."
       else
         respond 404, "unknown remote repository ID."
+
+  deployments:
+    # NOTE: deployments are created automatically when the first status
+    # is POSTed. We include this endpoint for completeness's sake
+    create: async ({respond, url, data}) ->
+      {deployment_id, cluster} = yield data
+      yield deployments.put deployment_id,
+        id: deployment_id
+        cluster: cluster
+      respond 200, "Created", location: url "deployment", {deployment_id}
+
+  deployment:
+    get: async ({respond, match: {path: {deployment_id}}}) ->
+      deployment = yield deployments.get deployment_id
+      if deployment?
+        # TODO: this will return all deployment information, including all statuses
+        # we might want to limit that to only the last status for each service
+        respond 200, deployment
+      else
+        respond.not_found()
+
+    delete: async ({respond, match: {path: {deployment_id}}}) ->
+      deployment = yield deployments.get deployment_id
+      if deployment?
+        yield deployments.delete deployment_id
+        respond 200, "Deleted"
+      else
+        respond.not_found()
+
+  status:
+    post: async ({respond, data}) ->
+      {deployment_id, cluster} = status = yield data
+      deployment = yield deployments.get deployment_id
+
+      # create deployment if not exists
+      unless deployment?
+        deployment = id: deployment_id, cluster: cluster
+
+      # add status to appropriate queue
+      deployment.services ?= {}
+      deployment.services[status.service] ?= []
+      deployment.services[status.service].push status
+
+      # save changes
+      yield deployments.put deployment_id, deployment
+      respond 201, "Created" # no url
 
   #----------------------------
   # Removed "user" functionality for now
