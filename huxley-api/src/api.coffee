@@ -28,6 +28,21 @@ builder.define "users",
   as: "create"
   creates: "user"
 
+builder.define "deployments",
+  path: "/deployments"
+.post
+  as: "create"
+  creates: "deployment"
+
+builder.define "deployment",
+  template: "/deployment/:deployment_id"
+.get()
+.delete()
+
+builder.define "status",
+  template: "/deployment/:deployment_id/status"
+.post
+  creates: "status"
 
 builder.reflect()
 console.log builder.api
