@@ -29,7 +29,7 @@ module.exports =
       cluster_name = argv[0]
     else
       # The user didn't give us anything.  Generate a cluster name from our list of ajectives and nouns.
-      {adjectives, nouns} = parse( yield read( resolve( __dirname, "names.cson")))
+      {adjectives, nouns} = parse( yield read( resolve( __dirname, "..", "names.cson")))
       cluster_name = "#{select_random(adjectives)}-#{select_random(nouns)}"
 
     # Return "options" object for panda-cluster's create function.
