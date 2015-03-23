@@ -6,7 +6,7 @@
 # used to track these details is called "profile"
 
 {async} = require "fairmont"
-{usage, pull_configuration, force} = require "../helpers"
+{usage, pull_configuration} = require "../helpers"
 api = require "../api-interface"
 
 

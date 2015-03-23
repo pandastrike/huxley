@@ -12,10 +12,11 @@
 {call, async} = require "fairmont"           # utility functions
 
 # CLI Parsers
-{parse_profile} = require "./resources/profile-parser"
+{parse_cluster} = require "./resources/cluster-parser"
 {parse_init} = require "./resources/init-parser"
 {parse_mixin} = require "./resources/mixin-parser"
-{parse_cluster} = require "./resources/cluster-parser"
+{parse_pending} = require "./resources/pending-parser"
+{parse_profile} = require "./resources/profile-parser"
 {parse_remote} = require "./resources/remote-parser"
 
 {setup_interview} = require "./interview"
@@ -37,14 +38,16 @@ call ->
   # Look for the specified sub-command, assemble a configuration object, and hit the API.
   try
     switch argv[0]
-      when "profile"
-        yield parse_profile argv
       when "cluster"
         yield parse_cluster argv
       when "init"
         yield parse_init argv
       when "mixin"
         yield parse_mixin argv
+      when "pending"
+        yield parse_pending argv
+      when "profile"
+        yield parse_profile argv
       when "remote"
         yield parse_remote argv
       else
