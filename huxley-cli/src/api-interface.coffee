@@ -92,6 +92,19 @@ module.exports =
     catch error
       throw build_error "Unable to remove remote githook.", error
 
+  list_pending: async (spec) ->
+    try
+      {config, email, identifier} = spec
+      {url} = spec.config.huxley
+      api = (yield discover url)
+      # FIXME: what resource will pending be?
+      profiles = (api.PENDING)
+      {data} = (yield profiles.get {identifier})
+      data = (yield data)
+      result = (JSON.parse data).status
+    catch error
+      throw "Something done broke in list pending: #{error}"
+
   #-------------------------------------------------
   # code related to "profile" functionality
   #-------------------------------------------------

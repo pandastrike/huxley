@@ -26,7 +26,8 @@ module.exports =
 
   # TODO
   remove_profile: async ({argv}) ->
-    config = yield pull_configuration()
-    email = get_target_email argv
-    console.log "*****removing profile: ", profile
-    #yield api.delete_profile {config, profile}
+#    config = yield pull_configuration()
+#    email = get_target_email argv
+#    console.log "*****removing profile: ", profile
+#    # FIXME: entire config is passed in, should filter later
+#    #yield api.delete_profile {config, profile}

@@ -17,7 +17,7 @@ module.exports =
       when "redis"
         # TODO: prompt for info, overwrite default
         yield init_mixin "redis"
-      when "es" || "elasticsearch"
+      when "es", "elasticsearch"
         # TODO: prompt for info, overwrite default
         yield init_mixin "elasticsearch"
       else
