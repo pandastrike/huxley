@@ -1,6 +1,7 @@
 {discover} = (require "pbx").client
 amen = require "amen"
 assert = require "assert"
+{w} = require "fairmont"
 
 amen.describe "Huxley API", (context) ->
 
@@ -31,6 +32,7 @@ amen.describe "Huxley API", (context) ->
       deployment_id: "deadbeef"
       service: "node"
       status: "starting"
+      detail: foo: "bar"
       timestamp: Date.now()
 
     api = yield discover "http://localhost:8080"
@@ -48,5 +50,5 @@ amen.describe "Huxley API", (context) ->
       assert.equal response.application_id, Status.application_id
       assert response.services?
       assert typeof response.services == 'object'
-      assert response.services[Status.service] instanceof Array
-      assert.deepEqual response.services[Status.service].pop(), Status
+      for property in w 'status detail timestamp'
+        assert.deepEqual response.services[Status.service][property], Status[property]

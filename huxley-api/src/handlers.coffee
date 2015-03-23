@@ -4,7 +4,7 @@
 # PandaStrike Libraries
 {Memory} = require "pirate"               # database adapter
 key_forge = require "key-forge"           # cryptography
-{read} = require "fairmont"               # utils and functional helper library
+{clone, last, read} = require "fairmont"  # utils and functional helper library
 
 # Third Party Libraries
 async = (require "when/generator").lift   # promise library
@@ -225,8 +225,11 @@ module.exports = async ->
     get: async ({respond, match: {path: {deployment_id}}}) ->
       deployment = yield deployments.get deployment_id
       if deployment?
-        # TODO: this will return all deployment information, including all statuses
-        # we might want to limit that to only the last status for each service
+        # workaround for pandastrike/pirate#23
+        deployment = clone deployment
+        for service, status of deployment.services
+          {status, detail, timestamp} = last status
+          deployment.services[service] = {status, detail, timestamp}
         respond 200, deployment
       else
         respond.not_found()
@@ -241,7 +244,7 @@ module.exports = async ->
 
   status:
     post: async ({respond, data}) ->
-      {deployment_id, cluster, application_id} = status = yield data
+      {deployment_id, cluster, application_id, service} = status = yield data
       deployment = yield deployments.get deployment_id
 
       # create deployment if not exists
@@ -253,8 +256,8 @@ module.exports = async ->
 
       # add status to appropriate queue
       deployment.services ?= {}
-      deployment.services[status.service] ?= []
-      deployment.services[status.service].push status
+      deployment.services[service] ?= []
+      deployment.services[service].push status
 
       # save changes
       yield deployments.put deployment_id, deployment
