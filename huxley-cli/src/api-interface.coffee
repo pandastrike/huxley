@@ -93,23 +93,28 @@ module.exports =
       throw build_error "Unable to remove remote githook.", error
 
   #-------------------------------------------------
-  # code related to "user" functionality
+  # code related to "profile" functionality
   #-------------------------------------------------
-  # # FIXME: filter out secret keys in response
-  # create_user: async ({aws, email, url, key_pair, public_keys}) ->
-  #
-  #   api = (yield discover url)
-  #   users = (api.users)
-  #   {data} = (yield users.create {aws, email, key_pair, public_keys})
-  #   data = (yield data)
-  #   secret_token = (JSON.parse data).user.secret_token
-  #
-  #   configurator = Configurator.make
-  #     prefix: "."
-  #     paths: [ process.env.HOME ]
-  #   configuration = configurator.make name: "huxley"
-  #   yield configuration.load()
-  #   configuration.data.secret_token = secret_token
-  #   configuration.save()
-  #
-  #   secret_token
+  # FIXME: filter out secret keys in response
+  create_profile: async (request_data) ->
+    try
+      {url} = request_data.config.huxley
+      api = (yield discover url)
+      profiles = (api.profiles)
+      {data} = (yield profiles.create {data: request_data})
+      data = (yield data)
+      {secret_token} = (JSON.parse data).profile
+      console.log "*****creating profile: ", request_data.email
+      console.log "*****secret token: ", secret_token
+    
+      configurator = Configurator.make
+        prefix: "."
+        paths: [ process.env.HOME ]
+      configuration = configurator.make name: "huxley"
+      yield configuration.load()
+      configuration.data.secret_token = secret_token
+      configuration.save()
+    
+      secret_token
+    catch error
+      throw "Something done broke in profile creation: #{error}"

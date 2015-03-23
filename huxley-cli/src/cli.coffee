@@ -111,18 +111,25 @@ pull_configuration = async () ->
 #===============================================================================
 # User creation and deletion
 #===============================================================================
-# TODO
-create_profile = async ({config}) ->
-  {questions} = require (join __dirname, "./interviews/profile-create")
-  answers = yield run_interview questions
-  config.user_details = answers
-  #yield api.create_user config
+
+# Parses command to return the email or "default" profile
+get_target_email = (argv) ->
+  email = arg for arg in argv when arg.contains "--email="
+  default_email = "default@gmail.com"
+  profile = email?.split("=")[1] || default_email
+
+create_profile = async ({argv}) ->
+  {config} = (yield pull_configuration())
+  email = get_target_email argv
+  # FIXME: entire config is passed in, should filter later
+  yield api.create_profile {config, email}
 
 # TODO
-rm_profile = async ({config}) ->
-  {questions} = require (join __dirname, "./interviews/profile-rm")
-  answers = yield run_interview questions
-  #yield api.delete_user answers
+rm_profile = async ({argv}) ->
+  config = yield pull_configuration()
+  email = get_target_email argv
+  console.log "*****removing profile: ", profile
+  #yield api.delete_profile {config, profile}
 
 #===============================================================================
 # Templatizing - huxley "init" & "mixin"
@@ -447,20 +454,20 @@ call ->
         switch argv[1]
           when "create"
             # TODO
-            yield create_profile config: argv[2..]
-          when "rm"
+            yield create_profile {argv}
+          when "rm", "remove", "delete", "destroy"
             # TODO
-            yield rm_profile config: argv[2..]
+            yield rm_profile {argv}
           else
             # When the command cannot be identified, display the help guide.
             #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
-            console.log "Bad 'user' command"
+            console.log "Bad 'profile' command"
 
       when "cluster"
         switch argv[1]
           when "create"
             yield create_cluster argv[2..]
-          when "delete"
+          when "rm", "remove", "delete", "destroy"
             yield delete_cluster argv[2..]
           when "poll"
             yield poll_cluster argv[2..]
@@ -492,7 +499,7 @@ call ->
             yield add_remote argv[2..]
           when "passive"
             yield passive_remote argv[2..]
-          when "rm"
+          when "rm", "remove", "delete", "destroy"
             yield rm_remote argv[2..]
           else
             # When the command cannot be identified, display the help guide.

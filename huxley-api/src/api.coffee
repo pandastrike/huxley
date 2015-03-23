@@ -22,11 +22,11 @@ builder.define "remote",
   template: "/remote/:remote_id"
 .delete()
 
-builder.define "users",
-  path: "/users"
+builder.define "profiles",
+  path: "/profiles"
 .post
   as: "create"
-  creates: "user"
+  creates: "profile"
 
 
 builder.reflect()

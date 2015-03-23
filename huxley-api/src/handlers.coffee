@@ -38,7 +38,7 @@ module.exports = async ->
   #-------------------------------------------------------
   clusters = yield adapter.collection "clusters"
   remotes = yield adapter.collection "remotes"
-  #users = yield adapter.collection "users"
+  profiles = yield adapter.collection "profiles"
 
   #
   # cluster: cluster_id
@@ -213,21 +213,26 @@ module.exports = async ->
   #----------------------------
   # Removed "user" functionality for now
   #----------------------------
-  # users:
-  #
-  #   ###
-  #   user: email
-  #     public_keys: Array[String]
-  #     key_pair: String
-  #     aws: Object
-  #     email: String
-  #     secret_token: String
-  #   ###
-  #
-  #   create: async ({respond, url, data}) ->
-  #     key = make_key()
-  #     data.secret_token = key
-  #     user = yield data
-  #     user.secret_token = key
-  #     yield users.put user.email, user
-  #     respond 201, {user}
+  profiles:
+  
+    ###
+    user: email
+      public_keys: Array[String]
+      key_pair: String
+      aws: Object
+      email: String
+      secret_token: String
+    ###
+  
+    create: async ({respond, url, data}) ->
+      data = (yield data).data
+      # FIXME: deleted public keys cause it was too messy to print
+      delete data.config.public_keys
+      # FIXME: deleted (old) secret_token stored in config to avoid confusion
+      delete data.config.secret_token
+      profile =
+        config: data.config
+        secret_token: make_key()
+      yield profiles.put data.email, profile
+      console.log "*****all profiles: ", profiles
+      respond 201, {profile}

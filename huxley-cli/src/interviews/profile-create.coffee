@@ -12,7 +12,7 @@
 #  yield configuration.load()
 #  {aws: {email}} = configuration.data
 
-module.exports =
+module.exports = (config) ->
 
   # TODO: if we store email in dotfile, consider defaulting
   # object, not function
