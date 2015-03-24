@@ -97,11 +97,11 @@ module.exports =
       {config, email, identifier} = spec
       {url} = spec.config.huxley
       api = (yield discover url)
-      # FIXME: what resource will pending be?
-      profiles = (api.PENDING)
-      {data} = (yield profiles.get {identifier})
+      deployments = (api.deployments)
+      # FIXME: identifier arg only placeholder, now just GETs all
+      {data} = (yield deployments.get {identifier})
       data = (yield data)
-      result = (JSON.parse data).status
+      result = (JSON.parse data)
     catch error
       throw "Something done broke in list pending: #{error}"
 

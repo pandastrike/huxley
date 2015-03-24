@@ -211,19 +211,29 @@ module.exports = async ->
         respond 404, "unknown remote repository ID."
 
   #----------------------------
-  # Removed "user" functionality for now
+  # Profiles
   #----------------------------
   profiles:
-  
+
     ###
-    user: email
+    profile: email
       public_keys: Array[String]
       key_pair: String
       aws: Object
       email: String
       secret_token: String
+      clusters: [
+        id: String
+        name: String
+    ]
     ###
-  
+    put_cluster: async (request) ->
+      {respond, url, data} = request
+      {email} = data
+      profile = yield profiles.get email
+      profile.clusters[cluster] = new_info
+      profile = yield profiles.put email, profile
+
     create: async ({respond, url, data}) ->
       data = (yield data).data
       # FIXME: deleted public keys cause it was too messy to print
@@ -233,6 +243,7 @@ module.exports = async ->
       profile =
         config: data.config
         secret_token: make_key()
+        clusters: {}
       yield profiles.put data.email, profile
       console.log "*****all profiles: ", profiles
       respond 201, {profile}

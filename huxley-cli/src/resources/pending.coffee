@@ -18,4 +18,4 @@ module.exports =
     email = get_target_email argv
     identifier = argv[2]
     # FIXME: entire config is passed in, should filter later
-    yield api.list {config, email, identifier}
+    yield api.list_pending {config, email, identifier}
