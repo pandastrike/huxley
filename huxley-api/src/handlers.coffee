@@ -3,6 +3,7 @@
 #===============================================================================
 # PandaStrike Libraries
 {Memory} = require "pirate"               # database adapter
+{Channel, Transport} = require "mutual"   # event queue
 key_forge = require "key-forge"           # cryptography
 {clone, last, read} = require "fairmont"  # utils and functional helper library
 
@@ -28,6 +29,11 @@ make_key = () -> key_forge.randomKey 16, "base64url"
 # path.  The key gets placed on every cluster this server creates.
 get_master_key = async () -> yield read "#{__dirname}/huxley_master.pub"
 
+# Set up our event channel so we can listen to status events
+# TODO: how to configure the Redis server's address?
+transport = Transport.Queue.Redis.create()
+# TODO: what do we name the channel?
+channel = Channel.create transport,  "hello"
 
 #===============================================================================
 # Module Definition
@@ -40,6 +46,25 @@ module.exports = async ->
   remotes = yield adapter.collection "remotes"
   deployments = yield adapter.collection "deployments"
   #users = yield adapter.collection "users"
+
+  save_status = async (status) ->
+    {deployment_id, cluster_id, application_id, service} = status
+    deployment = yield deployments.get deployment_id
+
+    # create deployment if not exists
+    unless deployment?
+      deployment = {id: deployment_id, cluster_id, application_id}
+
+    # add status to appropriate queue
+    deployment.services ?= {}
+    deployment.services[service] ?= []
+    deployment.services[service].push status
+
+    # save changes
+    yield deployments.put deployment_id, deployment
+
+  # Event handlers
+  channel.on status: save_status
 
   #
   # cluster: cluster_id
@@ -248,20 +273,7 @@ module.exports = async ->
 
   status:
     post: async ({respond, data}) ->
-      {deployment_id, cluster_id, application_id, service} = status = yield data
-      deployment = yield deployments.get deployment_id
-
-      # create deployment if not exists
-      unless deployment?
-        deployment = {id: deployment_id, cluster_id, application_id}
-
-      # add status to appropriate queue
-      deployment.services ?= {}
-      deployment.services[service] ?= []
-      deployment.services[service].push status
-
-      # save changes
-      yield deployments.put deployment_id, deployment
+      save_status yield data
       respond 201, "Created" # no url
 
   #----------------------------
