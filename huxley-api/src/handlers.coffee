@@ -222,7 +222,7 @@ module.exports = async ->
       respond 200, "Created", location: url "deployment", {deployment_id}
 
     query: async ({respond, match: {query}}) ->
-      console.log query
+      # Workaround for pandastrike/pbx#13
       respond 200, JSON.stringify yield deployments.all()
 
   deployment:
