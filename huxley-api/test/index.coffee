@@ -27,7 +27,7 @@ amen.describe "Huxley API", (context) ->
 
   context.test "Post a status", (context) ->
     Status =
-      cluster: "tipsy-tester"
+      cluster_id: "tipsy-tester"
       application_id: "abcdef"
       deployment_id: "deadbeef"
       service: "node"
@@ -46,7 +46,7 @@ amen.describe "Huxley API", (context) ->
       response = yield data
 
       assert.equal response.id, Status.deployment_id
-      assert.equal response.cluster, Status.cluster
+      assert.equal response.cluster_id, Status.cluster_id
       assert.equal response.application_id, Status.application_id
       assert response.services?
       assert typeof response.services == 'object'

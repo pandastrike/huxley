@@ -33,6 +33,8 @@ builder.define "deployments",
 .post
   as: "create"
   creates: "deployment"
+.get
+  as: "query"
 
 builder.define "deployment",
   template: "/deployment/:deployment_id"
@@ -45,6 +47,5 @@ builder.define "status",
   creates: "status"
 
 builder.reflect()
-console.log builder.api
 
 module.exports = builder.api

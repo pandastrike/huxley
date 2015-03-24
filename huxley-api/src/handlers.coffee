@@ -215,11 +215,15 @@ module.exports = async ->
     # NOTE: deployments are created automatically when the first status
     # is POSTed. We include this endpoint for completeness's sake
     create: async ({respond, url, data}) ->
-      {deployment_id, cluster} = yield data
+      {deployment_id, cluster_id} = yield data
       yield deployments.put deployment_id,
         id: deployment_id
-        cluster: cluster
+        cluster_id
       respond 200, "Created", location: url "deployment", {deployment_id}
+
+    query: async ({respond, match: {query}}) ->
+      console.log query
+      respond 200, JSON.stringify yield deployments.all()
 
   deployment:
     get: async ({respond, match: {path: {deployment_id}}}) ->
@@ -244,15 +248,12 @@ module.exports = async ->
 
   status:
     post: async ({respond, data}) ->
-      {deployment_id, cluster, application_id, service} = status = yield data
+      {deployment_id, cluster_id, application_id, service} = status = yield data
       deployment = yield deployments.get deployment_id
 
       # create deployment if not exists
       unless deployment?
-        deployment =
-          id: deployment_id
-          cluster: cluster
-          application_id: application_id
+        deployment = {id: deployment_id, cluster_id, application_id}
 
       # add status to appropriate queue
       deployment.services ?= {}
