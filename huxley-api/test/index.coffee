@@ -38,7 +38,7 @@ amen.describe "Huxley API", (context) ->
     api = yield discover "http://localhost:8080"
 
     # deployment does not need to exist, it is created automaticaly
-    {response} = api.status.post Status
+    {response} = yield api.status.post Status
 
     context.test "Retrieve deployment information", ->
       deployment = api.deployment "deadbeef"

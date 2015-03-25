@@ -47,7 +47,8 @@ module.exports = async ->
   deployments = yield adapter.collection "deployments"
   #users = yield adapter.collection "users"
 
-  save_status = async (status) ->
+  # Event handlers
+  channel.on status: async (status) ->
     {deployment_id, cluster_id, application_id, service} = status
     deployment = yield deployments.get deployment_id
 
@@ -62,9 +63,6 @@ module.exports = async ->
 
     # save changes
     yield deployments.put deployment_id, deployment
-
-  # Event handlers
-  channel.on status: save_status
 
   #
   # cluster: cluster_id
@@ -272,8 +270,13 @@ module.exports = async ->
         respond.not_found()
 
   status:
+    # @deprecated
+    # This isn't really necessary anymore, since we now use Redis queues
+    # to send status events from the kick server(s) to the API server.
     post: async ({respond, data}) ->
-      save_status yield data
+      # Just post the status to the Redis queue
+      # This will invoke the status handler
+      channel.emit status: yield data
       respond 201, "Created" # no url
 
   #----------------------------

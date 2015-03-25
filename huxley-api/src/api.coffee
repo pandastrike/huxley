@@ -41,6 +41,7 @@ builder.define "deployment",
 .get()
 .delete()
 
+# @deprecated
 builder.define "status",
   template: "/deployment/:deployment_id/status"
 .post
