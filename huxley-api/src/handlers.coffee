@@ -43,7 +43,7 @@ module.exports = async ->
 
   #
   # cluster: cluster_id
-  #   name: String
+  #   name: StringG
   #   status: String
   #   deployments: [id1, id2, id3]
   #
@@ -215,33 +215,76 @@ module.exports = async ->
   #----------------------------
   # Profiles
   #----------------------------
-  profiles:
 
-    ###
-    profile: email
-      config: huxley file object
-      secret_token: String
-      clusters: {
-        id: String
-          name: String
-        ...
-        id: String
-          name: String
-      }
-    ###
+  ###
+  profile: email
+    config: huxley file object
+    secret_token: String
+    clusters: {
+      id: String
+        name: String
+      ...
+      id: String
+        name: String
+    }
+  ###
+
+  profiles_mock =
+    asdf123:
+      clusters:
+        sometoken:
+          name: "fearless-panda"
+        anothertoken:
+          name: "sparkles"
+
+  clusters_mock =
+    sometoken:
+      status: "running"
+      deployments: ["id1", "id2", "id3"]
+    anothertoken:
+      status: "failed"
+      deployments: ["a", "b", "c"]
+
+  deployments_mock =
+    id1:
+      id: "id1"
+      cluster: "fearless-panda"
+      services:
+        service_a: [ "starting", "running" ]
+        service_b: [ "starting", "running" ] # chronological order
+    id2:
+
+  #
+  # cluster: cluster_id
+  #   name: String
+  #   status: String
+  #   deployments: [id1, id2, id3]
+  #
+  #
+  # remotes: remote_id
+  #   hook_address: String
+  #   repo_name: String
+
+
+  profile:
 
     # FIXME: how to pass in secret_token? is headers supported yet?
     get: async (spec) ->
-      {respond, headers} = spec
-      console.log "*****headers: ", headers
-      secret_token = headers.Authorization
-      # {respond, data} = spec
-      #console.log "*****data in get: ", data
+      # {respond, request} = spec
+      # {headers} = request
+      #secret_token = headers.Authorization
+      {respond, url, match: {path: {secret_token}}} = spec
+      console.log Object.keys spec.match
+      console.log spec.match.path
+      console.log "****secret token: ", secret_token
       profile = yield profiles.get secret_token
       if profile?
         respond 200, {profile}
       else
         respond 404
+
+
+  profiles:
 
     create: async ({respond, url, data}) ->
       {data} = (yield data)

@@ -104,37 +104,38 @@ module.exports =
       api = (yield discover url)
 
 
+
       # Get profile, parse for cluster ids
-      console.log 1
-      console.log api
-      api.authorize basic: {Authorization: secret_token}
-      profiles = (api.profiles)
-      console.log 2
-      {profile} = (yield profiles.get())
-      console.log 3
+      #api.authorize basic: {Authorization: secret_token}
+      profile = (api.profile {secret_token})
+      {profile} = (yield profile.get())
       clusters_results = (yield profile).clusters
+
+
 
       # Get cluster status, parse list of deployments for said cluster
       deployments_results = {}
-      clusters = (api.clusters)
       for cluster_id, cluster_name of clusters_results
-        {data} = (yield clusters.get {cluster_id})
+        cluster = (api.cluster {cluster_id})
+        {data} = (yield cluster.get())
         data = (yield data)
         result = (JSON.parse data).deployments
         deployments[cluster_id] = result
 
+
       # Get deployment status
       pending_results = []
-      deployments = (api.deployments)
       for cluster_id, deployments_list of deployments_results
         for deployment_id in deployments_list
-          {data} = (yield deployments.get {deployment_id})
+          deployment = (api.deployment {deployment_id})
+          {data} = (yield deployment.get())
           data = (yield data)
           result = (JSON.parse data)
           # FIXME: how to present return data (group by cluster_id?)
           pending_results.push data
 
       pending_results
+
     catch error
       throw "Something done broke in list pending: #{error}"
 

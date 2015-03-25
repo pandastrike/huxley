@@ -29,6 +29,10 @@ builder.define "profiles",
   as: "create"
   creates: "profile"
 
+builder.define "profile",
+  template: "/profile/:secret_token"
+.get()
+
 builder.define "deployments",
   path: "/deployments"
 .post
