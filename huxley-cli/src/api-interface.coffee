@@ -92,16 +92,49 @@ module.exports =
     catch error
       throw build_error "Unable to remove remote githook.", error
 
+  #--------------------------------
+  # Pending
+  #--------------------------------
   list_pending: async (spec) ->
+    console.log "*****begin list pending in api-interface.coffee"
     try
-      {config, email, identifier} = spec
+      {config} = spec
+      {secret_token} = config
       {url} = spec.config.huxley
       api = (yield discover url)
+
+
+      # Get profile, parse for cluster ids
+      console.log 1
+      console.log api
+      api.authorize basic: {Authorization: secret_token}
+      profiles = (api.profiles)
+      console.log 2
+      {profile} = (yield profiles.get())
+      console.log 3
+      clusters_results = (yield profile).clusters
+
+      # Get cluster status, parse list of deployments for said cluster
+      deployments_results = {}
+      clusters = (api.clusters)
+      for cluster_id, cluster_name of clusters_results
+        {data} = (yield clusters.get {cluster_id})
+        data = (yield data)
+        result = (JSON.parse data).deployments
+        deployments[cluster_id] = result
+
+      # Get deployment status
+      pending_results = []
       deployments = (api.deployments)
-      # FIXME: identifier arg only placeholder, now just GETs all
-      {data} = (yield deployments.get {identifier})
-      data = (yield data)
-      result = (JSON.parse data)
+      for cluster_id, deployments_list of deployments_results
+        for deployment_id in deployments_list
+          {data} = (yield deployments.get {deployment_id})
+          data = (yield data)
+          result = (JSON.parse data)
+          # FIXME: how to present return data (group by cluster_id?)
+          pending_results.push data
+
+      pending_results
     catch error
       throw "Something done broke in list pending: #{error}"
 
@@ -116,10 +149,10 @@ module.exports =
       profiles = (api.profiles)
       {data} = (yield profiles.create {data: request_data})
       data = (yield data)
-      {secret_token} = (JSON.parse data).profile
-      console.log "*****creating profile: ", request_data.email
-      console.log "*****secret token: ", secret_token
-    
+      {profile} = (JSON.parse data)
+      console.log "*****profile created: ", profile
+
+      {secret_token} = profile
       configurator = Configurator.make
         prefix: "."
         paths: [ process.env.HOME ]
@@ -127,7 +160,7 @@ module.exports =
       yield configuration.load()
       configuration.data.secret_token = secret_token
       configuration.save()
-    
+
       secret_token
     catch error
       throw "Something done broke in profile creation: #{error}"

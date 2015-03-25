@@ -10,7 +10,7 @@
 
 module.exports =
 
-  parse_profile: async (argv) ->
+  parse_pending: async (argv) ->
     switch argv[1]
       when "ls", "list"
         # TODO

@@ -13,7 +13,7 @@ api = require "../api-interface"
 # Parses command to return the email or "default" profile
 get_target_email = (argv) ->
   email = arg for arg in argv when arg.contains "--email="
-  default_email = "default@gmail.com"
+  default_email = ""
   profile = email?.split("=")[1] || default_email
 
 module.exports =

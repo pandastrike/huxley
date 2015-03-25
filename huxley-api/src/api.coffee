@@ -24,12 +24,29 @@ builder.define "remote",
 
 builder.define "profiles",
   path: "/profiles"
+.get()
 .post
   as: "create"
   creates: "profile"
 
+builder.define "deployments",
+  path: "/deployments"
+.post
+  as: "create"
+  creates: "deployment"
+.get
+  as: "query"
+
+builder.define "deployment",
+  template: "/deployment/:deployment_id"
+.get()
+.delete()
+
+builder.define "status",
+  template: "/deployment/:deployment_id/status"
+.post
+  creates: "status"
 
 builder.reflect()
-console.log builder.api
 
 module.exports = builder.api

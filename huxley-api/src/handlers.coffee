@@ -4,7 +4,7 @@
 # PandaStrike Libraries
 {Memory} = require "pirate"               # database adapter
 key_forge = require "key-forge"           # cryptography
-{read} = require "fairmont"               # utils and functional helper library
+{clone, last, read} = require "fairmont"  # utils and functional helper library
 
 # Third Party Libraries
 async = (require "when/generator").lift   # promise library
@@ -39,10 +39,14 @@ module.exports = async ->
   clusters = yield adapter.collection "clusters"
   remotes = yield adapter.collection "remotes"
   profiles = yield adapter.collection "profiles"
+  deployments = yield adapter.collection "deployments"
 
   #
   # cluster: cluster_id
   #   name: String
+  #   status: String
+  #   deployments: [id1, id2, id3]
+  #
   #
   # remotes: remote_id
   #   hook_address: String
@@ -54,39 +58,31 @@ module.exports = async ->
     create: async (request) ->
       {respond, data} = request
       data = yield data
-      # TODO: validation (see below).
 
-      # Create a record to be stored in the server's database.
-      record =
-        aws: data.aws
-        cluster_name: data.cluster_name
-        region: data.region             if data.region?
+      if (!data.secret_token) || !(yield profiles.get data.secret_token)
+        respond 401, "Unknown profile."
+      else
+        # Create a record to be stored in the server's database.
+        record =
+          aws: data.aws
+          cluster_name: data.cluster_name
+          region: data.region             if data.region?
 
-      # Store the record using a unique token as the key.
-      cluster_id = make_key()
-      clusters.put cluster_id, record
+        # Store the record using a unique token as the key.
+        cluster_id = make_key()
+        clusters.put cluster_id, record
 
-      # Add Huxley master key to the list of user keys.
-      data.public_keys.push yield get_master_key()
+        # Add this cluster to the profile's record.
+        profile = yield profiles.get data.secret_token
+        profile.clusters[cluster_id] = {name: data.cluster_name, status: "starting"}
 
-      # Create a CoreOS cluster using panda-cluster
-      pandacluster.create_cluster data
-      respond 201, "Cluster creation underway.", {cluster_id: cluster_id}
+        # Add Huxley master key to the list of user keys.
+        data.public_keys.push yield get_master_key()
 
-      # Related to authorization
-      #-----------------------------------------
-      # user = yield users.get data.email
-      # # Check user authorization.
-      # #if user && secret_token == user.secret_token
-      # if true
-      #   # Add cluster to user records.
-      #   cluster_entry =
-      #     email: data.email
-      #     url: cluster_id
-      #     name: data.cluster_name
-      #   cluster_res = yield clusters.put cluster_id, cluster_entry
-      # else
-      #   respond 401, "invalid email or token"
+        # Create a CoreOS cluster using panda-cluster
+        pandacluster.create_cluster data
+        respond 201, "Cluster creation underway.", {cluster_id: cluster_id}
+
 
   cluster:
     delete: async (request) ->
@@ -120,53 +116,6 @@ module.exports = async ->
           respond 200, {cluster_status: "Cluster formation is underway"}
       else
         respond 404, "Unknown cluster ID."
-
-
-      #========================================
-      # This code was part of cluster delete
-      #========================================
-      # FIXME: pass in secret token in auth header
-      # cluster = yield clusters.get cluster_id
-      # if cluster
-      #   {email, name} = cluster
-      #   user = yield users.get email
-      #   # FIXME: validate secret token
-      #   #if user && secret_token == user.secret_token
-      #   if user
-      #     request_data =
-      #       aws: user.aws
-      #       cluster_name: name
-      #     clusters.delete cluster_id
-      #     # FIXME: removed yield in clusters.delete
-      #     pandacluster.delete_cluster request_data
-      #     respond 200, "cluster #{name} is being processed for deletion"
-      #   else
-      #     respond 401, "invalid email or token"
-      # else
-      #   respond 404, "cluster not found"
-
-
-    #========================================
-    # This code used to be cluster get
-    #========================================
-    # get: async ({respond, match: {path: {cluster_id}}, request: {headers: {authorization}}}) ->
-    #   clusters = (yield clusters)
-    #   cluster = (yield clusters.get cluster_id)
-    #   if cluster
-    #     {email} = cluster
-    #     user = yield users.get email
-    #     # FIXME: validate secret token
-    #     #if user && secret_token == user.secret_token
-    #     if user
-    #       request_data =
-    #         aws: user.aws
-    #         cluster_name: cluster.name
-    #       cluster_status = yield pandacluster.get_cluster_status request_data
-    #       respond 200, {cluster_status}
-    #     else
-    #       respond 401, "invalid email or token"
-    #   else
-    #     respond 404, "cluster not found"
 
 
   remotes:
@@ -210,6 +159,59 @@ module.exports = async ->
       else
         respond 404, "unknown remote repository ID."
 
+  deployments:
+    # NOTE: deployments are created automatically when the first status
+    # is POSTed. We include this endpoint for completeness's sake
+    create: async ({respond, url, data}) ->
+      {deployment_id, cluster_id} = yield data
+      yield deployments.put deployment_id,
+        id: deployment_id
+        cluster_id
+      respond 200, "Created", location: url "deployment", {deployment_id}
+
+    query: async ({respond, match: {query}}) ->
+      # Workaround for pandastrike/pbx#13
+      respond 200, JSON.stringify yield deployments.all()
+
+  deployment:
+    get: async ({respond, match: {path: {deployment_id}}}) ->
+      deployment = yield deployments.get deployment_id
+      if deployment?
+        # workaround for pandastrike/pirate#23
+        deployment = clone deployment
+        for service, status of deployment.services
+          {status, detail, timestamp} = last status
+          deployment.services[service] = {status, detail, timestamp}
+        respond 200, deployment
+      else
+        respond.not_found()
+
+    delete: async ({respond, match: {path: {deployment_id}}}) ->
+      deployment = yield deployments.get deployment_id
+      if deployment?
+        yield deployments.delete deployment_id
+        respond 200, "Deleted"
+      else
+        respond.not_found()
+
+  status:
+    post: async ({respond, data}) ->
+      {deployment_id, cluster_id, application_id, service} = status = yield data
+      deployment = yield deployments.get deployment_id
+
+      # create deployment if not exists
+      unless deployment?
+        deployment = {id: deployment_id, cluster_id, application_id}
+
+      # add status to appropriate queue
+      deployment.services ?= {}
+      deployment.services[service] ?= []
+      deployment.services[service].push status
+
+      # save changes
+      yield deployments.put deployment_id, deployment
+      respond 201, "Created" # no url
+
   #----------------------------
   # Profiles
   #----------------------------
@@ -217,33 +219,45 @@ module.exports = async ->
 
     ###
     profile: email
-      public_keys: Array[String]
-      key_pair: String
-      aws: Object
-      email: String
+      config: huxley file object
       secret_token: String
-      clusters: [
+      clusters: {
         id: String
-        name: String
-    ]
+          name: String
+        ...
+        id: String
+          name: String
+      }
     ###
-    put_cluster: async (request) ->
-      {respond, url, data} = request
-      {email} = data
-      profile = yield profiles.get email
-      profile.clusters[cluster] = new_info
-      profile = yield profiles.put email, profile
+
+    # FIXME: how to pass in secret_token? is headers supported yet?
+    get: async (spec) ->
+      {respond, headers} = spec
+      console.log "*****headers: ", headers
+      secret_token = headers.Authorization
+      # {respond, data} = spec
+      #console.log "*****data in get: ", data
+      profile = yield profiles.get secret_token
+      if profile?
+        respond 200, {profile}
+      else
+        respond 404
 
     create: async ({respond, url, data}) ->
-      data = (yield data).data
-      # FIXME: deleted public keys cause it was too messy to print
-      delete data.config.public_keys
-      # FIXME: deleted (old) secret_token stored in config to avoid confusion
-      delete data.config.secret_token
-      profile =
-        config: data.config
-        secret_token: make_key()
-        clusters: {}
-      yield profiles.put data.email, profile
-      console.log "*****all profiles: ", profiles
-      respond 201, {profile}
+      {data} = (yield data)
+      if yield profiles.get data.email
+        respond 403, "Profile already exists"
+      else
+        # FIXME: deleted public keys cause it was too messy to print
+        delete data.config.public_keys
+        # FIXME: deleted (old) secret_token stored in config to avoid confusion
+        delete data.config.secret_token
+        secret_token = make_key()
+        profile =
+          config: data.config
+          secret_token: secret_token
+          email: data.email
+          clusters: {}
+        yield profiles.put secret_token, profile
+        console.log "*****all profiles: ", profiles
+        respond 201, {profile}
