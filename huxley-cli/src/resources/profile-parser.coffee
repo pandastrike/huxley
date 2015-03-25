@@ -12,7 +12,7 @@ module.exports =
 
   parse_profile: async (argv) ->
     switch argv[1]
-      when "create"
+      when "create", "add"
         # TODO
         yield create_profile {argv}
       when "rm", "remove", "delete", "destroy"

@@ -12,11 +12,11 @@ module.exports =
 
   parse_remote: async (argv) ->
     switch argv[1]
-      when "add"
+      when "create", "add"
         yield add_remote argv[2..]
       when "passive"
         yield passive_remote argv[2..]
-      when "rm"
+      when "rm", "remove", "delete", "destroy"
         yield rm_remote argv[2..]
       else
         # When the command cannot be identified, display the help guide.

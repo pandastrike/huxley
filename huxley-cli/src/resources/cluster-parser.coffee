@@ -12,9 +12,9 @@ module.exports =
 
   parse_cluster: async (argv) ->
     switch argv[1]
-      when "create"
+      when "create", "add"
         yield create_cluster argv[2..]
-      when "delete"
+      when "rm", "remove", "delete", "destroy"
         yield delete_cluster argv[2..]
       else
         # When the command cannot be identified, display the help guide.
