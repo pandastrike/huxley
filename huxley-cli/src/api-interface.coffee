@@ -96,22 +96,16 @@ module.exports =
   # Pending
   #--------------------------------
   list_pending: async (spec) ->
-    console.log "*****begin list pending in api-interface.coffee"
     try
       {config} = spec
       {secret_token} = config
       {url} = spec.config.huxley
       api = (yield discover url)
 
-
-
       # Get profile, parse for cluster ids
-      #api.authorize basic: {Authorization: secret_token}
       profile = (api.profile {secret_token})
-      {profile} = (yield profile.get())
-      clusters_results = (yield profile).clusters
-
-
+      {data} = (yield profile.get())
+      clusters_results = (yield data).profile.clusters
 
       # Get cluster status, parse list of deployments for said cluster
       deployments_results = {}
@@ -121,7 +115,6 @@ module.exports =
         data = (yield data)
         result = (JSON.parse data).deployments
         deployments[cluster_id] = result
-
 
       # Get deployment status
       pending_results = []

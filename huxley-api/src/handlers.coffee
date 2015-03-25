@@ -41,6 +41,57 @@ module.exports = async ->
   profiles = yield adapter.collection "profiles"
   deployments = yield adapter.collection "deployments"
 
+  call ->
+
+    profiles_mock =
+      asdf123:
+        clusters:
+          sometoken:
+            name: "fearless-panda"
+          anothertoken:
+            name: "sparkles"
+
+    for k, v of profiles_mock
+      yield profiles.put k, v
+
+    console.log "****setting up profiles: ", profiles
+
+    clusters_mock =
+      sometoken:
+        status: "running"
+        deployments: ["id1", "id2"]
+      anothertoken:
+        status: "failed"
+        deployments: ["a", "b"]
+
+    for k, v of clusters_mock
+      yield clusters.put k, v
+
+    deployments_mock =
+      id1:
+        cluster_id: "sometoken"
+        services:
+          service_a: [ status: "starting", status: "running" ]
+          service_b: [ status: "starting", status: "running" ]
+      id2:
+        cluster_id: "sometoken"
+        services:
+          service_a: [ status: "starting", status: "running" ]
+          service_b: [ status: "starting", status: "running" ]
+      a:
+        cluster_id: "anothertoken"
+        services:
+          service_a: [ status: "starting", status: "running" ]
+          service_b: [ status: "starting", status: "running" ]
+      b:
+        cluster_id: "anothertoken"
+        services:
+          service_a: [ status: "starting", status: "running" ]
+          service_b: [ status: "starting", status: "running" ]
+
+    for k, v of deployments_mock
+      yield deployments.put k, v
+
   #
   # cluster: cluster_id
   #   name: StringG
@@ -229,30 +280,7 @@ module.exports = async ->
     }
   ###
 
-  profiles_mock =
-    asdf123:
-      clusters:
-        sometoken:
-          name: "fearless-panda"
-        anothertoken:
-          name: "sparkles"
 
-  clusters_mock =
-    sometoken:
-      status: "running"
-      deployments: ["id1", "id2", "id3"]
-    anothertoken:
-      status: "failed"
-      deployments: ["a", "b", "c"]
-
-  deployments_mock =
-    id1:
-      id: "id1"
-      cluster: "fearless-panda"
-      services:
-        service_a: [ "starting", "running" ]
-        service_b: [ "starting", "running" ] # chronological order
-    id2:
 
   #
   # cluster: cluster_id
@@ -273,6 +301,7 @@ module.exports = async ->
       # {respond, request} = spec
       # {headers} = request
       #secret_token = headers.Authorization
+
       {respond, url, match: {path: {secret_token}}} = spec
       console.log Object.keys spec.match
       console.log spec.match.path
