@@ -31,9 +31,9 @@ get_master_key = async () -> yield read "#{__dirname}/huxley_master.pub"
 
 # Set up our event channel so we can listen to status events
 # TODO: how to configure the Redis server's address?
-transport = Transport.Queue.Redis.create()
+transport = Transport.Redis.Queue.create()
 # TODO: what do we name the channel?
-channel = Channel.create transport,  "hello"
+channel = Channel.create "hello", transport
 
 #===============================================================================
 # Module Definition
