@@ -13,6 +13,7 @@
 
 # CLI Parsers
 {parse_cluster} = require "./resources/cluster-parser"
+{parse_clusters} = require "./resources/clusters-parser"
 {parse_init} = require "./resources/init-parser"
 {parse_mixin} = require "./resources/mixin-parser"
 {parse_pending} = require "./resources/pending-parser"
@@ -40,10 +41,12 @@ call ->
     switch argv[0]
       when "cluster"
         yield parse_cluster argv
+      when "clusters"
+        yield parse_clusters argv
       when "init"
         yield parse_init argv
       when "mixin"
-        yield parse_mixin argv
+        yield parsGe_mixin argv
       when "pending"
         yield parse_pending argv
       when "profile"

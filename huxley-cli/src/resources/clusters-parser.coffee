@@ -6,18 +6,14 @@
 
 {async} = require "fairmont"
 {usage} = require "../helpers"
-{add_remote, rm_remote, passive_remote} = require "./remote"
+{list_clusters} = require "./clusters"
 
 module.exports =
 
-  parse_remote: async (argv) ->
+  parse_clusters: async (argv) ->
     switch argv[1]
-      when "create", "add"
-        yield add_remote argv[2..]
-      when "passive"
-        yield passive_remote argv[2..]
-      when "rm", "remove", "delete", "destroy"
-        yield rm_remote argv[2..]
+      when "ls", "list"
+        yield list_clusters argv[2..]
       else
         # When the command cannot be identified, display the help guide.
-        usage "remote", "\nError: Command Not Found: #{argv[1]} \n"
+        yield usage "clusters", "\nError: Command Not Found: #{argv[1]} \n"

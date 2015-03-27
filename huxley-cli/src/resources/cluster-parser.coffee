@@ -6,7 +6,7 @@
 
 {async} = require "fairmont"
 {usage} = require "../helpers"
-{create_cluster, delete_cluster} = require "./cluster"
+{create_cluster, delete_cluster, describe_cluster} = require "./cluster"
 
 module.exports =
 
@@ -16,6 +16,8 @@ module.exports =
         yield create_cluster argv[2..]
       when "rm", "remove", "delete", "destroy"
         yield delete_cluster argv[2..]
+      when "describe"
+        yield describe_cluster argv[2..]
       else
         # When the command cannot be identified, display the help guide.
         yield usage "cluster", "\nError: Command Not Found: #{argv[1]} \n"

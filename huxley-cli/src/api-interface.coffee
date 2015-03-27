@@ -55,6 +55,26 @@ module.exports =
     catch error
       throw build_error "Unable to delete Huxley cluster.", error
 
+#  get_cluster_status: async (spec) ->
+#    api = yield discover spec.url
+#    cluster = api.cluster spec.cluster_id
+#    while true
+#      response = yield cluster.get()
+#      data = yield response.data
+#      console.log "*****Cluster status: ", data.cluster_status
+#      if data.cluster_status == "The cluster is confirmed to be online and ready."
+#        return data.cluster_status # The cluster formation complete.
+#      else
+#        yield sleep 5000  # Not complete, keep going.
+
+  get_cluster_status: async (spec) ->
+    {cluster_id} = spec
+    cluster = (api.cluster {cluster_id})
+    {data} = (yield cluster.get())
+    data = (yield data)
+    cluster_status = (JSON.parse data).status
+    cluster_status
+
   poll_cluster: async (spec) ->
     api = yield discover spec.url
     cluster = api.cluster spec.cluster_id
@@ -158,3 +178,20 @@ module.exports =
       secret_token
     catch error
       throw "Something done broke in profile creation: #{error}"
+
+
+  get_profile: async (spec) ->
+    try
+      {config} = spec
+      {secret_token} = config
+      {url} = spec.config.huxley
+      api = (yield discover url)
+
+      # Get profile, parse for cluster ids
+      profile = (api.profile {secret_token})
+      {data} = (yield profile.get())
+      profile_result = (yield data).profile
+      profile_result
+
+    catch error
+      throw "Something done broke in get profile: #{error}"

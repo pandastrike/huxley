@@ -63,3 +63,42 @@ module.exports =
 
     # Save the deletion to the root-level configuration.
     yield update_delete_cluster home_config, argv
+
+  describe_cluster: async (argv) ->
+    # Detect if we should provide a help blurb.
+    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
+      yield usage "cluster_delete"
+
+    # Start by reading configuration data from the local config files.
+    {config, home_config} = yield pull_configuration()
+
+    # Check to see if this cluster is registered in the API. We cannot delete what does not exist.
+    yield check_delete_cluster config, argv
+
+    # Now use this raw configuration as context to build an "options" object for panda-cluster.
+    options = yield build_delete_cluster config, argv
+
+    # With our object built, call the Huxley API.
+    # FIXME: which one?  poll_cluster only returns when successful, not constant status
+    yield api.poll_cluster options
+    yield api.get_cluster_status options
+
+  list_clusters: async (argv) ->
+    # Start by reading configuration data from the local config files.
+    {config, home_config} = yield pull_configuration()
+
+    cluster_name = argv[2]
+
+    # With our object built, call the Huxley API.
+    profile = yield api.get_profile {config, home_config}
+
+    cluster_id = null
+    for id, name of profile.clusters
+      if cluster_name == name
+        cluster_id = id
+    if cluster_id == null
+      console.log "Error: cluster #{cluster_name} not found."
+
+    yield api.get_cluster_status {cluster_id, config, home_config}
+
+    console.log profile.clusters
