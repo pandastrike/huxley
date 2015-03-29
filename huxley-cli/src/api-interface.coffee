@@ -40,7 +40,9 @@ module.exports =
     try
       api = yield discover spec.url
       clusters = api.clusters
-      {response: {headers: {cluster_id}}}  = yield clusters.create spec
+      result = yield clusters.create spec
+      result = yield result
+      {response: {headers: {cluster_id}}} = result
       console.log "*****Creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
       return {cluster_id: cluster_id}
     catch error
@@ -55,25 +57,14 @@ module.exports =
     catch error
       throw build_error "Unable to delete Huxley cluster.", error
 
-#  get_cluster_status: async (spec) ->
-#    api = yield discover spec.url
-#    cluster = api.cluster spec.cluster_id
-#    while true
-#      response = yield cluster.get()
-#      data = yield response.data
-#      console.log "*****Cluster status: ", data.cluster_status
-#      if data.cluster_status == "The cluster is confirmed to be online and ready."
-#        return data.cluster_status # The cluster formation complete.
-#      else
-#        yield sleep 5000  # Not complete, keep going.
-
-  get_cluster_status: async (spec) ->
+  get_cluster: async (spec) ->
+    api = yield discover spec.config.huxley.url
     {cluster_id} = spec
     cluster = (api.cluster {cluster_id})
     {data} = (yield cluster.get())
     data = (yield data)
-    cluster_status = (JSON.parse data).status
-    cluster_status
+    # TODO: get cluster currently only stores/returns status
+    #cluster = (JSON.parse data)
 
   poll_cluster: async (spec) ->
     api = yield discover spec.url
@@ -107,7 +98,6 @@ module.exports =
       api = yield discover spec.url
       remote = api.remote spec.remote_id
       result = yield remote.delete()
-      console.log yield result.data
 
     catch error
       throw build_error "Unable to remove remote githook.", error
@@ -164,7 +154,6 @@ module.exports =
       {data} = (yield profiles.create {data: request_data})
       data = (yield data)
       {profile} = (JSON.parse data)
-      console.log "*****profile created: ", profile
 
       {secret_token} = profile
       configurator = Configurator.make

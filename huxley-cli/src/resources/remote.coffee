@@ -25,13 +25,14 @@ module.exports =
       yield usage "remote_add"
 
     # Start by reading configuration data from the local config files.
-    {config, app_config} = yield pull_configuration()
+    {config, app_config, home_config} = yield pull_configuration()
 
     # Check to see if this remote has already been registered in the API.
     yield check_add_remote config, argv
 
     # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_add_remote config, argv
+    options = yield build_add_remote {config, app_config, home_config, argv}
+    #####
 
     # With our object built, call the Huxley API.
     console.log "Installing....  One moment."

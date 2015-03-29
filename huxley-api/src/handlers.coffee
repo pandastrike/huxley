@@ -41,62 +41,63 @@ module.exports = async ->
   profiles = yield adapter.collection "profiles"
   deployments = yield adapter.collection "deployments"
 
-  call ->
-
-    profiles_mock =
-      asdf123:
-        clusters:
-          sometoken:
-            name: "fearless-panda"
-          anothertoken:
-            name: "sparkles"
-
-    for k, v of profiles_mock
-      yield profiles.put k, v
-
-    console.log "****setting up profiles: ", profiles
-
-    clusters_mock =
-      sometoken:
-        status: "running"
-        deployments: ["id1", "id2"]
-      anothertoken:
-        status: "failed"
-        deployments: ["a", "b"]
-
-    for k, v of clusters_mock
-      yield clusters.put k, v
-
-    deployments_mock =
-      id1:
-        cluster_id: "sometoken"
-        services:
-          service_a: [ status: "starting", status: "running" ]
-          service_b: [ status: "starting", status: "running" ]
-      id2:
-        cluster_id: "sometoken"
-        services:
-          service_a: [ status: "starting", status: "running" ]
-          service_b: [ status: "starting", status: "running" ]
-      a:
-        cluster_id: "anothertoken"
-        services:
-          service_a: [ status: "starting", status: "running" ]
-          service_b: [ status: "starting", status: "running" ]
-      b:
-        cluster_id: "anothertoken"
-        services:
-          service_a: [ status: "starting", status: "running" ]
-          service_b: [ status: "starting", status: "running" ]
-
-    for k, v of deployments_mock
-      yield deployments.put k, v
+#  call ->
+#
+#    profiles_mock =
+#      asdf123:
+#        clusters:
+#          sometoken:
+#            name: "fearless-panda"
+#          anothertoken:
+#            name: "sparkles"
+#
+#    for k, v of profiles_mock
+#      yield profiles.put k, v
+#
+#    console.log "****setting up profiles: ", profiles
+#
+#    clusters_mock =
+#      sometoken:
+#        status: "running"
+#        deployments: ["id1", "id2"]
+#      anothertoken:
+#        status: "failed"
+#        deployments: ["a", "b"]
+#
+#    for k, v of clusters_mock
+#      yield clusters.put k, v
+#
+#    deployments_mock =
+#      id1:
+#        cluster_id: "sometoken"
+#        services:
+#          service_a: [ status: "starting", status: "running" ]
+#          service_b: [ status: "starting", status: "running" ]
+#      id2:
+#        cluster_id: "sometoken"
+#        services:
+#          service_a: [ status: "starting", status: "running" ]
+#          service_b: [ status: "starting", status: "running" ]
+#      a:
+#        cluster_id: "anothertoken"
+#        services:
+#          service_a: [ status: "starting", status: "running" ]
+#          service_b: [ status: "starting", status: "running" ]
+#      b:
+#        cluster_id: "anothertoken"
+#        services:
+#          service_a: [ status: "starting", status: "running" ]
+#          service_b: [ status: "starting", status: "running" ]
+#
+#    for k, v of deployments_mock
+#      yield deployments.put k, v
 
   #
   # cluster: cluster_id
   #   name: StringG
   #   status: String
   #   deployments: [id1, id2, id3]
+  #   public_domain: String
   #
   #
   # remotes: remote_id
@@ -118,6 +119,7 @@ module.exports = async ->
           aws: data.aws
           cluster_name: data.cluster_name
           region: data.region             if data.region?
+          public_domain: data.public_domain
 
         # Store the record using a unique token as the key.
         cluster_id = make_key()
@@ -303,9 +305,6 @@ module.exports = async ->
       #secret_token = headers.Authorization
 
       {respond, url, match: {path: {secret_token}}} = spec
-      console.log Object.keys spec.match
-      console.log spec.match.path
-      console.log "****secret token: ", secret_token
       profile = yield profiles.get secret_token
       if profile?
         respond 200, {profile}
@@ -317,7 +316,7 @@ module.exports = async ->
 
     create: async ({respond, url, data}) ->
       {data} = (yield data)
-      if yield profiles.get data.email
+      if yield profiles.get data.secret_token
         respond 403, "Profile already exists"
       else
         # FIXME: deleted public keys cause it was too messy to print

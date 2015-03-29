@@ -6,25 +6,62 @@
 {resolve} = require "path"
 {async, project, shell, property, collect} = require "fairmont"
 {force, where} = require "../helpers"
+api = require "../api-interface"
 
 module.exports =
   #------------------------
   # Huxley Remote Add
   #------------------------
   # Construct an object that will be passed to the Huxley API to used by its panda-hook library.
-  build_add_remote: async (config, argv) ->
-    config.public_domain = yield property( "domain", (yield where config.clusters, {name: argv[0]})[0])
+#  build_add_remote: async (config, argv) ->
+#    config.public_domain = yield property( "domain", (yield where config.clusters, {name: argv[0]})[0])
+#
+#    return yield {
+#      cluster_name: argv[0]
+#      public_domain: config.public_domain
+#      cluster_address: "core@#{argv[0]}.#{config.public_domain}"
+#      repo_name: config.app_name
+#      hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
+#      url: config.huxley.url
+#      secret_token: config.huxley.secret_token
+#      email: config.huxley.email
+#    }
+
+  # Construct an object that will be passed to the Huxley API to used by its panda-hook library.
+  build_add_remote: async (data) ->
+    {config, home_config, app_config, argv} = data
+
+    profile = yield api.get_profile {config}
+    cluster_name = argv[0]
+    cluster_id = null
+    # fetch profile, check if cluster ownership is valid
+    for id, value of profile.clusters
+      if cluster_name == value.name
+        cluster_id = id
+    if cluster_id == null
+      throw new Error "Error: cluster #{cluster_name} not found in your profile. \n"
+
+    cluster_result = yield api.get_cluster {cluster_id, config, home_config}
+    console.log 2
+    console.log "*****cluster result: ", cluster_result
+    # TODO: get cluster currently only stores/returns status
+    {public_domain} = cluster_result
+
+    #####
+
+    #config.public_domain = yield property( "domain", (yield where config.clusters, {name: argv[0]})[0])
 
     return yield {
       cluster_name: argv[0]
-      public_domain: config.public_domain
-      cluster_address: "core@#{argv[0]}.#{config.public_domain}"
+      public_domain: public_domain
+      cluster_address: "core@#{argv[0]}.#{public_domain}"
       repo_name: config.app_name
-      hook_address: "root@#{argv[0]}.#{config.public_domain}:3000"
+      hook_address: "root@#{argv[0]}.#{public_domain}:3000"
       url: config.huxley.url
-      secret_token: config.huxley.secret_token
-      email: config.huxley.email
+      secret_token: config.huxley.secret_token || config.secret_token
+      email: config.huxley.email || config.email
     }
+
 
   # Check the application level config to make sure what the user's requesting can be done.
   check_add_remote: async (config, argv) ->

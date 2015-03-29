@@ -93,12 +93,11 @@ module.exports =
     profile = yield api.get_profile {config, home_config}
 
     cluster_id = null
-    for id, name of profile.clusters
-      if cluster_name == name
+    for id, value of profile.clusters
+      if cluster_name == value.name
         cluster_id = id
     if cluster_id == null
-      console.log "Error: cluster #{cluster_name} not found."
+      throw new Error "Error: cluster #{cluster_name} not found in your profile. \n"
 
-    yield api.get_cluster_status {cluster_id, config, home_config}
-
-    console.log profile.clusters
+    cluster_result = yield api.get_cluster {cluster_id, config, home_config}
+    cluster_result.status

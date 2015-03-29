@@ -56,7 +56,7 @@ module.exports =
 
       # Huxley Access
       url: config.huxley.url
-      secret_token: config.huxley.secret_token
+      secret_token: config.huxley.secret_token || config.secret_token
       email: config.huxley.email
     }
 
