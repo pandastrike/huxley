@@ -8,7 +8,7 @@ module.exports =
     ,
       name: "port"
       description: "On what port is the mixin listening?"
-      default: undefined
+      default: 80
     ,
       name: "start_command"
       description: "What is the application start command?"
