@@ -20,6 +20,14 @@ RUN cd /huxley-api && npm install
 # Define working directory.
 WORKDIR /huxley-api
 
+# Set up a environment variable to signal the server
+# to expect to find a Redis server running on the given
+# host on the default port (6379).
+# Docker will automatically create an entry in the `/etc/hosts`
+# file when running in linked mode.
+# See https://docs.docker.com/userguide/dockerlinks/#updating-the-etchosts-file
+ENV REDIS_HOST=redis
+
 # Define default command.
 CMD ["sh", "-c", "eval $(ssh-agent) && npm start"]
 

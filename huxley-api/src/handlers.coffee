@@ -30,8 +30,10 @@ make_key = () -> key_forge.randomKey 16, "base64url"
 get_master_key = async () -> yield read "#{__dirname}/huxley_master.pub"
 
 # Set up our event channel so we can listen to status events
-# TODO: how to configure the Redis server's address?
-transport = Transport.Redis.Queue.create()
+# We use an environment variable to discover the redis container when 
+# running in a container setup.
+# If the variable is not defined, `localhost` will be used.
+transport = Transport.Redis.Queue.create(host: process.env['REDIS_HOST'])
 # TODO: what do we name the channel?
 channel = Channel.create "hello", transport
 
