@@ -28,21 +28,19 @@ module.exports =
     {config, app_config} = yield pull_configuration()
 
     # Check to see if this remote has already been registered in the API.
-    yield check_add_remote config, argv
+    cluster = yield check_add_remote config, argv
 
-    # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_add_remote config, argv
+    # Now use this context to build an "options" object for panda-hook.
+    options = build_add_remote config, argv, cluster
 
     # With our object built, call the Huxley API.
     console.log "Installing....  One moment."
-    response = yield api.add_remote options
+    yield api.add_remote options
 
     # Now, add a "git remote" alias using the cluster name. The first command is allowed to fail.
     yield force shell, "git remote rm #{argv[0]}"
     yield shell "git remote add #{argv[0]} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
 
-    # Save the remote ID to app-level configuration.
-    yield update_add_remote app_config, argv, response
 
 
   # Not everything we place onto the cluster needs to trigger a cascade of deployment events.
@@ -72,16 +70,13 @@ module.exports =
     {config, app_config} = yield pull_configuration()
 
     # Check to see if this remote is registered in the API.  We cannot delete what does not exist.
-    yield check_rm_remote config, argv
+    cluster = yield check_rm_remote config, argv
 
     # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_rm_remote config, argv
+    options = yield build_rm_remote config, cluster
 
     # With our object built, call the Huxley API.
     response = yield api.rm_remote options
 
     # Remove a git remote alias using the cluster name. This command is allowed to fail.
     yield force shell, "git remote rm #{argv[0]}"
-
-    # Remove the remote ID from the app-level configuration.
-    yield update_rm_remote app_config, argv

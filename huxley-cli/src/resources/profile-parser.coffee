@@ -6,19 +6,18 @@
 
 {async} = require "fairmont"
 {usage} = require "../helpers"
-{create_profile, remove_profile} = require "./profile"
+{create_profile} = require "./profile"
 
 module.exports =
 
   parse_profile: async (argv) ->
     switch argv[1]
       when "create"
-        # TODO
-        yield create_profile {argv}
-      when "rm", "remove", "delete", "destroy"
-        # TODO
-        yield remove_profile {argv}
+        yield create_profile argv[2..]
+      # when "rm", "remove", "delete", "destroy"
+      #   yield remove_profile argv[2..]
+      # when "use"
+      #   yield use_profile argv[2..]
       else
         # When the command cannot be identified, display the help guide.
-        #yield usage "user", "\nError: Command Not Found: #{argv[1]} \n"
-        console.log "*****Bad 'profile' command"
+        yield usage "profile", "\nError: Command Not Found: #{argv[1]} \n"

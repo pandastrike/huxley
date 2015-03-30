@@ -5,29 +5,40 @@
 # with a use-case that may vary from person to person.  Therefore, the resource
 # used to track these details is called "profile"
 
-{async} = require "fairmont"
+{async, merge} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 api = require "../api-interface"
 
+{build_create, check_create, parse_create, update_create} = require "./profile-helpers"
 
-# Parses command to return the email or "default" profile
-get_target_email = (argv) ->
-  email = arg for arg in argv when arg.contains "--email="
-  default_email = ""
-  profile = email?.split("=")[1] || default_email
 
 module.exports =
 
-  create_profile: async ({argv}) ->
-    {config} = (yield pull_configuration())
-    email = get_target_email argv
-    # FIXME: entire config is passed in, should filter later
-    yield api.create_profile {config, email}
+  # This sub-command allows the user to establish a new Huxley profile.
+  create_profile: async (argv) ->
+    # Parse the command-line options
+    options = yield parse_create argv
 
-  # TODO
-  remove_profile: async ({argv}) ->
-#    config = yield pull_configuration()
-#    email = get_target_email argv
-#    console.log "*****removing profile: ", profile
-#    # FIXME: entire config is passed in, should filter later
-#    #yield api.delete_profile {config, profile}
+    # Pull global config from the Huxley dotfile.
+    {config, home_config} = yield pull_configuration()
+
+    # Check this request against current Huxley profiles.
+    check_create config, options
+
+    # Build a configuration object to pass to the Huxley API
+    request = build_create config, options
+
+    # Access the Huxley API and create this profile.
+    response = yield api.create_profile request
+
+    # Update the global configuration with this successful profile creation.
+    yield update_create response, home_config, options
+
+
+
+  # # This sub-command allows the user to remove a Huxley profile.
+  # remove_profile: async ({argv}) ->
+  #
+  #
+  # # This sub-command allows the user to switch to another Huxley profile.
+  # use_profile: async ({argv}) ->

@@ -23,7 +23,7 @@
     "panda-cluster": "git://github.com/pandastrike/panda-cluster",
     "panda-config": "^1.0.0-alpha-02",
     "panda-hook": "git://github.com/pandastrike/panda-hook",
-    "pbx": "1.0.0-alpha-14",
+    "pbx": "1.0.0-alpha-15",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"
   },

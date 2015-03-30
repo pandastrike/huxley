@@ -12,8 +12,9 @@
 # TODO: This is a poor implementation because it wastefully shuffles the whole
 #       just to select one value.  It was just handy in fairmont...  fix this later.
 select_random = (list) ->
-  list = shuffle list
-  return list[0]
+  {random, round} = Math
+  index = round random() * (list.length - 1)
+  return list[index]
 
 
 module.exports =
@@ -47,7 +48,7 @@ module.exports =
       cluster_size: config.cluster_size         || 3
       instance_type: config.instance_type       || "m1.medium"
       public_keys: config.public_keys           || []
-      region: config.region                     if config.region?
+      region: config.region                     || config.aws.region
       formation_service_templates: true
       spot_price: config.spot_price             if config.spot_price?
       virtualization: config.virtualization     || "pv"
@@ -56,32 +57,8 @@ module.exports =
 
       # Huxley Access
       url: config.huxley.url
-      secret_token: config.huxley.secret_token
-      email: config.huxley.email
+      secret_token: config.huxley.profile.secret_token
     }
-
-
-  # Check the root level config to make sure what the user's requesting can be done.
-  check_create_cluster: async (config, argv) ->
-    if config.clusters?
-      clusters = collect yield project "name", config.clusters
-      if argv[0] in clusters
-        message = "There is already a cluster named #{argv[0]} registered with your account \n " +
-                  "Please use select another name or use \"huxley cluster delete #{argv[0]}\" to delete the current cluster."
-        throw message
-
-  # Update the root level config based on what "huxley cluster create" changes.
-  update_create_cluster: async (config, options, api_response) ->
-    unless config.data.clusters?
-      config.data.clusters = []
-
-    config.data.clusters.push {
-      name: options.cluster_name
-      domain: options.public_domain
-      id: api_response.cluster_id
-    }
-
-    yield config.save()
 
 
 
@@ -89,32 +66,9 @@ module.exports =
   # Huxley Cluster Delete
   #------------------------
   # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
-  build_delete_cluster: async (config, argv) ->
-    clusters = collect yield project "name", config.clusters
-    index = clusters.indexOf argv[0]
-
+  build_delete_cluster: (config, argv) ->
     return {
-      cluster_id: config.clusters[index].id
+      cluster_name: argv[0]
       url: config.huxley.url
-      secret_token: config.huxley.secret_token
-      email: config.huxley.email
+      secret_token: config.huxley.profile.secret_token
     }
-
-
-  # Check the application level config to make sure what the user's requesting can be done.
-  check_delete_cluster: async (config, argv) ->
-    if config.clusters?
-      clusters = collect yield project "name", config.clusters
-      unless argv[0] in clusters
-        throw "Error: The cluster \"#{argv[0]}\" is not registered with your account. Nothing to remove."
-    else
-      throw "Error: The cluster \"#{argv[0]}\" is not registered with your account. Nothing to remove."
-
-
-  # Update the application level config based on what "huxley cluster delete" changes.
-  update_delete_cluster: async (config, argv) ->
-    clusters = collect yield project "name", config.data.clusters
-    index = clusters.indexOf argv[0]
-    config.data.clusters[index..index] = []
-
-    yield config.save()
