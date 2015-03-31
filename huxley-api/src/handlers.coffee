@@ -35,7 +35,7 @@ get_master_key = async () -> yield read "#{__dirname}/huxley_master.pub"
 # If the variable is not defined, `localhost` will be used.
 transport = Transport.Redis.Queue.create(host: process.env['REDIS_HOST'])
 # TODO: what do we name the channel?
-channel = Channel.create "hello", transport
+channel = Channel.create "huxley", transport
 
 #===============================================================================
 # Module Definition
