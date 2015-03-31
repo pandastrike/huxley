@@ -73,7 +73,7 @@ module.exports =
     cluster = yield check_rm_remote config, argv
 
     # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_rm_remote config, cluster
+    options = build_rm_remote config, cluster
 
     # With our object built, call the Huxley API.
     response = yield api.rm_remote options

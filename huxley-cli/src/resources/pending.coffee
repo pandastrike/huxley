@@ -7,14 +7,18 @@
 
 
 {async} = require "fairmont"
-{usage, pull_configuration, force} = require "../helpers"
+{usage, pull_configuration} = require "../helpers"
 api = require "../api-interface"
 
 
 module.exports =
 
-  list: async ({argv}) ->
-    {config} = (yield pull_configuration())
-    console.log "*****pending.coffee"
-    # FIXME: entire config is passed in, should filter later
-    yield api.list_pending {config}
+  list: async (argv) ->
+    {config} = yield pull_configuration()
+    options =
+      url: config.huxley.url
+      secret_token: config.huxley.profile.secret_token
+
+    response = yield api.list_pending options
+    for i in response.resources
+      console.log i

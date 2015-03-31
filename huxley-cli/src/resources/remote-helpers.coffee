@@ -19,6 +19,7 @@ module.exports =
 
     return {
       cluster_id: cluster_id
+      cluster_name: argv[0]
       public_domain: domain
       cluster_address: "core@#{argv[0]}.#{domain}"
       repo_name: config.app_name
@@ -50,13 +51,14 @@ module.exports =
   # Huxley Remote Remove
   #------------------------
   # Construct an object that will be passed to the Huxley API to used by its panda-hook library.
-  build_rm_remote: async (config, cluster) ->
+  build_rm_remote: (config, cluster) ->
     {cluster_id} = cluster
 
     return {
       cluster_id: cluster_id
       url: config.huxley.url
       secret_token: config.huxley.profile.secret_token
+      repo_name: config.app_name
     }
 
 

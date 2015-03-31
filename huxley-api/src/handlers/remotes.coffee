@@ -26,6 +26,10 @@ module.exports = (db) ->
     remote_id = make_key()
     db.remotes.put remote_id, record
 
+    cluster = yield db.clusters.get data.cluster_id
+    cluster.remotes.push remote_id
+    yield db.clusters.put data.cluster_id, cluster
+
     # Access panda-hook to create a githook and place it on the cluster.
-    yield pandahook.push data
+    #yield pandahook.push data
     respond 201, "githook installed", {remote_id: remote_id}

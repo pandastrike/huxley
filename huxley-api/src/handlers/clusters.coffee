@@ -24,11 +24,12 @@ module.exports = (db) ->
     else
       # Create a cluster record to be stored in the server's database.
       record =
-        status: "starting"
+        status: "online"
         name: data.cluster_name
         public_domain: data.public_domain
         region: data.region
         deployments: []
+        remotes: []
 
       # Store the record using a unique token as the key.
       cluster_id = make_key()
@@ -39,9 +40,29 @@ module.exports = (db) ->
       profile.clusters.push cluster_id
       yield db.profiles.put data.secret_token, profile
 
-      # Add Huxley master SSH key to the list of user SSH keys, for later access.
-      data.public_keys.push yield get_master_key()
+      try
+        # Add Huxley master SSH key to the list of user SSH keys, for later access.
+        data.public_keys.push yield get_master_key()
 
-      # Create a CoreOS cluster using panda-cluster
-      #pandacluster.create_cluster data
-      respond 201, "Cluster creation underway.", {cluster_id}
+        # Create a CoreOS cluster using panda-cluster
+        #pandacluster.create_cluster data
+        respond 201, "Cluster creation underway.", {cluster_id}
+      catch error
+        # Record failure of this cluster.
+        cluster = yield db.clusters.get cluster_id
+        cluster.status = "failed"
+        cluster.detail = error
+        yield db.clusters.put cluster_id cluster
+
+
+  put: async (context) ->
+    # Parse the context for need information.
+    {respond, data} = context
+    data = yield data
+
+    cluster = yield db.clusters.get data.cluster_id
+    cluster.status = data.status
+    cluster.detail = data.detail
+    yield db.clusters.put data.cluster_id, cluster
+
+    respond 200

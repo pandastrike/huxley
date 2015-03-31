@@ -56,7 +56,7 @@ module.exports =
       tags: [{Key: "role", Value: config.tags}]
 
       # Huxley Access
-      url: config.huxley.url
+      huxley_url: config.huxley.url
       secret_token: config.huxley.profile.secret_token
     }
 

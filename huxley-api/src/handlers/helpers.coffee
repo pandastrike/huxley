@@ -17,6 +17,7 @@ module.exports =
   # path.  The key gets placed on every cluster this server creates.
   get_master_key: async () -> yield read join __dirname, "..", "huxley_master.pub"
 
+  # Retrieve a cluster ID when given the name and who it belongs to.
   get_cluster_id: async (name, token, db) ->
     cluster_ids = (yield db.profiles.get token).clusters
     return id for id in cluster_ids when (name == (yield db.clusters.get(id))?.name)
@@ -49,3 +50,14 @@ module.exports =
   delete_cluster: async (cluster_id, token, db) ->
     db.clusters.delete cluster_id
     remove (yield db.profiles.get token).clusters, cluster_id
+
+  # Retrieve the remote ID when given the cluster ID and the repository name.
+  get_remote_id: async (name, cluster_id, db) ->
+    remote_ids = (yield db.clusters.get cluster_id).remotes
+    return id for id in remote_ids when (name == (yield db.remotes.get(id))?.repo_name)
+    return false
+
+  # Delete a remote and all of its references from within our database.
+  delete_remote: async (remote_id, cluster_id, db) ->
+    db.remotes.delete remote_id
+    remove (yield db.clusters.get cluster_id).remotes, remote_id

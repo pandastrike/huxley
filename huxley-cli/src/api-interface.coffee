@@ -33,8 +33,8 @@ module.exports =
     try
       cluster = (yield discover spec.url).cluster spec.cluster_name
       yield cluster.delete
-      .authorize bearer: spec.secret_token
-      .invoke()
+        .authorize bearer: spec.secret_token
+        .invoke()
       console.log "****Deletion In Progress."
     catch error
       throw build_error "Unable to delete Huxley cluster.", error
@@ -43,8 +43,8 @@ module.exports =
     try
       cluster = (yield discover spec.url).cluster spec.cluster_name
       {data} = yield cluster.get
-      .authorize bearer: spec.secret_token
-      .invoke()
+        .authorize bearer: spec.secret_token
+        .invoke()
       return data
     catch error
       throw build_error "Unable to retrieve cluster data.", error
@@ -62,11 +62,11 @@ module.exports =
 
   rm_remote: async (spec) ->
     try
-      api =
-      remote = (yield discover spec.url).remote spec.remote_id
+      {cluster_id, repo_name} = spec
+      remote = (yield discover spec.url).remote {cluster_id, repo_name}
       yield remote.delete
-      .authorize bearer: spec.secret_token
-      .invoke()
+        .authorize bearer: spec.secret_token
+        .invoke()
       console.log "****Githook remote has been removed."
     catch error
       throw build_error "Unable to remove remote githook.", error
@@ -76,38 +76,11 @@ module.exports =
   #--------------------------------
   list_pending: async (spec) ->
     try
-      {config} = spec
-      {secret_token} = config
-      {url} = spec.config.huxley
-      api = (yield discover url)
-
-      # Get profile, parse for cluster ids
-      profile = (api.profile {secret_token})
-      {data} = (yield profile.get())
-      clusters_results = (yield data).profile.clusters
-
-      # Get cluster status, parse list of deployments for said cluster
-      deployments_results = {}
-      for cluster_id, cluster_name of clusters_results
-        cluster = (api.cluster {cluster_id})
-        {data} = (yield cluster.get())
-        data = (yield data)
-        result = (JSON.parse data).deployments
-        deployments[cluster_id] = result
-
-      # Get deployment status
-      pending_results = []
-      for cluster_id, deployments_list of deployments_results
-        for deployment_id in deployments_list
-          deployment = (api.deployment {deployment_id})
-          {data} = (yield deployment.get())
-          data = (yield data)
-          result = (JSON.parse data)
-          # FIXME: how to present return data (group by cluster_id?)
-          pending_results.push data
-
-      pending_results
-
+      pending = (yield discover spec.url).pending
+      {data} = yield pending.get
+        .authorize bearer: spec.secret_token
+        .invoke()
+      return data
     catch error
       throw "Something done broke in list pending: #{error}"
 

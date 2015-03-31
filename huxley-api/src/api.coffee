@@ -6,11 +6,13 @@ builder.define "clusters",
 .post
   as: "create"
   creates: "cluster"
+.put()
 
 builder.define "cluster",
   template: "/cluster/:cluster_name"
-.get()
 .delete()
+.get()
+
 
 builder.define "remotes",
   template: "/remotes"
@@ -19,8 +21,12 @@ builder.define "remotes",
   creates: "remote"
 
 builder.define "remote",
-  template: "/remote/:remote_id"
+  template: "/remote/:cluster_id/:repo_name"
 .delete()
+
+builder.define "pending",
+  path: "/pending"
+.get()
 
 builder.define "profiles",
   path: "/profiles"
