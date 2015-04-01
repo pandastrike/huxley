@@ -36,7 +36,7 @@ module.exports = (db) ->
         region: data.region
         deployments: []
         remotes: []
-        command_id: hash
+        command_id: command
 
       # Store the record using a unique token as the key.
       cluster_id = make_key()
@@ -77,7 +77,7 @@ module.exports = (db) ->
 
     # Update pending commands list.
     if data.status == "online" or data.status == "stopped"
-      hash = data.command_id
-      db.pending.delete token, hash
+      command = data.command_id
+      db.pending.delete token, command
 
     respond 200
