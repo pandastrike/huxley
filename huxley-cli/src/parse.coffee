@@ -41,3 +41,5 @@ module.exports =
           else
             # TODO: Add flag documentation to the help blurbs.
             throw "Error: Unsupported flag, #{flag}"
+
+      return options

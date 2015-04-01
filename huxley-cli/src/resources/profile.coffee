@@ -30,7 +30,7 @@ module.exports =
     # Update the global configuration with this successful profile creation.
     yield update response, home_config, options
 
-    return response
+    return response.message
 
 
 

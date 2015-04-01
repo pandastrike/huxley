@@ -4,7 +4,7 @@
 # Huxley's CLI accepts actions on a variety of resources.  This file contains code
 # that validates the user's request and offers command guidance when an error is detected.
 
-{async} = require "fairmont"
+{async, shell} = require "fairmont"
 {usage} = require "./helpers"
 
 module.exports =
@@ -20,7 +20,7 @@ module.exports =
 
     # Identify the resource.
     try
-      commands = require "./resources/#{resource}"
+      commands = require "#{__dirname}/resources/#{resource}"
     catch error
       yield usage "main", "Error: Resource \"#{resource}\" does not exist."
 

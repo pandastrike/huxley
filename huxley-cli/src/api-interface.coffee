@@ -76,7 +76,7 @@ module.exports =
           .invoke()
         return data
       catch error
-        throw "Unable to retrieve pending commands.", #{error}
+        throw build_error "Unable to retrieve pending commands.", error
 
   profile:
     create: async (spec) ->
