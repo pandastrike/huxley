@@ -22,7 +22,7 @@
 {promise} = require "when"
 
 # Local Modules
-handlers = require "./handlers/main"
+handlers = require "./handlers"
 api_spec = require "./api"
 {generate_keypair} = require "./ssh-master"
 

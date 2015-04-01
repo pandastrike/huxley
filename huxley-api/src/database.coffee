@@ -9,24 +9,35 @@
 
 # Until we get "pending" folded properly into the database, this class will serve
 # as a rough adapter for the collection.
-class Pending
-  constructor: (@data) ->
 
-  put: (token, hash, description) ->
+# TODO: possibly store in redis using {token}-pending collection
+# and hash as the key, pending.put hash, description
+class Pending
+  constructor: () ->
+    @data = {}
+
+  put: (token, command, status) ->
     unless @data[token]?
       @data[token] = {}
 
-    hash = md5 description
-    @data[token][hash] = description
+    hash = md5 command
+
+    if @data[token][hash]?
+      @data[token][hash].status = status
+    else
+      @data[token][hash] = {command, status}
+      @data[token].last = hash
+
 
   get_all: (token) ->
     if @data[token]?
       return @data[token]
     else
       return {}
-      
+
   delete: (token, hash) ->
-    delete @data[token][hash] if @data[token][hash]?
+    delete pending[token].last  if pending[token].last == hash
+    delete @data[token][hash]   if @data[token][hash]?
 
 
 
@@ -42,8 +53,5 @@ module.exports =
       deployments: yield adapter.collection "deployments"
       profiles: yield adapter.collection "profiles"
       remotes: yield adapter.collection "remotes"
-
-      # TODO: possibly store in redis using {token}-pending collection
-      # and hash as the key, pending.put hash, description
-      pending: new Pending {}
+      pending: new Pending
     }

@@ -24,8 +24,8 @@ module.exports = (db) ->
       return
     else
       command = "cluster create #{cluster_name}"
-      description = "Request [#{command}] has status [creating]."
       hash = md5 command
+      description = "Request [#{command}] has status [creating]."
       db.pending.put token, hash, description
 
       # Create a cluster record to be stored in the server's database.
@@ -68,6 +68,7 @@ module.exports = (db) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data
+    token = data.secret_token
 
     cluster = yield db.clusters.get data.cluster_id
     cluster.status = data.status
@@ -77,18 +78,6 @@ module.exports = (db) ->
     # Update pending commands list.
     if data.status == "online" or data.status == "stopped"
       hash = data.command_id
-      db.pending.delete
-
-    delete pending[token][hash]
-    if pending[token].last == hash
-      delete pending[token].last
-
-    switch scope
-      when "last"
-        pending[token].last?
-      when "all"
-        empty Object.keys pending[token]
-      else
-        pending[token][hash]?
+      db.pending.delete token, hash
 
     respond 200

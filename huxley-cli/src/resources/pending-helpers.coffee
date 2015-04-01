@@ -7,16 +7,9 @@
 
 module.exports =
 
-  list:
-    # Construct a configuration object to send to the Huxley API.
-    build: (config, spec) ->
-      return {
-        url: config.huxley.url
-        email: spec.email || ""
-        profile_name: spec.first || "default"
-      }
-
-      return {
-        url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
-      }
+  # Construct a configuration object to send to the Huxley API.
+  build: (config, spec) ->
+    return {
+      url: config.huxley.url
+      secret_token: config.huxley.profile.secret_token
+    }
