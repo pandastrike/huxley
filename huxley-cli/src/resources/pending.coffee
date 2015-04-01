@@ -8,17 +8,25 @@
 
 {async} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
-api = require "../api-interface"
+api = (require "../api-interface").pending
 
 
 module.exports =
 
-  list: async (argv) ->
+  list: async (spec) ->
+    {build} = (require "./pending-helpers").list
+    # Read configuration data from the local config files.
     {config} = yield pull_configuration()
-    options =
-      url: config.huxley.url
-      secret_token: config.huxley.profile.secret_token
 
-    response = yield api.list_pending options
-    for i in response.resources
-      console.log i
+    # Build an options object for the Huxley API.
+    options = build config, spec
+
+    # Call the Huxley API
+    response = yield api.list options
+    message = ""
+    for x of response.resources
+      message += "#{x} \n"
+
+    return message
+
+  wait: async (spec) ->

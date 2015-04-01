@@ -20,15 +20,7 @@ module.exports = (db) ->
       profile = yield db.profiles.get token
 
       if !profile
-        respond 404
-        return
-
-      # Begin collecting data about this profile.
-      resources = []
-
-      # Clusters
-      for id in profile.clusters
-        cluster = db.clusters.get id
-        resources.push "Cluster #{id} has status #{cluster.status}. #{cluster.detail}"
-
-      respond 200, {resources}
+        respond 401, "Unknown profile."
+      else
+        resources = db.pending.get_all token
+        respond 200, {resources}

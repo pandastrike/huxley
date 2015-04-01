@@ -3,7 +3,7 @@
 #===============================================================================
 # This file contains API handler functions for the single resource "cluster".
 
-{async, remove} = require "fairmont"
+{async, remove, md5} = require "fairmont"
 {get_cluster, delete_cluster} = require "./helpers"
 pandacluster = require "panda-cluster"
 

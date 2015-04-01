@@ -7,32 +7,30 @@
 
 {async, merge} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
-api = require "../api-interface"
-
-{build_create, check_create, parse_create, update_create} = require "./profile-helpers"
-
+api = (require "../api-interface").profile
 
 module.exports =
 
   # This sub-command allows the user to establish a new Huxley profile.
-  create_profile: async (argv) ->
-    # Parse the command-line options
-    options = yield parse_create argv
+  create: async (spec) ->
+    {build, check, update} = (require "./profile-helpers").create
 
     # Pull global config from the Huxley dotfile.
     {config, home_config} = yield pull_configuration()
 
     # Check this request against current Huxley profiles.
-    check_create config, options
+    check config
 
     # Build a configuration object to pass to the Huxley API
-    request = build_create config, options
+    options = build config, spec
 
     # Access the Huxley API and create this profile.
-    response = yield api.create_profile request
+    response = yield api.create options
 
     # Update the global configuration with this successful profile creation.
-    yield update_create response, home_config, options
+    yield update response, home_config, options
+
+    return response
 
 
 

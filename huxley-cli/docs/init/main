@@ -1,0 +1,5 @@
+--------------------------------------------
+Usage: huxley init
+--------------------------------------------
+
+Generates the basic files Huxley needs to function and adds them the application's repository.

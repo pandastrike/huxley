@@ -6,17 +6,17 @@
 # database adapter (via Pirate) here and pass the resulting object into
 # each handler.
 
-{async, call, clone, last, read, no_op} = require "fairmont"  # utility library
+{async, call, clone, last, read} = require "fairmont"  # utility library
 
 # Database
-{initialize_database} = require "../database"
+database = require "../database"
 
 
 # Exposed Methods
 module.exports = async () ->
 
   # Intialize the API database
-  db = yield initialize_database()
+  db = yield database.initialize()
 
   # Pull in the resource handlers.
   clusters: (require "./clusters")(db)
@@ -25,7 +25,7 @@ module.exports = async () ->
   deployments: (require "./deployments")(db)
   deployment:  (require "./deployment")(db)
 
-  #pending: (require "./pending")(db)
+  pending: (require "./pending")(db)
 
   profiles: (require "./profiles")(db)
   #profile: (require "./profile")(db)
