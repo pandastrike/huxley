@@ -70,6 +70,10 @@ module.exports = (db) ->
     data = yield data
     token = data.secret_token
 
+    if (!token) || !(yield db.profiles.get token)
+      respond 401, "Unknown profile."
+      return
+
     cluster = yield db.clusters.get data.cluster_id
     cluster.status = data.status
     cluster.detail = data.detail
