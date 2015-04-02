@@ -1,115 +1,91 @@
+#===============================================================================
+# Huxley - CLI Interface to the API
+#===============================================================================
 # This is the client's interface to the Huxley API.  Objects are transported from
 # here to the server and the results are interpreted.  The interface functions
 # are grouped based on which resource they affect.
-#===============================================================================
-# Modules
-#===============================================================================
+
 # Core Libraries
 {resolve} = require "path"
 
 # PandaStrike Libraries
-{sleep} = require "fairmont"      # utility helpers
-Configurator = require "panda-config"   # config file parsing
-{discover} = require "./client"         # PBX component
+{async} = require "fairmont"      # utility helpers
+{discover} = (require "pbx").client    # PBX component
 
-# Third Party Libraries
-async = (require "when/generator").lift # promise library
-
-
-#===============================================================================
-# Helpers
-#===============================================================================
-# Prepare a basic error object to return to the UI.
-build_error = (message, value) ->
-  return {
-    message: message
-    value: value
-  }
+# Huxley Components
+{build_error} = require "./helpers"
 
 
-
-#===============================================================================
-# Module Definition
-#===============================================================================
 module.exports =
 
-  #--------------------------------
-  # Cluster
-  #--------------------------------
-  create_cluster: async (spec) ->
-    try
-      api = yield discover spec.url
-      clusters = api.clusters
-      {response: {headers: {cluster_id}}}  = yield clusters.create spec
-      console.log "*****Creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
-      return {cluster_id: cluster_id}
-    catch error
-      throw build_error "Unable to construct Huxley cluster.", error
+  cluster:
+    create: async (spec) ->
+      try
+        clusters = (yield discover spec.huxley_url).clusters
+        {response: {headers: {cluster_id}}} = yield clusters.create spec
+        return "Cluster creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
+      catch error
+        throw build_error "Unable to construct Huxley cluster.", error
 
-  delete_cluster: async (spec) ->
-    try
-      api = yield discover spec.url
-      cluster = api.cluster spec.cluster_id
-      yield cluster.delete()
-      console.log "****Deletion In Progress."
-    catch error
-      throw build_error "Unable to delete Huxley cluster.", error
+    delete: async (spec) ->
+      try
+        cluster = (yield discover spec.huxley_url).cluster spec.cluster_name
+        yield cluster.delete
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return "Cluster deletion In Progress."
+      catch error
+        throw build_error "Unable to delete Huxley cluster.", error
 
-  poll_cluster: async (spec) ->
-    api = yield discover spec.url
-    cluster = api.cluster spec.cluster_id
-    while true
-      response = yield cluster.get()
-      data = yield response.data
-      console.log "*****Cluster status: ", data.cluster_status
-      if data.cluster_status == "The cluster is confirmed to be online and ready."
-        return data.cluster_status # The cluster formation complete.
-      else
-        yield sleep 5000  # Not complete, keep going.
+    get: async (spec) ->
+      try
+        cluster = (yield discover spec.url).cluster spec.cluster_name
+        {data} = yield cluster.get
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return data
+      catch error
+        throw build_error "Unable to retrieve cluster data.", error
 
+  remote:
+    create: async (spec) ->
+      try
+        remotes = (yield discover spec.url).remotes
+        {response: {headers: {remote_id}}}  = yield remotes.create spec
+        return "Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
+      catch error
+        throw build_error "Unable to install remote githook.", error
 
-  #--------------------------------
-  # Remote
-  #--------------------------------
-  add_remote: async (spec) ->
-    try
-      api = yield discover spec.url
-      remotes = api.remotes
-      {response: {headers: {remote_id}}}  = yield remotes.create spec
-      console.log "*****Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
-      return {remote_id: remote_id}
+    delete: async (spec) ->
+      try
+        {cluster_id, repo_name} = spec
+        remote = (yield discover spec.url).remote {cluster_id, repo_name}
+        yield remote.delete
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return "Githook remote has been removed."
+      catch error
+        throw build_error "Unable to remove remote githook.", error
 
-    catch error
-      throw build_error "Unable to install remote githook.", error
+  pending:
+    list: async (spec) ->
+      try
+        pending = (yield discover spec.url).pending
+        {data} = yield pending.get
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return yield data
+      catch error
+        throw build_error "Unable to retrieve pending commands.", error
 
-  rm_remote: async (spec) ->
-    try
-      api = yield discover spec.url
-      remote = api.remote spec.remote_id
-      result = yield remote.delete()
-      console.log yield result.data
-
-    catch error
-      throw build_error "Unable to remove remote githook.", error
-
-  #-------------------------------------------------
-  # code related to "user" functionality
-  #-------------------------------------------------
-  # # FIXME: filter out secret keys in response
-  # create_user: async ({aws, email, url, key_pair, public_keys}) ->
-  #
-  #   api = (yield discover url)
-  #   users = (api.users)
-  #   {data} = (yield users.create {aws, email, key_pair, public_keys})
-  #   data = (yield data)
-  #   secret_token = (JSON.parse data).user.secret_token
-  #
-  #   configurator = Configurator.make
-  #     prefix: "."
-  #     paths: [ process.env.HOME ]
-  #   configuration = configurator.make name: "huxley"
-  #   yield configuration.load()
-  #   configuration.data.secret_token = secret_token
-  #   configuration.save()
-  #
-  #   secret_token
+  profile:
+    create: async (spec) ->
+      try
+        profiles = (yield discover spec.url).profiles
+        {response: {headers: {secret_token}}} = yield profiles.create spec
+        return {
+          message: "*****profile \"#{spec.profile_name}\" created. Secret token stored."
+          secret_token: secret_token
+        }
+      catch error
+        throw build_error "Unable to create profile.", error

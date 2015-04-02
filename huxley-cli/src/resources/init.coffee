@@ -16,7 +16,7 @@
 module.exports =
 
   # Initialize repository to be deployed by Huxley.
-  init_huxley: async () ->
+  init: async () ->
     # Create Launch directory.
     yield safe_mkdir join process.cwd(), "launch"
 
@@ -32,3 +32,5 @@ module.exports =
         answers: {app_name: process.cwd().split("/").pop()}
         write_path: process.cwd()
         write_filename: "huxley"
+
+      return "Huxley deployment initalized."

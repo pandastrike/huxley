@@ -1,0 +1,13 @@
+--------------------------------------------------------------------------------
+Usage: huxley profile use [name]
+--------------------------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Same effect as "switch".
+
+Switch to the specified Huxley profile. Name is the human readable
+identification of the profile. If no name is specified, Huxley tries to use the
+"default" profile.
+
+Options:
+--------------------------------------------------------------------------------

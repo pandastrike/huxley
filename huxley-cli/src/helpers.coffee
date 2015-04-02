@@ -12,6 +12,16 @@ Configurator = require "panda-config"
 #--------------------
 module.exports =
 
+  # Prepare a basic error object to return to the UI.
+  build_error: (message, value) ->
+    return {
+      message: message
+      value: value
+    }
+
+  # Use until Fairmont bug is repaired.
+  empty: (x) -> x.length == 0
+
   # Output an Info Blurb and optional message.
   usage: async (entry, message) ->
     docs = yield read( resolve( __dirname, "..", "docs", entry ) )

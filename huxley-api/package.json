@@ -18,12 +18,12 @@
     "amen": "1.0.0-alpha-04"
   },
   "dependencies": {
-    "fairmont": "1.0.0-alpha-14",
+    "fairmont": "1.0.0-alpha-17",
     "key-forge": "^1.0.0-beta-01",
-    "panda-cluster": "git://github.com/pandastrike/panda-cluster",
+    "panda-cluster": "pandastrike/panda-cluster#53dd5918faf999d60c13d51850f2ba9f65046e66",
     "panda-config": "^1.0.0-alpha-02",
     "panda-hook": "git://github.com/pandastrike/panda-hook",
-    "pbx": "1.0.0-alpha-14",
+    "pbx": "1.0.0-alpha-15",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"
   },
