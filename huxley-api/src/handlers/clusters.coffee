@@ -23,7 +23,7 @@ module.exports = (db) ->
       respond 409, "A cluster with that name already exists."
       return
     else
-      command = "cluster create #{cluster_name}"
+      command = "cluster create #{data.cluster_name}"
       hash = md5 command
       description = "Request [#{command}] has status [creating]."
       db.pending.put token, hash, description
