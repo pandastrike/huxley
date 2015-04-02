@@ -6,7 +6,7 @@
 # the current state of an actions (e.g. cluster formation).
 
 
-{async, sleep} = require "fairmont"
+{async, sleep, empty} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 {build} = require "./pending-helpers"
 api = (require "../api-interface").pending
@@ -40,7 +40,6 @@ module.exports =
     # Call the Huxley API
     while true
       response = yield api.list options
-      console.log response.resources
-      if response.resources == {}
+      if Object.keys(response.resources).length == 0
         return "Done."
       yield sleep 30000
