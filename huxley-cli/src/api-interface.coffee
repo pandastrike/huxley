@@ -81,7 +81,7 @@ module.exports =
   profile:
     create: async (spec) ->
       try
-        profiles = (yield discover spec.url).profiles
+        profiles = (yield discover spec.huxley_url).profiles
         {response: {headers: {secret_token}}} = yield profiles.create spec
         return {
           message: "*****profile \"#{spec.profile_name}\" created. Secret token stored."
