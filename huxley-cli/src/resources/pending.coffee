@@ -25,7 +25,8 @@ module.exports =
     message = ""
     obj = response.resources
     for x of obj
-      message += "Request [#{obj[x].command}] has status [#{obj[x].status}]. \n"
+      if x != "last"
+        message += "Request [#{obj[x].command}] has status [#{obj[x].status}]. \n"
 
     return message
 

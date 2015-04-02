@@ -37,8 +37,8 @@ class Pending
 
   delete: (token, command) ->
     hash = md5 command
-    
-    delete pending[token].last  if pending[token].last == hash
+
+    delete @data[token].last    if @data[token].last == hash
     delete @data[token][hash]   if @data[token][hash]?
 
 
