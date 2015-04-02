@@ -61,9 +61,9 @@ module.exports =
 
   delete:
     # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
-    build_delete: (config, spec) ->
+    build: (config, spec) ->
       return {
         cluster_name: spec.first
-        url: config.huxley.url
+        huxley_url: config.huxley.url
         secret_token: config.huxley.profile.secret_token
       }

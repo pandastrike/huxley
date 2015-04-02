@@ -1,6 +1,6 @@
 {
   "name": "huxley-cli",
-  "version": "1.0.0-alpha-03.1",
+  "version": "1.0.0-alpha-03.2",
   "description": "CLI for Huxley Deployment Platform",
   "main": "src/cli.coffee",
   "bin": {

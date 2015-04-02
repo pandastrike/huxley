@@ -40,7 +40,7 @@ module.exports =
     {config} = yield pull_configuration()
 
     # Use this raw configuration as context to build an "options" object for panda-cluster.
-    options = build_delete config, spec
+    options = build config, spec
 
     # With our object built, call the Huxley API.
     response = yield api.delete options
