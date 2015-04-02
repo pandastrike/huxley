@@ -27,7 +27,6 @@ builder.define "remote",
 builder.define "pending",
   path: "/pending"
 .get
- as: "list"
 
 builder.define "profiles",
   path: "/profiles"
