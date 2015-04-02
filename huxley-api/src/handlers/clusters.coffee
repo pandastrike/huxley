@@ -68,7 +68,7 @@ module.exports = (db) ->
     {respond, data} = context
     data = yield data
     token = data.secret_token
-
+    console.log "**status input", data.status, data.detail
     if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
       return
