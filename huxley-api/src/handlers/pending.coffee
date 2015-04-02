@@ -8,19 +8,17 @@
 
 module.exports = (db) ->
 
-  pending:
+  # Return a list of pending items associated with the profile.
+  get: async (context) ->
+    # Parse the context for needed information.
+    {request, respond, match} = context
+    token = request.headers.authorization.split(" ")[1]
 
-    # Return a list of pending items associated with the profile.
-    get: async (context) ->
-      # Parse the context for needed information.
-      {request, respond, match} = context
-      token = request.headers.authorization.split(" ")[1]
+    # Access the user's profile.
+    profile = yield db.profiles.get token
 
-      # Access the user's profile.
-      profile = yield db.profiles.get token
-
-      if !profile
-        respond 401, "Unknown profile."
-      else
-        resources = db.pending.get_all token
-        respond 200, {resources}
+    if !profile
+      respond 401, "Unknown profile."
+    else
+      resources = db.pending.get_all token
+      respond 200, {resources}

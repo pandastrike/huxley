@@ -73,9 +73,9 @@ module.exports =
         console.log "1"
         pending = (yield discover spec.url).pending
         console.log "2"
-        {data} = yield pending.get
-          .authorize bearer: spec.secret_token
-          .invoke()
+        {data} = yield pending.get()
+          # .authorize bearer: spec.secret_token
+          # .invoke()
         console.log "3"
         return data
       catch error
