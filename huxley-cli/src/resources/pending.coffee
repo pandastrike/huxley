@@ -39,6 +39,7 @@ module.exports =
     # Call the Huxley API
     while true
       response = yield api.list options
+      console.log response.resources
       if response.resources == {}
         return "Done."
       yield sleep 30000

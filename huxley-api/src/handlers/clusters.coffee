@@ -80,7 +80,7 @@ module.exports = (db) ->
 
     # Update pending commands list.
     if data.status == "online" or data.status == "stopped"
-      command = data.command_id
+      command = cluster.command_id
       db.pending.delete token, command
 
     respond 200
