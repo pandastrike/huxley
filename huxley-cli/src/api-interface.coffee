@@ -70,14 +70,11 @@ module.exports =
   pending:
     list: async (spec) ->
       try
-        console.log "1"
         pending = (yield discover spec.url).pending
-        console.log "2"
-        {data} = yield pending.get()
-          # .authorize bearer: spec.secret_token
-          # .invoke()
-        console.log "3"
-        return data
+        {data} = yield pending.get
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return yield data
       catch error
         throw build_error "Unable to retrieve pending commands.", error
 

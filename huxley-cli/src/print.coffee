@@ -7,7 +7,7 @@
 module.exports =
 
   print: (response, options) ->
-    reutrn unless response
+    return unless response
     if options.json
       console.log JSON.stringify response, null, 2
     else if options.yaml

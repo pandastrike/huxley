@@ -12,6 +12,7 @@ module.exports = (db) ->
   get: async (context) ->
     # Parse the context for needed information.
     {request, respond, match} = context
+    console.log request.headers
     token = request.headers.authorization.split(" ")[1]
 
     # Access the user's profile.
