@@ -24,9 +24,8 @@ module.exports = (db) ->
       return
     else
       command = "cluster create #{data.cluster_name}"
-      hash = md5 command
-      description = "Request [#{command}] has status [creating]."
-      db.pending.put token, hash, description
+      status = "creating"
+      db.pending.put token, command, status
 
       # Create a cluster record to be stored in the server's database.
       record =
