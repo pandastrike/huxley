@@ -1,0 +1,13 @@
+--------------------------------------------------------------------------------
+Usage: huxley profile rm [name]
+--------------------------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Same effect as "delete", "destroy", and "remove".
+
+Delete the specified Huxley profile from your machine and the API.  Name is the
+human readable identification of the profile. If no name is specified, the
+profile "default" is deleted.
+
+Options:
+--------------------------------------------------------------------------------

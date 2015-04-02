@@ -7,11 +7,9 @@
 
 {async, shell} = require "fairmont"
 {usage, pull_configuration, force} = require "../helpers"
-api = require "../api-interface"
+api = (require "../api-interface").remote
 
-{build_add_remote, check_add_remote, update_add_remote,
- build_rm_remote, check_rm_remote, update_rm_remote,
- run_passive_remote}                = require "./remote-helpers"
+
 
 #---------------------
 # Exposed Methods
@@ -19,69 +17,59 @@ api = require "../api-interface"
 module.exports =
   # This function prepares the "options" object to ask the API server to place a githook
   # on the cluster's hook server.  Then it adds to the local machine's git aliases.
-  add_remote: async (argv) ->
-    # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
-      yield usage "remote_add"
+  create: async (spec) ->
+    {build, check} = (require "./remote-helpers").create
 
     # Start by reading configuration data from the local config files.
-    {config, app_config} = yield pull_configuration()
+    {config} = yield pull_configuration()
 
     # Check to see if this remote has already been registered in the API.
-    yield check_add_remote config, argv
+    cluster = yield check config, spec
 
-    # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_add_remote config, argv
+    # Now use this context to build an "options" object for panda-hook.
+    options = build config, spec, cluster
 
     # With our object built, call the Huxley API.
-    console.log "Installing....  One moment."
-    response = yield api.add_remote options
+    response = yield api.create options
 
     # Now, add a "git remote" alias using the cluster name. The first command is allowed to fail.
-    yield force shell, "git remote rm #{argv[0]}"
-    yield shell "git remote add #{argv[0]} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
+    yield force shell, "git remote rm #{spec.first}"
+    yield shell "git remote add #{spec.first} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
 
-    # Save the remote ID to app-level configuration.
-    yield update_add_remote app_config, argv, response
+    return response
 
 
   # Not everything we place onto the cluster needs to trigger a cascade of deployment events.
   # Sometimes we just need to store data at the scope of the cluster and have it available to
   # be pulled when required.  Compared to what we do with other repos on the hook server,
   # these are referred to as "passive" repositories, available at git:<hook-server>:3000/passive/<repo-name>
-  passive_remote: async (argv) ->
-    # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
-      yield usage "remote_passive"
-
-    # Start by reading configuration data from the local config files.
+  passive: async (spec) ->
+    {run} = (require "./remote-helpers").passive
+    # Read configuration data from the local config files.
     {config} = yield pull_configuration()
 
     # For now, this doesn't need to be routed though the API server.  Execute a series of shell commands.
-    yield run_passive_remote config, argv
+    yield run config, spec
 
 
   # This function prepares the "options" object to ask the API server to remove a githook
   # on the cluster's hook server.  Then it removes one of the local machine's git aliases.
-  rm_remote: async (argv) ->
-    # Detect if we should provide a help blurb.
-    if argv.length == 0 || argv[0] == "help" || argv[0] == "-h" || argv[0] == "--help"
-      yield usage "remote_passive"
+  delete: async (spec) ->
+    {build, check} = (require "./remote-helpers").delete
 
     # Start by reading configuration data from the local config files.
-    {config, app_config} = yield pull_configuration()
+    {config} = yield pull_configuration()
 
     # Check to see if this remote is registered in the API.  We cannot delete what does not exist.
-    yield check_rm_remote config, argv
+    cluster = yield check config, spec
 
     # Now use this raw configuration as context to build an "options" object for panda-hook.
-    options = yield build_rm_remote config, argv
+    options = build config, cluster
 
     # With our object built, call the Huxley API.
-    response = yield api.rm_remote options
+    response = yield api.delete options
 
     # Remove a git remote alias using the cluster name. This command is allowed to fail.
-    yield force shell, "git remote rm #{argv[0]}"
+    yield force shell, "git remote rm #{spec.first}"
 
-    # Remove the remote ID from the app-level configuration.
-    yield update_rm_remote app_config, argv
+    return response

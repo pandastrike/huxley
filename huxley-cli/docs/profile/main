@@ -1,0 +1,10 @@
+--------------------------------------------
+Usage: huxley profile [command] [options...]
+--------------------------------------------
+Follow any command with "help" for more information.
+
+This sub-command allows you manage Huxley profiles.
+
+create                        Create a new Huxley profile and receive a secret_token from the API.
+rm [delete, destroy, remove]  Delete a current Huxley profile and delete the token from the API.
+use [switch]                  Switch to another Huxley profile.

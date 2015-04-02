@@ -15,11 +15,16 @@
 module.exports =
 
   # initialize mixin folders in the user's repository, copy over templates
-  init_mixin: async (component_name) ->
+  create: async (spec) ->
+    if spec.first then component_name = spec.first else throw "Error: Please specify a mixin."
+
     # Begin interview
-    {questions} = (require "../interviews/mixins/#{component_name}")
-    answers = yield interview questions()
-    {service_name} = answers
+    try
+      {questions} = (require "../interviews/mixins/#{component_name}")
+      answers = yield interview questions()
+      {service_name} = answers
+    catch error
+      throw "Error: Invalid mixin specified."
 
     # Add mixin to launch directory if it doesn't already exist.
     template_dir = join __dirname, "../../templates", component_name
@@ -42,3 +47,5 @@ module.exports =
       service_name: service_name
       write_path: process.cwd()
       write_filename: "huxley"
+
+    return "Added a \"#{component_name}\" mixin named \"#{service_name}\" to your repository."
