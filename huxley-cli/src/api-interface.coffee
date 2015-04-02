@@ -21,7 +21,7 @@ module.exports =
   cluster:
     create: async (spec) ->
       try
-        clusters = (yield discover spec.url).clusters
+        clusters = (yield discover spec.huxley_url).clusters
         {response: {headers: {cluster_id}}} = yield clusters.create spec
         return "Cluster creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
       catch error
@@ -29,7 +29,7 @@ module.exports =
 
     delete: async (spec) ->
       try
-        cluster = (yield discover spec.url).cluster spec.cluster_name
+        cluster = (yield discover spec.huxley_url).cluster spec.cluster_name
         yield cluster.delete
           .authorize bearer: spec.secret_token
           .invoke()
