@@ -3,6 +3,8 @@ Usage: huxley profile create [name] [options...]
 --------------------------------------------------------------------------------
 Follow any command with "help" for more information.
 
+Same effect as "add".
+
 Create a new Huxley profile and receive a secret_token from the API.  Name is
 human readable identification of the profile and is unique within your interface.
 If no name is specified, the profile name is set to "default".

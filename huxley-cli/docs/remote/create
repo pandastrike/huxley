@@ -1,7 +1,9 @@
 --------------------------------------------
-Usage: huxley remote add [name]
+Usage: huxley remote create [name]
 --------------------------------------------
 Follow any command with "help" for more information.
+
+Same effect as "add".
 
 This sub-command allows you to add githook scripts to the cluster of your choice.
 This command acutally accomplishes three things:

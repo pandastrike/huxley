@@ -1,0 +1,8 @@
+-----------------------------------------------------------------
+Usage: huxley mixin create [name]
+-----------------------------------------------------------------
+Running `init` is a prerequisite before you can add mixins.
+
+Same effect as "add".
+
+Creates a template folder in the "/launch" directory, and adds in the necessary template files.
