@@ -32,7 +32,7 @@ module.exports = (db) ->
     record =
       status: "online"
       name: data.app.cluster
-      public_domain: data.public_domain
+      public_domain: data.app.public_domain
       deployments: []
       remotes: []
 

@@ -47,12 +47,12 @@ module.exports =
 
       return {
         cluster_id: cluster_id
-        public_domain: domain
         cluster:
           address: "core@#{spec.first}.#{domain}"
         app:
           name: config.app_name
           cluster: spec.first
+          public_domain: domain
         hook:
           address: "root@#{spec.first}.#{domain}:3000"
 
