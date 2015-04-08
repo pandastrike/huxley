@@ -28,6 +28,16 @@ module.exports = (db) ->
     remote_id = make_key()
     db.remotes.put remote_id, record
 
+    # Create a cluster record to be stored in the server's database.
+    record =
+      status: "online"
+      name: data.app.cluster
+      public_domain: data.public_domain
+      deployments: []
+      remotes: []
+
+    yield db.cluster.pus data.cluster_id, record
+
     cluster = yield db.clusters.get data.cluster_id
     cluster.remotes.push remote_id
     yield db.clusters.put data.cluster_id, cluster

@@ -24,8 +24,26 @@ module.exports =
   create:
     # Construct an object that will be passed to the Huxley API to used by its panda-hook library.
     build: (config, spec, cluster) ->
-      {cluster_id} = cluster
-      domain = cluster.cluster.public_domain
+      # {cluster_id} = cluster
+      # domain = cluster.cluster.public_domain
+      #
+      # return {
+      #   cluster_id: cluster_id
+      #   public_domain: domain
+      #   cluster:
+      #     address: "core@#{spec.first}.#{domain}"
+      #   app:
+      #     name: config.app_name
+      #     cluster: spec.first
+      #   hook:
+      #     address: "root@#{spec.first}.#{domain}:3000"
+      #
+      #   url: config.huxley.url
+      #   secret_token: config.huxley.profile.secret_token
+      # }
+
+      cluster_id = 123
+      domain = "pandastrike.com"
 
       return {
         cluster_id: cluster_id
@@ -37,7 +55,7 @@ module.exports =
           cluster: spec.first
         hook:
           address: "root@#{spec.first}.#{domain}:3000"
-          
+
         url: config.huxley.url
         secret_token: config.huxley.profile.secret_token
       }

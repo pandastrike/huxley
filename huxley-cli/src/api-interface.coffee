@@ -74,7 +74,7 @@ module.exports =
       try
         remotes = (yield discover spec.url).remotes
         {response: {headers: {remote_id}}}  = yield remotes.create spec
-        return "Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
+        return "Githook installed on cluster #{spec.app.cluster} \nID: #{remote_id}"
       catch error
         throw build_error "Unable to install remote githook.", error
 
