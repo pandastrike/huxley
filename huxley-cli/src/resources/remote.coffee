@@ -35,7 +35,7 @@ module.exports =
 
     # Now, add a "git remote" alias using the cluster name. The first command is allowed to fail.
     yield force shell, "git remote rm #{spec.first}"
-    yield shell "git remote add #{spec.first} ssh://#{options.hook_address}/root/repos/#{options.repo_name}.git"
+    yield shell "git remote add #{spec.first} ssh://#{options.hook.address}/root/repos/#{options.app.name}.git"
 
     return response
 

@@ -36,7 +36,7 @@ module.exports = (db) ->
       deployments: []
       remotes: []
 
-    yield db.cluster.put data.cluster_id, record
+    yield db.clusters.put data.cluster_id, record
 
     cluster = yield db.clusters.get data.cluster_id
     cluster.remotes.push remote_id
