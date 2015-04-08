@@ -84,3 +84,25 @@ module.exports = (db) ->
       db.pending.delete token, command
 
     respond 200
+
+  list: async (context) ->
+    {respond, request, data} = context
+    data = yield data
+    token = request.headers.authorization.split(" ")[1]
+
+    profile = yield db.profiles.get token
+    if !token || !profile
+      respond 401, "Unknown profile."
+      return
+
+    clusters = []
+    clusters_list = profile.clusters
+    for cluster_id in clusters_list
+      cluster = yield db.clusters.get cluster_id
+      if cluster
+        clusters.push cluster
+      else
+        clusters.push {cluster_id: "Cluster not found"}
+          
+    respond 200, {clusters}
+    
