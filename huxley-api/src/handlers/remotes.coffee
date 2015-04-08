@@ -16,11 +16,13 @@ module.exports = (db) ->
     data = yield data
 
     # Create a record to be stored in the server's database.
-    address = data.hook_address.split ":"
+    address = data.hook.address.split ":"
     record =
-      hook_address: address[0]
-      hook_port: address[1] || 22
-      repo_name: data.repo_name
+      hook:
+        address: address[0]
+        port: address[1] || 22
+      app:
+        name: data.app.name
 
     # Store the record using a unique token as the key.
     remote_id = make_key()

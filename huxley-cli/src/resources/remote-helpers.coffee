@@ -29,11 +29,15 @@ module.exports =
 
       return {
         cluster_id: cluster_id
-        cluster_name: spec.first
         public_domain: domain
-        cluster_address: "core@#{spec.first}.#{domain}"
-        repo_name: config.app_name
-        hook_address: "root@#{spec.first}.#{domain}:3000"
+        cluster:
+          address: "core@#{spec.first}.#{domain}"
+        app:
+          name: config.app_name
+          cluster: spec.first
+        hook:
+          address: "root@#{spec.first}.#{domain}:3000"
+          
         url: config.huxley.url
         secret_token: config.huxley.profile.secret_token
       }
