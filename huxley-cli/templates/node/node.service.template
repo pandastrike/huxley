@@ -37,7 +37,7 @@ ExecStartPre=-/usr/bin/docker rm {{{service}}}
 ExecStartPre=-/usr/bin/bash -c "/usr/bin/rm -rf /home/core/launch/{{{service}}}"
 ExecStartPre=/usr/bin/echo "Directory Checked"
 ExecStartPre=/usr/bin/bash -c "/usr/bin/git clone -b {{{branch}}} git://hook.{{{cluster}}}.cluster:2001/repos/{{{name}}} /home/core/launch/{{{service}}}"
-ExecStartPre=/usr/bin/docker build --tag="{{{service}}}_image" /home/core/launch/{{{service}}}/launch/{{{service}}}/.
+ExecStartPre=/usr/bin/docker build --tag="{{{service}}}_image" --no-cache /home/core/launch/{{{service}}}/launch/{{{service}}}/.
 
 # Launch the container.
 ExecStart=/usr/bin/docker run --name {{{service}}} -p {{{port}}}:80 \
