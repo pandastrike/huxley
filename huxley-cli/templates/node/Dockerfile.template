@@ -13,4 +13,4 @@ MAINTAINER Peter Nguyen (peter@pandastrike.com)
 #RUN npm install -g coffee-script
 
 # Pull in your source code.
-RUN git clone -b {{{app.branch}}} git://hook.{{{app.cluster}}}.cluster:2001/repos/{{{app.name}}} {{{app.name}}}
+RUN git clone -b {{{branch}}} git://hook.{{{cluster}}}.cluster:2001/repos/{{{name}}} {{{name}}}
