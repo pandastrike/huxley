@@ -3,5 +3,7 @@ Usage: huxley cluster delete [name]
 -----------------------------------------------------------------
 Follow any command with "help" for more information.
 
+Same effect as "delete", "destroy", and "remove".
+
 Terminates the specified CoreOS cluster in the cloud provider service.  This destruction
  is complete and irreversible.  All associated resources are released.

@@ -31,7 +31,6 @@ module.exports =
     response = yield api.create options
 
 
-
   # This function prepares the "options" object to ask the API server to delete a
   # CoreOS cluster using your AWS credentials.
   delete: async (spec) ->
@@ -44,3 +43,33 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.delete options
+
+
+  describe: async (spec) ->
+    # the build helper from delete works the same for describe
+    {build} = (require "./cluster-helpers").delete
+    # Read configuration data from the local config files.
+    {config} = yield pull_configuration()
+
+    # Use this raw configuration as context to build an "options" object for panda-cluster.
+    options = build config, spec
+
+    # With our object built, call the Huxley API.
+    response = yield api.get options
+    response
+
+
+  list: async (spec) ->
+    {config, home_config} = yield pull_configuration()
+
+    # the build helper from delete works the same for list
+    {build} = (require "./cluster-helpers").list
+
+    # Use this raw configuration as context to build an "options" object for panda-cluster.
+    options = build config
+
+    # With our object built, call the Huxley API.
+    response = yield api.list options
+
+    console.log "*****cluster list: ", response
+    response

@@ -10,6 +10,7 @@ cluster
   create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
   delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
   poll        Polls cluster status until creation is successful.
+  describe    Displays the status of a given cluster.
 
 init          Generates the basic files Huxley needs to function and adds them the application's repository.
 

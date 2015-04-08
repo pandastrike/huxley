@@ -29,7 +29,8 @@ module.exports = (db) ->
     cluster_name = match.path.cluster_name
     token = request.headers.authorization.split(" ")[1]
 
-    cluster = yield get_cluster cluster_name, token, db, respond
+    if cluster_name
+      cluster = yield get_cluster cluster_name, token, db, respond
 
     if cluster
       # Return the database record concerning this cluster.

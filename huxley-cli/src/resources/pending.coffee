@@ -23,10 +23,11 @@ module.exports =
     # Call the Huxley API
     response = yield api.list options
     message = ""
+    console.log response
     obj = response.resources
-    for x of obj
-      if x != "last"
-        message += "Request [#{obj[x].command}] has status [#{obj[x].status}]. \n"
+    for k, v of obj
+      if k != "last"
+        message += "Request [#{obj[k].command}] has status [#{obj[k].status}] -- #{k.substring(0,8)} \n"
 
     return message
 

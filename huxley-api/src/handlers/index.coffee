@@ -28,7 +28,7 @@ module.exports = async () ->
   pending: (require "./pending")(db)
 
   profiles: (require "./profiles")(db)
-  #profile: (require "./profile")(db)
+  profile: (require "./profile")(db)
 
   remotes: (require "./remotes")(db)
   remote: (require "./remote")(db)

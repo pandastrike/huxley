@@ -33,3 +33,13 @@ module.exports =
         email: options.email
 
       yield home_config.save()
+  
+  get:
+
+    build: (config, spec) ->
+      return_object = {
+        url: config.huxley.url
+        secret_token: config.huxley.profile.secret_token
+      }
+      console.log "*****profile helpers: ", return_object
+      return_object

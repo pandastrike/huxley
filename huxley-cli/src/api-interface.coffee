@@ -39,13 +39,35 @@ module.exports =
 
     get: async (spec) ->
       try
-        cluster = (yield discover spec.url).cluster spec.cluster_name
+        {cluster_name} = spec
+        cluster = (yield discover spec.huxley_url).cluster spec.cluster_name
         {data} = yield cluster.get
           .authorize bearer: spec.secret_token
           .invoke()
         return data
       catch error
         throw build_error "Unable to retrieve cluster data.", error
+
+      try
+        pending = (yield discover spec.url).pending
+        {data} = yield pending.get
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return yield data
+      catch error
+        throw build_error "Unable to retrieve pending commands.", error
+
+
+    list: async (spec) ->
+      try
+        clusters = (yield discover spec.huxley_url).clusters
+        {data} = yield clusters.list
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return data
+      catch error
+        throw build_error "Unable to retrieve cluster data.", error
+
 
   remote:
     create: async (spec) ->
@@ -89,3 +111,14 @@ module.exports =
         }
       catch error
         throw build_error "Unable to create profile.", error
+
+#    get: async (spec) ->
+#      try
+#        {secret_token} = spec
+#        profile = (yield discover spec.url).profile #secret_token
+#        {data} = yield profile.get
+#          .authorize bearer: spec.secret_token
+#          .invoke()
+#        return yield data
+#      catch error
+#        throw build_error "Unable to get profile.", error
