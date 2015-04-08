@@ -57,7 +57,7 @@ module.exports =
       catch error
         throw build_error "Unable to retrieve pending commands.", error
 
-
+  clusters:
     list: async (spec) ->
       try
         clusters = (yield discover spec.huxley_url).clusters
@@ -66,7 +66,7 @@ module.exports =
           .invoke()
         return data
       catch error
-        throw build_error "Unable to retrieve cluster data.", error
+        throw build_error "Unable to retrieve clusters list data.", error
 
 
   remote:
