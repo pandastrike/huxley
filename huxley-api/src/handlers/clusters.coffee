@@ -90,7 +90,8 @@ module.exports = (db) ->
     data = yield data
     token = request.headers.authorization.split(" ")[1]
 
-    unless token && (yield db.profiles.get token)
+    profile = yield db.profiles.get token
+    unless token && profile
       respond 401, "Unknown profile."
       return
 
