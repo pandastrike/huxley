@@ -24,11 +24,10 @@ module.exports =
     {config} = yield pull_configuration()
 
     # Check to see if this remote has already been registered in the API.
-    #cluster = yield check config, spec
+    cluster = yield check config, spec
 
     # Now use this context to build an "options" object for panda-hook.
-    #options = build config, spec, cluster
-    options = build config, spec
+    options = build config, spec, cluster
 
     # With our object built, call the Huxley API.
     response = yield api.create options
