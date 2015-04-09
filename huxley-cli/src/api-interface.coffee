@@ -57,7 +57,6 @@ module.exports =
       catch error
         throw build_error "Unable to retrieve pending commands.", error
 
-  clusters:
     list: async (spec) ->
       try
         clusters = (yield discover spec.huxley_url).clusters
