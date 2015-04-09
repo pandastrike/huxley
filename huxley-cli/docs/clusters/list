@@ -1,0 +1,6 @@
+-----------------------------------------------------------------
+Usage: huxley clusters list
+-----------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Returns the status of all cluster belonging to the default profile. The status includes meta data such as the cluster's public domain, region, and status.

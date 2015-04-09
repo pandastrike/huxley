@@ -1,0 +1,8 @@
+--------------------------------------------
+Usage: huxley clusters [command] [name]
+--------------------------------------------
+Follow any command with "help" for more information.
+
+This sub-command allows you to manipulate whole clusters.
+
+list    Displays information for all clusters belonging to the default profile.

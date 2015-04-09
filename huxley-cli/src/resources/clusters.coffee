@@ -6,7 +6,7 @@
 {async, merge} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 {interview} = require "../interview"
-api = (require "../api-interface").cluster
+api = (require "../api-interface").clusters
 
 #---------------------
 # Exposed Methods
