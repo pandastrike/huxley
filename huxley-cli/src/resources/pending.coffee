@@ -23,7 +23,6 @@ module.exports =
     # Call the Huxley API
     response = yield api.list options
     message = ""
-    console.log response
     obj = response.resources
     for k, v of obj
       if k != "last"

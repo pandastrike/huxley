@@ -80,10 +80,9 @@ module.exports =
 
     delete: async (spec) ->
       try
-        {cluster_id, repo_name} = spec
-        remote = (yield discover spec.url).remote {cluster_id, repo_name}
+        remote = (yield discover spec.huxley.url).remote {spec.cluster.id, spec.app.name}
         yield remote.delete
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return "Githook remote has been removed."
       catch error
