@@ -72,7 +72,7 @@ module.exports =
   remote:
     create: async (spec) ->
       try
-        remotes = (yield discover spec.url).remotes
+        remotes = (yield discover spec.huxley.url).remotes
         {response: {headers: {remote_id}}}  = yield remotes.create spec
         return "Githook installed on cluster #{spec.app.cluster} \nID: #{remote_id}"
       catch error

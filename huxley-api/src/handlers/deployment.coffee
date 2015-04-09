@@ -6,22 +6,24 @@
 {async} = require "fairmont"
 
 module.exports = (db) ->
-  get: async ({respond, match: {path: {deployment_id}}}) ->
-    deployment = yield db.deployments.get deployment_id
-    if deployment?
-      # workaround for pandastrike/pirate#23
-      deployment = clone deployment
-      for service, status of deployment.services
-        {status, detail, timestamp} = last status
-        deployment.services[service] = {status, detail, timestamp}
-      respond 200, deployment
-    else
-      respond.not_found()
+  # Update the status of an existing deployment.
+  update: async (context) ->
+    # Parse the context for needed information.
+    {respond, data} = context
+    data = yield data
+    {app, cluster, huxley} = data
+    token = huxley.token
 
-  delete: async ({respond, match: {path: {deployment_id}}}) ->
-    deployment = yield db.deployments.get deployment_id
-    if deployment?
-      yield db.deployments.delete deployment_id
-      respond 200, "Deleted"
-    else
-      respond.not_found()
+    # Validate the profile.
+    unless token && (yield db.profiles.get token)
+      respond 401, "Unknown profile."
+      return
+
+    # Update profile status
+    deployment = yield db.deployments.get app.id
+    deployment.status = app.status
+    yield db.deployments.put app.id, deployment
+
+    # Remove pending record if we've reached a terminal state.
+    if app.status == "online" || app.status == "failed"
+      db.pending.delete token, "git push #{cluster.name} #{app.branch}"

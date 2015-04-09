@@ -45,13 +45,11 @@ builder.define "deployments",
 .post
   as: "create"
   creates: "deployment"
-.get
-  as: "query"
 
 builder.define "deployment",
   template: "/deployment/:deployment_id"
-.get()
-.delete()
+.put
+  as: "update"
 
 builder.define "status",
   template: "/deployment/:deployment_id/status"

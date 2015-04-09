@@ -48,16 +48,17 @@ module.exports =
       return {
         cluster_id: cluster_id
         cluster:
+          id: cluster_id
+          name: spec.first
           address: "core@#{spec.first}.#{domain}"
         app:
           name: config.app_name
-          cluster: spec.first
           public_domain: domain
         hook:
           address: "root@#{spec.first}.#{domain}:3000"
-
-        url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.secret_token
       }
 
     # Check to see if this remote repository can be created.

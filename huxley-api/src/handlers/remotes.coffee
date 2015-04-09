@@ -29,18 +29,16 @@ module.exports = (db) ->
     db.remotes.put remote_id, record
 
     # Create a cluster record to be stored in the server's database.
-    record =
+    yield db.clusters.put data.cluster.id,
       status: "online"
-      name: data.app.cluster
+      name: data.cluster.name
       public_domain: data.app.public_domain
       deployments: []
       remotes: []
 
-    yield db.clusters.put data.cluster_id, record
-
-    cluster = yield db.clusters.get data.cluster_id
+    cluster = yield db.clusters.get data.cluster.id
     cluster.remotes.push remote_id
-    yield db.clusters.put data.cluster_id, cluster
+    yield db.clusters.put data.cluster.id, cluster
 
     # Access panda-hook to create a githook and place it on the cluster.
     yield pandahook.push data
