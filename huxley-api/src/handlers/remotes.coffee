@@ -15,21 +15,21 @@ module.exports = (db) ->
     {respond, data} = context
     data = yield data
 
-    # Create a record to be stored in the server's database.
-    address = data.hook_address.split ":"
-    record =
-      hook_address: address[0]
-      hook_port: address[1] || 22
-      repo_name: data.repo_name
+    # Create a "remotes" record to be stored in the server's database.
+    address = data.hook.address.split ":"
+    id = make_key()
+    yield db.remotes.put id,
+      hook:
+        address: address[0]
+        port: address[1] || 22
+      app:
+        name: data.app.name
 
-    # Store the record using a unique token as the key.
-    remote_id = make_key()
-    db.remotes.put remote_id, record
-
-    cluster = yield db.clusters.get data.cluster_id
-    cluster.remotes.push remote_id
-    yield db.clusters.put data.cluster_id, cluster
+    # Store the remote's ID with the cluster in the API server's database.
+    cluster = yield db.clusters.get data.cluster.id
+    cluster.remotes.push id
+    yield db.clusters.put data.cluster.id, cluster
 
     # Access panda-hook to create a githook and place it on the cluster.
     yield pandahook.push data
-    respond 201, "githook installed", {remote_id: remote_id}
+    respond 201, "githook installed", {remote_id: id}

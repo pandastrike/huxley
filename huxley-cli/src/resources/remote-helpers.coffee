@@ -12,7 +12,7 @@ cluster = (require "../api-interface").cluster
 cluster_ready = async (config, spec) ->
   # Build a data object to query the API's database for active clusters.
   options =
-    url: config.huxley.url
+    huxley_url: config.huxley.url
     secret_token: config.huxley.profile.secret_token
     cluster_name: spec.first
 
@@ -28,14 +28,18 @@ module.exports =
       domain = cluster.cluster.public_domain
 
       return {
-        cluster_id: cluster_id
-        cluster_name: spec.first
-        public_domain: domain
-        cluster_address: "core@#{spec.first}.#{domain}"
-        repo_name: config.app_name
-        hook_address: "root@#{spec.first}.#{domain}:3000"
-        url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        cluster:
+          id: cluster_id
+          name: spec.first
+          address: "core@#{spec.first}.#{domain}"
+        app:
+          name: config.app_name
+          public_domain: domain
+        hook:
+          address: "root@#{spec.first}.#{domain}:3000"
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.secret_token
       }
 
     # Check to see if this remote repository can be created.
@@ -55,10 +59,13 @@ module.exports =
       {cluster_id} = cluster
 
       return {
-        cluster_id: cluster_id
-        url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
-        repo_name: config.app_name
+        cluster:
+          id: cluster_id
+        app:
+          name: config.app_name
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.secret_token
       }
 
 

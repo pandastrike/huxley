@@ -39,7 +39,8 @@ module.exports =
 
     get: async (spec) ->
       try
-        cluster = (yield discover spec.url).cluster spec.cluster_name
+        {cluster_name} = spec
+        cluster = (yield discover spec.huxley_url).cluster spec.cluster_name
         {data} = yield cluster.get
           .authorize bearer: spec.secret_token
           .invoke()
@@ -47,21 +48,32 @@ module.exports =
       catch error
         throw build_error "Unable to retrieve cluster data.", error
 
+
+    list: async (spec) ->
+      try
+        clusters = (yield discover spec.huxley_url).clusters
+        {data} = yield clusters.list
+          .authorize bearer: spec.secret_token
+          .invoke()
+        return data
+      catch error
+        throw build_error "Unable to retrieve cluster data.", error
+
+
   remote:
     create: async (spec) ->
       try
-        remotes = (yield discover spec.url).remotes
+        remotes = (yield discover spec.huxley.url).remotes
         {response: {headers: {remote_id}}}  = yield remotes.create spec
-        return "Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
+        return "Githook installed on cluster #{spec.cluster.name} \nID: #{remote_id}"
       catch error
         throw build_error "Unable to install remote githook.", error
 
     delete: async (spec) ->
       try
-        {cluster_id, repo_name} = spec
-        remote = (yield discover spec.url).remote {cluster_id, repo_name}
+        remote = (yield discover spec.huxley.url).remote {cluster_id: spec.cluster.id, repo_name: spec.app.name}
         yield remote.delete
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return "Githook remote has been removed."
       catch error
@@ -89,3 +101,14 @@ module.exports =
         }
       catch error
         throw build_error "Unable to create profile.", error
+
+#    get: async (spec) ->
+#      try
+#        {secret_token} = spec
+#        profile = (yield discover spec.url).profile #secret_token
+#        {data} = yield profile.get
+#          .authorize bearer: spec.secret_token
+#          .invoke()
+#        return yield data
+#      catch error
+#        throw build_error "Unable to get profile.", error

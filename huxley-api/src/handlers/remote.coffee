@@ -18,10 +18,10 @@ module.exports = (db) ->
     token = request.headers.authorization.split(" ")[1]
 
     # Accquire the remote's ID based on the provided information.
-    remote_id = yield get_remote_id repo_name, cluster_id, db
+    id = yield get_remote_id repo_name, cluster_id, db
 
     # Lookup the record about this remote using its ID.
-    remote = yield db.remotes.get remote_id
+    remote = yield db.remotes.get id
 
     # Use panda-hook to delete the remote repository.
     if remote?

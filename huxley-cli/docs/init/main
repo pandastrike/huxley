@@ -2,4 +2,6 @@
 Usage: huxley init
 --------------------------------------------
 
-Generates the basic files Huxley needs to function and adds them the application's repository.
+Generates the basic files (a manifest file and a launch directory) Huxley needs to function and adds them the application's repository.
+
+This command should be run in the root directory of your application repository, and is a prerequisite before you can add any mixins.

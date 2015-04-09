@@ -24,9 +24,9 @@ module.exports =
     response = yield api.list options
     message = ""
     obj = response.resources
-    for x of obj
-      if x != "last"
-        message += "Request [#{obj[x].command}] has status [#{obj[x].status}]. \n"
+    for k, v of obj
+      if k != "last"
+        message += "Request [#{v.command}] has status [#{v.status}] -- #{k[..8]} \n"
 
     return message
 

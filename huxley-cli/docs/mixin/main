@@ -3,6 +3,8 @@ Usage: huxley mixin [command] [name]
 --------------------------------------------
 Follow any command with "help" for more information.
 
+Running `init` is a prerequisiste before you can add mixins.
+
 This sub-command allows you to at services to your application.  Each named mixin
 adds a subdirectory to your application's "launch/" directory.  This contains a
 template ready for your configuration and will ultimately be launched into its own
@@ -10,10 +12,11 @@ Linux container.
 
 Commands:
 --------------------------------------------------------------------------------
-  add | create
+  create [add]
 
 Available Mixins:
 --------------------------------------------------------------------------------
+  node.js
   elasticsearch
   kibana
   redis

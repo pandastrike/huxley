@@ -7,6 +7,8 @@ builder.define "clusters",
   as: "create"
   creates: "cluster"
 .put()
+.get
+  as: "list"
 
 builder.define "cluster",
   template: "/cluster/:cluster_name"
@@ -30,13 +32,12 @@ builder.define "pending",
 
 builder.define "profiles",
   path: "/profiles"
-.get()
 .post
   as: "create"
   creates: "profile"
 
 builder.define "profile",
-  template: "/profile/:secret_token"
+  template: "/profile"
 .get()
 
 builder.define "deployments",
@@ -44,13 +45,11 @@ builder.define "deployments",
 .post
   as: "create"
   creates: "deployment"
-.get
-  as: "query"
 
 builder.define "deployment",
   template: "/deployment/:deployment_id"
-.get()
-.delete()
+.put
+  as: "update"
 
 builder.define "status",
   template: "/deployment/:deployment_id/status"

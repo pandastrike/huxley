@@ -1,0 +1,6 @@
+-----------------------------------------------------------------
+Usage: huxley cluster describe [name]
+-----------------------------------------------------------------
+Follow any command with "help" for more information.
+
+Returns the status of the given cluster. The status includes meta data such as the cluster's public domain, region, and status.
