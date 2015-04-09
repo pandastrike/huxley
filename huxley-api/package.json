@@ -1,6 +1,6 @@
 {
   "name": "huxley-api",
-  "version": "1.0.0-alpha-03.2",
+  "version": "1.0.0-alpha-04.1",
   "description": "API server for Huxley",
   "scripts": {
     "start": "coffee --nodejs --harmony src/server.coffee",
@@ -22,7 +22,7 @@
     "key-forge": "^1.0.0-beta-01",
     "panda-cluster": "pandastrike/panda-cluster#85ea8b533352f60684e67d3b3a882a68d3acdbc9",
     "panda-config": "^1.0.0-alpha-02",
-    "panda-hook": "pandastrike/panda-hook#c363bbe896e7349878d20c20e4f4a4b96ad6ebe5",
+    "panda-hook": "pandastrike/panda-hook#6a866289157bb3a316dbe998efabddfffcbec3ef",
     "pbx": "1.0.0-alpha-15",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"
