@@ -56,7 +56,12 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.get options
-    return response.cluster
+    console.log response.cluster
+    message = ""
+    message = "#{k}: #{v}\n" for k, v of response.cluster
+    return message
+
+
 
 
   list: async (spec) ->
