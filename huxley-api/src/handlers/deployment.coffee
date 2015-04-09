@@ -27,3 +27,5 @@ module.exports = (db) ->
     # Remove pending record if we've reached a terminal state.
     if app.status == "online" || app.status == "failed"
       db.pending.delete token, "git push #{cluster.name} #{app.branch}"
+
+    respond 200
