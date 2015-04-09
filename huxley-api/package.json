@@ -22,7 +22,7 @@
     "key-forge": "^1.0.0-beta-01",
     "panda-cluster": "pandastrike/panda-cluster#85ea8b533352f60684e67d3b3a882a68d3acdbc9",
     "panda-config": "^1.0.0-alpha-02",
-    "panda-hook": "pandastrike/panda-hook#e7e2bb90dc374dd6c436586509c9b251c7f824fd",
+    "panda-hook": "pandastrike/panda-hook#60f501dd1604a9a92d8961d61252e71400bdd73c",
     "pbx": "1.0.0-alpha-15",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"
