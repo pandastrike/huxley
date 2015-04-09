@@ -22,6 +22,7 @@ module.exports =
     try
       commands = require "#{__dirname}/resources/#{resource}"
     catch error
+      console.log error
       yield usage "main", "Error: Resource \"#{resource}\" does not exist."
 
     # Is the user asking for information about this resource?

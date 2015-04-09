@@ -3,7 +3,7 @@
 #===============================================================================
 # Clusters are the foundation of Huxley's deployment model.  This file contains
 # functions that configure their creation and deletion.
-{async, merge} = require "fairmont"
+{async, merge, collect, project} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 {interview} = require "../interview"
 api = (require "../api-interface").cluster
@@ -56,7 +56,7 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.get options
-    response
+    return response.cluster
 
 
   list: async (spec) ->
@@ -71,5 +71,6 @@ module.exports =
     # With our object built, call the Huxley API.
     response = yield api.list options
 
-    console.log "*****cluster list: ", response
-    response
+    message = ""
+    message += "#{name}\n" for name in collect project "name", response.clusters
+    return message

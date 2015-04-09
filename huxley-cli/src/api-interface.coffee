@@ -48,15 +48,6 @@ module.exports =
       catch error
         throw build_error "Unable to retrieve cluster data.", error
 
-      try
-        pending = (yield discover spec.url).pending
-        {data} = yield pending.get
-          .authorize bearer: spec.secret_token
-          .invoke()
-        return yield data
-      catch error
-        throw build_error "Unable to retrieve pending commands.", error
-
 
     list: async (spec) ->
       try
@@ -80,7 +71,7 @@ module.exports =
 
     delete: async (spec) ->
       try
-        remote = (yield discover spec.huxley.url).remote {spec.cluster.id, spec.app.name}
+        remote = (yield discover spec.huxley.url).remote {cluster_id: spec.cluster.id, repo_name: spec.app.name}
         yield remote.delete
           .authorize bearer: spec.huxley.token
           .invoke()

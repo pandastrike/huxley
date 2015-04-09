@@ -39,8 +39,7 @@ module.exports =
       respond 401, "Unknown profile."
       return null
     else
-      cluster_ids = (yield db.profiles.get token).clusters
-      for id in cluster_ids
+      for id in (yield db.profiles.get token).clusters
         if name == (yield db.clusters.get(id))?.name
           cluster_id = id
           break
