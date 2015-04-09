@@ -3,7 +3,7 @@
 #===============================================================================
 # Clusters are the foundation of Huxley's deployment model.  This file contains
 # functions that configure their creation and deletion.
-{async, merge} = require "fairmont"
+{async, merge, sleep} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 {interview} = require "../interview"
 api = (require "../api-interface").cluster
@@ -29,6 +29,15 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.create options
+
+    if spec.wait
+      while true
+        {cluster} = yield api.get options
+        console.log "Waiting for cluster creation..."
+        if cluster.status == "running"
+          console.log "Cluster is up and running"
+          return
+        yield sleep 10000
 
 
   # This function prepares the "options" object to ask the API server to delete a
