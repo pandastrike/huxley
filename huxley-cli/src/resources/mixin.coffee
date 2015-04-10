@@ -41,11 +41,4 @@ module.exports =
       write_path: join process.cwd(), "launch", service_name
       write_filename: service_name
 
-    # Write the service configuration to file (in huxley.yaml).  TODO: remove need for this.
-    yield save_mixin_interview
-      answers: answers
-      service_name: service_name
-      write_path: process.cwd()
-      write_filename: "huxley"
-
     return "Added a \"#{component_name}\" mixin named \"#{service_name}\" to your repository."
