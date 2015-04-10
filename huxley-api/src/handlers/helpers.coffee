@@ -26,14 +26,6 @@ module.exports =
   # Given a cluster name and profile token, lookup the cluster's ID.
   get_cluster: async (name, token, db, respond) ->
 
-    # if name is actually cluster_id
-#    cluster = yield db.clusters.get name
-#    if cluster
-#      return {
-#        cluster_id: cluster_id
-#        cluster: cluster
-#      }
-
     # Lookup the cluster id using the info provided.
     unless yield db.profiles.get token
       respond 401, "Unknown profile."
