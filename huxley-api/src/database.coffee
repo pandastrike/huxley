@@ -4,7 +4,8 @@
 # This file contains the code that manages access to the API's database.  We make
 # use of the in-house library "Pirate", which serves as a generalized adapter for
 # any database patterened as a key-value store.
-{Memory} = require "pirate"  # database adapter
+#{Memory} = require "pirate"  # database adapter
+{Redis} = require "pirate"  # database adapter
 {async, md5} = require "fairmont" # utility library
 
 # Until we get "pending" folded properly into the database, this class will serve
@@ -47,7 +48,9 @@ module.exports =
 
   initialize: async () ->
     # This instantiates a database interface via Pirate.
-    adapter = Memory.Adapter.make()
+    #adapter = Memory.Adapter.make()
+    adapter = Redis.Adapter.make()
+    adapter.connect()
 
     # Database Collection Declarations
     return {
