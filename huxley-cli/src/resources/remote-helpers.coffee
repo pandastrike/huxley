@@ -12,9 +12,11 @@ cluster = (require "../api-interface").cluster
 cluster_ready = async (config, spec) ->
   # Build a data object to query the API's database for active clusters.
   options =
-    huxley_url: config.huxley.url
-    secret_token: config.huxley.profile.secret_token
-    cluster_name: spec.first
+    cluster:
+      name: spec.first
+    huxley:
+      url: config.huxley.url
+      token: config.huxley.profile.token
 
   return yield cluster.get options
 

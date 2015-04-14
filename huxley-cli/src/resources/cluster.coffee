@@ -46,8 +46,7 @@ module.exports =
 
 
   describe: async (spec) ->
-    # the build helper from delete works the same for describe
-    {build} = (require "./cluster-helpers").delete
+    {build} = (require "./cluster-helpers").describe
     # Read configuration data from the local config files.
     {config} = yield pull_configuration()
 
@@ -62,13 +61,10 @@ module.exports =
     return message
 
 
-
-
   list: async (spec) ->
-    {config, home_config} = yield pull_configuration()
-
-    # the build helper from delete works the same for list
     {build} = (require "./cluster-helpers").list
+    # Read configuration data from the local config files.
+    {config, home_config} = yield pull_configuration()
 
     # Use this raw configuration as context to build an "options" object for panda-cluster.
     options = build config

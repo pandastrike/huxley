@@ -53,8 +53,9 @@ module.exports =
         tags: [{Key: "role", Value: config.tags}]
 
         # Huxley Access
-        huxley_url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.token
       }
 
 
@@ -63,16 +64,30 @@ module.exports =
     # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
     build: (config, spec) ->
       return {
-        cluster_name: spec.first
-        huxley_url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        cluster:
+          name: spec.first
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.token
+      }
+
+  describe:
+    # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
+    build: (config, spec) ->
+      throw "Please provide a cluster name." unless spec.first?
+      return {
+        cluster:
+          name: spec.first
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.token
       }
 
   list:
-
     # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
     build: (config) ->
       return {
-        huxley_url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        huxley:
+          url: config.huxley.url
+          token: config.huxley.profile.token
       }

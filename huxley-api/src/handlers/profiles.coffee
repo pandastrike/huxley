@@ -11,14 +11,14 @@ module.exports = (db) ->
   create: async (context) ->
     {respond, data} = context
     data = yield data
+    {name, email} = data.profile
 
-    # Create a new user profile
-    profile =
-      name: data.profile_name
-      email: data.email
+    # Create a new user profile and save.
+    token = make_key()
+    yield db.profiles.put token
+      name: name
+      email: email
       clusters: []
 
-    # Save the profile and return a copy to client.
-    secret_token = make_key()
-    yield db.profiles.put secret_token, profile
-    respond 201, "Profile created.", {secret_token}
+    # Return token to client.
+    respond 201, "Profile created.", {token}

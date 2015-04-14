@@ -32,5 +32,3 @@ module.exports = async () ->
 
   remotes: (require "./remotes")(db)
   remote: (require "./remote")(db)
-
-  status: (require "./status")(db)

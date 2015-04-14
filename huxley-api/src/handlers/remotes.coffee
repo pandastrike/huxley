@@ -32,4 +32,4 @@ module.exports = (db) ->
 
     # Access panda-hook to create a githook and place it on the cluster.
     yield pandahook.push data
-    respond 201, "githook installed", {remote_id: id}
+    respond 201, "githook installed", {id}

@@ -12,13 +12,11 @@ module.exports = (db) ->
     token = request.headers.authorization.split(" ")[1]
 
     if !token
-      respond 400, "No token specified"
+      respond 401, "No token specified"
 
-    console.log yield db.profiles
     profile = yield db.profiles.get token
-
     if profile
       # Return the database record concerning this profile.
       respond 200, {profile}
     else
-      respond.not_found()
+      respond 404
