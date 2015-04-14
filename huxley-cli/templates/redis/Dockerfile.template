@@ -5,12 +5,10 @@
 #
 
 # Pull base image.
-FROM base/arch
-
-RUN pacman -Syu --noconfirm
-RUN pacman-db-upgrade
+FROM base/arch_plus
 
 # Install Redis.
+RUN pacman -Syuu --noconfirm
 RUN pacman -S redis --noconfirm
 
 # Configure Redis.
