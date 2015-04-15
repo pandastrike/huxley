@@ -49,7 +49,7 @@ module.exports =
   initialize: async () ->
     # This instantiates a database interface via Pirate.
     #adapter = Memory.Adapter.make()
-    adapter = Redis.Adapter.make()
+    adapter = Redis.Adapter.make(host: "172.17.42.1")
     adapter.connect()
 
     # Database Collection Declarations
