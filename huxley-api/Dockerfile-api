@@ -1,0 +1,16 @@
+FROM pandastrike/arch_plus
+MAINTAINER Peter Nguyen (peter@pandastrike.com)
+
+# Install Huxley API.
+RUN git clone https://github.com/pandastrike/huxley.git /huxley-api
+RUN cd /huxley-api/huxley-api && git checkout tags/v1.0.0-alpha-04.1 && npm install
+
+# Define working directory.
+# the first /huxley-api is actually the huxley repo, which contains both /cli and /api
+WORKDIR /huxley-api/huxley-api
+
+# Define default command.
+CMD ["sh", "-c", "eval $(ssh-agent) && npm start"]
+
+# sudo docker build -t pandastrike/huxley_api .
+# /usr/bin/docker run --name api -p 8080:80 pandastrike/huxley_api /bin/bash -c # npm start
