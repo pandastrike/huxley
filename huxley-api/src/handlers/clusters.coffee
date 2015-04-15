@@ -4,7 +4,7 @@
 # This file contains API handler functions for the collective resource "clusters".
 
 {async} = require "fairmont"
-{make_key, get_master_key, get_cluster_id} = require "./helpers"
+{make_key, get_master_key, get_cluster_id, generate_cluster_master} = require "./helpers"
 pandacluster = require "panda-cluster"
 
 module.exports = (db) ->
@@ -47,9 +47,13 @@ module.exports = (db) ->
       profile.clusters.push cluster_id
       yield db.profiles.put token, profile
 
+      # Generate a master keypair for this cluster's agents.
+      data.agent = yield generate_cluster_master cluster_id
+
       try
-        # Add Huxley master SSH key to the list of user SSH keys, for later access.
+        # Add the Huxley API and Cluster Agent master SSH keys to the list of user SSH keys, for later access.
         data.public_keys.push yield get_master_key()
+        data.public_keys.push data.agent.public
 
         # Create a CoreOS cluster using panda-cluster
         pandacluster.create_cluster data
@@ -103,6 +107,5 @@ module.exports = (db) ->
         clusters.push cluster
       else
         clusters.push {cluster_id: "Cluster not found"}
-          
+
     respond 200, {clusters}
-    

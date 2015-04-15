@@ -7,7 +7,7 @@
 
 # PandaStrike Libraries
 key_forge = require "key-forge" # cryptography
-{async, read, remove} = require "fairmont"    # utility library
+{async, read, remove, shell} = require "fairmont"    # utility library
 
 module.exports =
   # This creates a random authorization token, 16 bytes long and using characters safe for URLs.
@@ -16,6 +16,16 @@ module.exports =
   # Temporary measure.  Read in the master SSH public key from a file in this code's
   # path.  The key gets placed on every cluster this server creates.
   get_master_key: async () -> yield read join __dirname, "..", "huxley_master.pub"
+
+  # This creates an SSH master key to allow agents to connect to the cluster without holding a user's connection open for forwarding.
+  generate_cluster_master: async (id) ->
+    # Generate an SSH keypair that will serve as the API's master key.
+    yield shell "ssh-keygen -t rsa -C 'cluster_agent_master' -N '' -f #{join process.env.HOME, ".huxley-agent-keys", id}"
+    return {
+      public: yield read join process.env.HOME, ".huxley-agent-keys", "#{id}.pub"
+      private: yield read join process.env.HOME, ".huxley-agent-keys", id
+    }
+
 
   # Retrieve a cluster ID when given the name and who it belongs to.
   get_cluster_id: async (name, token, db) ->
