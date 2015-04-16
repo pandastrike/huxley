@@ -45,7 +45,7 @@ module.exports = (db) ->
       yield db.profiles.put token, profile
 
       # Generate a master keypair for this cluster's agents.
-      data.agent = yield generate_cluster_master cluster_id
+      data.agent = yield generate_cluster_master id
 
       try
         # Add the Huxley API and Cluster Agent master SSH keys to the list of user SSH keys, for later access.
