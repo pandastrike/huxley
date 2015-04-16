@@ -41,7 +41,7 @@ module.exports =
           address: "root@#{spec.first}.#{domain}:3000"
         huxley:
           url: config.huxley.url
-          token: config.huxley.profile.secret_token
+          token: config.huxley.profile.token
       }
 
     # Check to see if this remote repository can be created.
@@ -67,7 +67,7 @@ module.exports =
           name: config.app_name
         huxley:
           url: config.huxley.url
-          token: config.huxley.profile.secret_token
+          token: config.huxley.profile.token
       }
 
 
