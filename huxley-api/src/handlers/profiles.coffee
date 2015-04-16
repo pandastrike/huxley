@@ -15,7 +15,7 @@ module.exports = (db) ->
 
     # Create a new user profile and save.
     token = make_key()
-    yield db.profiles.put token
+    yield db.profiles.put token,
       name: name
       email: email
       clusters: []
