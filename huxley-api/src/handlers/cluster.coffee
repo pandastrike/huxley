@@ -26,7 +26,7 @@ module.exports = (db) ->
 
     # Store this command in pending.
     command = "cluster delete #{name}"
-    status = "creating"
+    status = "deleting"
     db.pending.put token, command, status
 
     if cluster

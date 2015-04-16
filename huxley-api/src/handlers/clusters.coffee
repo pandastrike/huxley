@@ -4,7 +4,7 @@
 # This file contains API handler functions for the collective resource "clusters".
 
 {async} = require "fairmont"
-{make_key, get_master_key, get_cluster_id, generate_cluster_master} = require "./helpers"
+{make_key, get_master_key, get_cluster_id, generate_cluster_master, delete_cluster} = require "./helpers"
 pandacluster = require "panda-cluster"
 
 module.exports = (db) ->
