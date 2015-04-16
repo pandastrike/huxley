@@ -61,7 +61,7 @@ module.exports = (db) ->
         cluster.status = "failed"
         cluster.detail = error
         yield db.clusters.put id, cluster
-        db.pending.delete token, hash
+        db.pending.delete token, command
 
 
   put: async (context) ->

@@ -15,17 +15,31 @@ module.exports = (db) ->
     name = match.path.cluster_name
     token = request.headers.authorization.split(" ")[1]
 
+    # Validate
     profile = yield db.profiles.get token
     unless profile
       respond 401
       return
 
+    # Lookup cluster information
     cluster = yield get_cluster name, token, db, respond
+
+    # Store this command in pending.
+    command = "cluster delete #{name}"
+    status = "creating"
+    db.pending.put token, command, status
 
     if cluster
       # Use panda-cluster to delete the cluster, and delete from database.
-      cluster = merge cluster, {aws: profile.aws}, {cluster_name: name}
-      pandacluster.delete_cluster cluster
+      options =
+        aws: profile.aws
+        cluster_name: name
+        cluster_id: cluster.cluster_id
+        command_id: "cluster delete #{name}"
+        huxley:
+          url: "https://#{request.headers.host}"
+          token: token
+      pandacluster.delete_cluster options
       respond 200, "Cluster deletion underway."
     else
       respond 404
