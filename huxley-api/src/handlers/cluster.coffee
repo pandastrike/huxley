@@ -31,7 +31,7 @@ module.exports = (db) ->
     token = request.headers.authorization.split(" ")[1]
 
     if name
-      cluster = yield get_cluster cluster_name, token, db, respond
+      cluster = yield get_cluster name, token, db, respond
     else
       respond 404
 
