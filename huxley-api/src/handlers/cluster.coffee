@@ -24,7 +24,7 @@ module.exports = (db) ->
 
     if cluster
       # Use panda-cluster to delete the cluster, and delete from database.
-      cluster = merge cluster, {aws: profile.aws}
+      cluster = merge cluster, {aws: profile.aws}, {cluster_name: name}
       pandacluster.delete_cluster cluster
       respond 200, "Cluster deletion underway."
     else
