@@ -3,7 +3,7 @@
 #===============================================================================
 # This file contains API handler functions for the single resource "cluster".
 
-{async, remove, md5} = require "fairmont"
+{async, remove, merge} = require "fairmont"
 {get_cluster} = require "./helpers"
 pandacluster = require "panda-cluster"
 
@@ -15,10 +15,16 @@ module.exports = (db) ->
     name = match.path.cluster_name
     token = request.headers.authorization.split(" ")[1]
 
+    profile = yield db.profiles.get token
+    unless profile
+      respond 401
+      return
+
     cluster = yield get_cluster name, token, db, respond
 
     if cluster
       # Use panda-cluster to delete the cluster, and delete from database.
+      cluster = merge cluster, {aws: profile.aws}
       pandacluster.delete_cluster cluster
       respond 200, "Cluster deletion underway."
     else

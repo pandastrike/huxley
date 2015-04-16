@@ -95,7 +95,7 @@ module.exports =
         profiles = (yield discover spec.huxley.url).profiles
         {response: {headers: {token}}} = yield profiles.create spec
         return {
-          message: "*****profile \"#{spec.name}\" created. Secret token stored."
+          message: "*****profile \"#{spec.profile.name}\" created. Secret token stored."
           token: token
         }
       catch error
