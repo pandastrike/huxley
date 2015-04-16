@@ -28,10 +28,11 @@ module.exports =
 
     # Upon successful profile creation by the API, save neccessary data in the huxley dotfile
     update: async (response, home_config, options) ->
+      {name, email} = options.profile
       home_config.data.huxley["profile"] =
-        name: options.name
+        name: name
         token: response.token
-        email: options.email
+        email: email
 
       yield home_config.save()
 

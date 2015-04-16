@@ -96,7 +96,7 @@ module.exports =
         {response: {headers: {token}}} = yield profiles.create spec
         return {
           message: "*****profile \"#{spec.name}\" created. Secret token stored."
-          token
+          token: token
         }
       catch error
         throw build_error "Unable to create profile.", error

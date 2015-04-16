@@ -23,7 +23,7 @@ module.exports = (db) ->
       respond 409, "A cluster with that name already exists."
       return
     else
-      command = "cluster create #{data.cluster.name}"
+      command = "cluster create #{data.cluster_name}"
       status = "creating"
       db.pending.put token, command, status
 
@@ -32,7 +32,7 @@ module.exports = (db) ->
       data.cluster_id = id
       yield db.clusters.put id,
         status: "starting"
-        name: data.cluster.name
+        name: data.cluster_name
         public_domain: data.public_domain
         region: data.region
         deployments: []
