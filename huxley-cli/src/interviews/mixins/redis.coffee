@@ -1,11 +1,10 @@
 module.exports =
 
-  # object, not function
-  questions:
+  questions: ->
     [
       name: "service_name"
-      description: "What is the service name?"
-      default: process.cwd().split("/").pop()
+      description: "What do you want to call this Redis instance?"
+      default: "redis"
     ,
       name: "port"
       description: "Port?"

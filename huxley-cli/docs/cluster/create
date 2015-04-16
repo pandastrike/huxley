@@ -9,3 +9,7 @@ Spins up a CoreOS cluster on Amazon's EC2 cloud service.  You specify the name
 of the cluster as the only argument to the command.  If no name is specified, a
 random one is selected for you.  Other configuration is provided from both the
 root Huxley dotfile and the local huxley.yaml manifest in the application's repository.  
+
+Flags:
+--------------------------------------------------------------------------------
+  --wait, -w   Blocking wait until all pending requests have completed.

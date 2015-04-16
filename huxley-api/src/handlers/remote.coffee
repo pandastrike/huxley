@@ -25,8 +25,8 @@ module.exports = (db) ->
 
     # Use panda-hook to delete the remote repository.
     if remote?
-      #yield pandahook.destroy remote
-      yield delete_remote
+      yield pandahook.destroy remote
+      yield delete_remote id, cluster_id, db
       respond 200, "remote repository deleted. git alias removed."
     else
       respond 404, "unknown remote repository ID."

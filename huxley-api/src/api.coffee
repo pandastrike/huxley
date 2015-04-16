@@ -51,11 +51,6 @@ builder.define "deployment",
 .put
   as: "update"
 
-builder.define "status",
-  template: "/deployment/:deployment_id/status"
-.post
-  creates: "status"
-
 builder.reflect()
 
 module.exports = builder.api

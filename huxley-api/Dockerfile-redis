@@ -5,7 +5,7 @@
 #
 
 # Pull base image.
-FROM base/arch_plus
+FROM pandastrike/arch_plus
 
 # Install Redis.
 RUN pacman -Syuu --noconfirm
@@ -27,5 +27,5 @@ WORKDIR /data
 # Define default command.
 CMD ["redis-server", "/etc/redis.conf"]
 
-# Expose ports.
-EXPOSE {{{port}}}
+# sudo docker build -t pandastrike/redis .
+# docker run -d -p 6379:6379 --name redis pandastrike/redis

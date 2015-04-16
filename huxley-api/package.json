@@ -20,9 +20,9 @@
   "dependencies": {
     "fairmont": "1.0.0-alpha-17",
     "key-forge": "^1.0.0-beta-01",
-    "panda-cluster": "pandastrike/panda-cluster#85ea8b533352f60684e67d3b3a882a68d3acdbc9",
+    "panda-cluster": "pandastrike/panda-cluster#development/alpha-05",
     "panda-config": "^1.0.0-alpha-02",
-    "panda-hook": "pandastrike/panda-hook#6a866289157bb3a316dbe998efabddfffcbec3ef",
+    "panda-hook": "pandastrike/panda-hook#development/alpha-05",
     "pbx": "1.0.0-alpha-15",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"

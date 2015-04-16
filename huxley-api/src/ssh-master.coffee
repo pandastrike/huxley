@@ -28,7 +28,7 @@ module.exports =
       "fi; " +
 
       "mkdir #{process.env.HOME}/.huxley_ssh; " +
-      "mv #{process.cwd()}/huxley_master #{process.env.HOME}/.huxley_ssh/.; " +
+      "mv huxley_master #{process.env.HOME}/.huxley_ssh/.; " +
       "chmod 400 #{process.env.HOME}/.huxley_ssh/huxley_master"
     yield shell command
 
