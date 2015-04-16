@@ -57,8 +57,10 @@ module.exports =
 
   # Delete a cluster and all its references from within our database.
   delete_cluster: async (cluster_id, token, db) ->
-    db.clusters.delete cluster_id
-    remove (yield db.profiles.get token).clusters, cluster_id
+    yield db.clusters.delete cluster_id
+    profile = yield db.profiles.get token
+    remove profile.clusters, cluster_id
+    yield db.profiles.put token, profile
 
   # Retrieve the remote ID when given the cluster ID and the repository name.
   get_remote_id: async (name, cluster_id, db) ->

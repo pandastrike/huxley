@@ -83,8 +83,7 @@ module.exports = (db) ->
 
     # Update pending commands list.
     if data.status == "online" || data.status == "stopped"
-      command = cluster.command_id
-      db.pending.delete token, command
+      db.pending.delete token, data.command_id
 
     if data.status == "stopped"
       yield delete_cluster cluster.cluster_id, token, db
