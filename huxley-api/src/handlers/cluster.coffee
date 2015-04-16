@@ -27,7 +27,7 @@ module.exports = (db) ->
   get: async (context) ->
     # Parse the context for needed information.
     {request, respond, match} = context
-    cname = match.path.cluster_name
+    name = match.path.cluster_name
     token = request.headers.authorization.split(" ")[1]
 
     if name
