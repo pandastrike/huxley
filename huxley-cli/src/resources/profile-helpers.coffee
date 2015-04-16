@@ -12,6 +12,7 @@ module.exports =
     # Construct a configuration object to send to the Huxley API.
     build: (config, spec) ->
       return {
+        aws: config.aws
         profile:
           name: spec.first || "default"
           email: spec.email || ""

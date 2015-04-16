@@ -64,7 +64,6 @@ module.exports =
     # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
     build: (config, spec) ->
       return {
-        aws: config.aws
         cluster:
           name: spec.first
         huxley:
