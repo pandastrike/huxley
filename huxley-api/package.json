@@ -1,6 +1,6 @@
 {
   "name": "huxley-api",
-  "version": "1.0.0-alpha-03.2",
+  "version": "1.0.0-alpha-04.1",
   "description": "API server for Huxley",
   "scripts": {
     "start": "coffee --nodejs --harmony src/server.coffee",

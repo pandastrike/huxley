@@ -13,7 +13,7 @@ module.exports = (db) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data
-    token = data.secret_token
+    {token} = data.huxley
 
     # Validation.  Make sure the profile exists and the cluster name is not already in use.
     if (!token) || !(yield db.profiles.get token)
@@ -23,28 +23,25 @@ module.exports = (db) ->
       respond 409, "A cluster with that name already exists."
       return
     else
-      command = "cluster create #{data.cluster_name}"
+      command = "cluster create #{data.cluster.name}"
       status = "creating"
       db.pending.put token, command, status
 
-      # Create a cluster record to be stored in the server's database.
-      record =
+      # Store a cluster record using a unique token as the key.
+      id = make_key()
+      data.cluster_id = id
+      yield db.clusters.put id,
         status: "starting"
-        name: data.cluster_name
+        name: data.cluster.name
         public_domain: data.public_domain
         region: data.region
         deployments: []
         remotes: []
         command_id: command
 
-      # Store the record using a unique token as the key.
-      cluster_id = make_key()
-      yield db.clusters.put cluster_id, record
-      data.cluster_id = cluster_id
-
       # Add this cluster to the user's profile record.
       profile = yield db.profiles.get token
-      profile.clusters.push cluster_id
+      profile.clusters.push id
       yield db.profiles.put token, profile
 
       # Generate a master keypair for this cluster's agents.
@@ -57,13 +54,13 @@ module.exports = (db) ->
 
         # Create a CoreOS cluster using panda-cluster
         pandacluster.create_cluster data
-        respond 201, "Cluster creation underway.", {cluster_id}
+        respond 201, "Cluster creation underway.", {id}
       catch error
         # Record failure of this cluster.
-        cluster = yield db.clusters.get cluster_id
+        cluster = yield db.clusters.get id
         cluster.status = "failed"
         cluster.detail = error
-        yield db.clusters.put cluster_id cluster
+        yield db.clusters.put id, cluster
         db.pending.delete token, hash
 
 
@@ -71,7 +68,7 @@ module.exports = (db) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data
-    token = data.secret_token
+    {token} = data.huxley
     console.log "**status input", data.status, data.detail
     if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
@@ -83,9 +80,12 @@ module.exports = (db) ->
     yield db.clusters.put data.cluster_id, cluster
 
     # Update pending commands list.
-    if data.status == "online" or data.status == "stopped"
+    if data.status == "online" || data.status == "stopped"
       command = cluster.command_id
       db.pending.delete token, command
+
+    if data.status == "stopped"
+      yield delete_cluster cluster.cluster_id, token, db
 
     respond 200
 
@@ -95,17 +95,10 @@ module.exports = (db) ->
     token = request.headers.authorization.split(" ")[1]
 
     profile = yield db.profiles.get token
-    if !token || !profile
+    unless token && profile
       respond 401, "Unknown profile."
       return
 
     clusters = []
-    clusters_list = profile.clusters
-    for cluster_id in clusters_list
-      cluster = yield db.clusters.get cluster_id
-      if cluster
-        clusters.push cluster
-      else
-        clusters.push {cluster_id: "Cluster not found"}
-
+    clusters.push( yield db.clusters.get(id)) for id in profile.clusters
     respond 200, {clusters}

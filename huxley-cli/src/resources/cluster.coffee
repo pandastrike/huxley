@@ -3,7 +3,8 @@
 #===============================================================================
 # Clusters are the foundation of Huxley's deployment model.  This file contains
 # functions that configure their creation and deletion.
-{async, merge, sleep} = require "fairmont"
+
+{async, merge, collect, project} = require "fairmont"
 {usage, pull_configuration} = require "../helpers"
 {interview} = require "../interview"
 api = (require "../api-interface").cluster
@@ -55,8 +56,7 @@ module.exports =
 
 
   describe: async (spec) ->
-    # the build helper from delete works the same for describe
-    {build} = (require "./cluster-helpers").delete
+    {build} = (require "./cluster-helpers").describe
     # Read configuration data from the local config files.
     {config} = yield pull_configuration()
 
@@ -65,14 +65,16 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.get options
-    response
+
+    message = ""
+    message += "#{k}: #{v.toString()}\n" for k, v of response.cluster
+    return message
 
 
   list: async (spec) ->
-    {config, home_config} = yield pull_configuration()
-
-    # the build helper from delete works the same for list
     {build} = (require "./cluster-helpers").list
+    # Read configuration data from the local config files.
+    {config, home_config} = yield pull_configuration()
 
     # Use this raw configuration as context to build an "options" object for panda-cluster.
     options = build config
@@ -80,5 +82,6 @@ module.exports =
     # With our object built, call the Huxley API.
     response = yield api.list options
 
-    console.log "*****cluster list: ", response
-    response
+    message = ""
+    message += "#{name}\n" for name in collect project "name", response.clusters
+    return message

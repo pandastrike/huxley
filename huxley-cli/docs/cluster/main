@@ -7,6 +7,5 @@ This sub-command allows you to manipulate whole clusters.
 
 create      Spins up a CoreOS cluster on Amazon's EC2 cloud service according to several specified options.
 delete      Terminates the specified CoreOS cluster on Amazon's EC2 cloud service and deletes its cloud stack.
-describe    Display status information for a given cluster.
-list        Display status information for all active clusters belonging to the default profile.
-poll        Polls cluster status until creation is successful.
+describe    Describe details about a given cluster.
+ls          List cluster names belonging to your profile.

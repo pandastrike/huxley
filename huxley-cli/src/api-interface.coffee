@@ -21,8 +21,7 @@ module.exports =
   cluster:
     create: async (spec) ->
       try
-        url = spec.huxley_url || spec.url
-        clusters = (yield discover url).clusters
+        clusters = (yield discover spec.huxley.url).clusters
         {response: {headers: {cluster_id}}} = yield clusters.create spec
         return "Cluster creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
       catch error
@@ -30,10 +29,9 @@ module.exports =
 
     delete: async (spec) ->
       try
-        url = spec.huxley_url || spec.url
-        cluster = (yield discover url).cluster spec.cluster_name
+        cluster = (yield discover spec.huxley.url).cluster spec.cluster.name
         yield cluster.delete
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return "Cluster deletion In Progress."
       catch error
@@ -41,30 +39,20 @@ module.exports =
 
     get: async (spec) ->
       try
-        {cluster_name} = spec
-        url = spec.huxley_url || spec.url
-        cluster = (yield discover url).cluster spec.cluster_name
+        cluster = (yield discover spec.huxley.url).cluster spec.cluster.name
         {data} = yield cluster.get
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return data
       catch error
         throw build_error "Unable to retrieve cluster data.", error
 
-      try
-        pending = (yield discover spec.url).pending
-        {data} = yield pending.get
-          .authorize bearer: spec.secret_token
-          .invoke()
-        return yield data
-      catch error
-        throw build_error "Unable to retrieve pending commands.", error
 
     list: async (spec) ->
       try
-        clusters = (yield discover spec.huxley_url).clusters
+        clusters = (yield discover spec.huxley.url).clusters
         {data} = yield clusters.list
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return data
       catch error
@@ -74,18 +62,17 @@ module.exports =
   remote:
     create: async (spec) ->
       try
-        remotes = (yield discover spec.url).remotes
-        {response: {headers: {remote_id}}}  = yield remotes.create spec
-        return "Githook installed on cluster #{spec.cluster_name} \nID: #{remote_id}"
+        remotes = (yield discover spec.huxley.url).remotes
+        {response: {headers: {id}}}  = yield remotes.create spec
+        return "Githook installed on cluster #{spec.cluster.name} \nID: #{id}"
       catch error
         throw build_error "Unable to install remote githook.", error
 
     delete: async (spec) ->
       try
-        {cluster_id, repo_name} = spec
-        remote = (yield discover spec.url).remote {cluster_id, repo_name}
+        remote = (yield discover spec.huxley.url).remote {cluster_id: spec.cluster.id, repo_name: spec.app.name}
         yield remote.delete
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return "Githook remote has been removed."
       catch error
@@ -94,9 +81,9 @@ module.exports =
   pending:
     list: async (spec) ->
       try
-        pending = (yield discover spec.url).pending
+        pending = (yield discover spec.huxley.url).pending
         {data} = yield pending.get
-          .authorize bearer: spec.secret_token
+          .authorize bearer: spec.huxley.token
           .invoke()
         return yield data
       catch error
@@ -105,11 +92,11 @@ module.exports =
   profile:
     create: async (spec) ->
       try
-        profiles = (yield discover spec.url).profiles
-        {response: {headers: {secret_token}}} = yield profiles.create spec
+        profiles = (yield discover spec.huxley.url).profiles
+        {response: {headers: {token}}} = yield profiles.create spec
         return {
-          message: "*****profile \"#{spec.profile_name}\" created. Secret token stored."
-          secret_token: secret_token
+          message: "*****profile \"#{spec.name}\" created. Secret token stored."
+          token
         }
       catch error
         throw build_error "Unable to create profile.", error

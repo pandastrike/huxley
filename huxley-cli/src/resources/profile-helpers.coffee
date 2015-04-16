@@ -12,11 +12,12 @@ module.exports =
     # Construct a configuration object to send to the Huxley API.
     build: (config, spec) ->
       return {
-        url: config.huxley.url
-        email: spec.email || ""
-        profile_name: spec.first || "default"
+        profile:
+          name: spec.first || "default"
+          email: spec.email || ""
+        huxley:
+          url: config.huxley.url
       }
-
 
     # Check the request profile against profiles the user already has on file.
     # TODO: Allow multiple profiles and move list to separate file.
@@ -28,18 +29,20 @@ module.exports =
     # Upon successful profile creation by the API, save neccessary data in the huxley dotfile
     update: async (response, home_config, options) ->
       home_config.data.huxley["profile"] =
-        profile_name: options.profile_name
-        secret_token: response.secret_token
+        name: options.name
+        token: response.token
         email: options.email
 
       yield home_config.save()
-  
-  get:
 
+
+  get:
     build: (config, spec) ->
       return_object = {
-        url: config.huxley.url
-        secret_token: config.huxley.profile.secret_token
+        huxley:
+          url: config.huxley.url
+        profile:
+          token: config.huxley.profile.token
       }
       console.log "*****profile helpers: ", return_object
       return_object

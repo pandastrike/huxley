@@ -6,15 +6,28 @@
 {async} = require "fairmont"
 
 module.exports = (db) ->
-  # NOTE: deployments are created automatically when the first status
-  # is POSTed. We include this endpoint for completeness's sake
-  create: async ({respond, url, data}) ->
-    {deployment_id, cluster_id} = yield data
-    yield db.deployments.put deployment_id,
-      id: deployment_id
-      cluster_id
-    respond 200, "Created", location: url "deployment", {deployment_id}
+  create: async (context) ->
+    # Parse the context for needed information.
+    {respond, data} = context
+    data = yield data
+    {app, cluster, huxley} = data
+    token = huxley.token
 
-  query: async ({respond, match: {query}}) ->
-    # Workaround for pandastrike/pbx#13
-    respond 200, JSON.stringify yield db.deployments.all()
+    # Validate the profile.
+    unless token && (yield db.profiles.get token)
+      respond 401, "Unknown profile."
+      return
+
+    # Store new deployment.
+    yield db.deployments.put app.id,
+      status: app.status
+
+    # Associate this deployment with a cluster.
+    cluster = yield db.clusters.get cluster.id
+    cluster.deployments.push app.id
+    yield db.clusters.put cluster.id, cluster
+
+    # Store new pending record.
+    db.pending.put token, "git push #{cluster.name} #{app.branch}", "starting"
+
+    respond 201
