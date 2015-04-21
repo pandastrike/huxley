@@ -3,13 +3,23 @@
 #===============================================================================
 # Clusters require some sophisticated configuration.  This file holds some of the
 # helper functions to keep the cluster.coffee file clean.
-{resolve} = require "path"
+{join} = require "path"
 {read, async} = require "fairmont"
-{parse} = require "c50n"
+Configurator = require "panda-config"
 
+# This function reads the YAML file containing a pool of adjectives and nouns to construct random names.
+get_names = async () ->
+  configurator = Configurator.make
+    format: "yaml"
+    extension: ".yaml"
+    paths: [ join __dirname, ".." ]
+
+  config = configurator.make name: "names"
+  yield config.load()
+  return config.data
 
 # This function selects and returns a random element from an input array.
-select_random = (list) ->
+pluck = (list) ->
   {random, round} = Math
   index = round random() * (list.length - 1)
   return list[index]
@@ -27,8 +37,8 @@ module.exports =
         cluster_name = spec.first
       else
         # The user didn't give us anything.  Generate a cluster name from our list of ajectives and nouns.
-        {adjectives, nouns} = parse( yield read( resolve( __dirname, "..", "names.cson")))
-        cluster_name = "#{select_random(adjectives)}-#{select_random(nouns)}"
+        {adjectives, nouns} = yield get_names()
+        cluster_name = "#{pluck adjectives}-#{pluck nouns}"
 
       # Return "options" object for panda-cluster's create function.
       return {
