@@ -18,6 +18,9 @@ module.exports =
     # Deliver the general info blurb, if neccessary.
     yield usage "main"  if !resource || resource == "-h" || resource == "--help" || resource == "help"
 
+    # Map special flags to special "resources"
+    resource = "version" if resource == "-v" || resource == "--version"
+
     # Identify the resource.
     try
       commands = require "#{__dirname}/resources/#{resource}"
