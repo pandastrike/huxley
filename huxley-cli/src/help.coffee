@@ -33,9 +33,12 @@ module.exports =
     command = "delete" if command == "remove" || command == "rm" || command == "destroy"
     command = "list"   if command == "ls"
 
-    # Validate the command.
+    # Validate the command, allowing for special exceptions.
     if resource == "init"
       command = "init"
+    else if resource == "version" || resource == "-v" || resource == "--version"
+      resource = "version"
+      command = "version"
     else
       yield usage( "#{resource}/main", "Error: Invalid command.") unless command in Object.keys(commands)
 
