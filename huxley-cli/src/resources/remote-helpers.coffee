@@ -62,7 +62,7 @@ module.exports =
       yield shell "git remote add #{options.cluster.name} ssh://#{options.hook.address}/root/repos/#{options.app.name}.git"
 
       # Transport files and directories listed in huxley.yaml to the hook server.
-      if options.files? != []
+      if options.files && options.files != []
         {files, app, cluster} = options
         # Tar every file and directory listed in "files" of huxley.yaml...
         tar = "tar -zcf - "
