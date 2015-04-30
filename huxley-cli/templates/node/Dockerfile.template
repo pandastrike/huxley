@@ -1,5 +1,5 @@
 FROM pandastrike/arch_plus
-MAINTAINER Peter Nguyen (peter@pandastrike.com)
+MAINTAINER David Harper (david@pandastrike.com)
 #===============================================================================
 # Node.js
 #===============================================================================
@@ -14,3 +14,12 @@ MAINTAINER Peter Nguyen (peter@pandastrike.com)
 
 # Pull in your source code.
 RUN git clone -b {{{branch}}} git://hook.{{{cluster}}}.cluster:2001/repos/{{{name}}} {{{name}}}
+RUN cd {{{name}}} && npm install
+
+# Pull in any data that the user specified in the huxley.yaml
+RUN git clone git://hook.{{{cluster}}}.cluster:2001/files
+RUN cp files/{{{name}}}.tar.gz {{{name}}}
+RUN cd {{{name}}} && tar -xzf {{{name}}}.tar.gz
+
+# Clean up the vessel we used to transport this data.
+RUN rm -rf files && rm -f {{{name}}}/{{{name}}}.tar.gz

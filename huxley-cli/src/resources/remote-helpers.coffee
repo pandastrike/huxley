@@ -3,7 +3,7 @@
 #===============================================================================
 # Adding remote repositories onto a Huxley cluster requires some sophisticated
 # configuration.  This file holds some of the helper functions to keep the remote.coffee file clean.
-{resolve} = require "path"
+{resolve, join} = require "path"
 {async, project, shell, property, collect} = require "fairmont"
 {force, where} = require "../helpers"
 cluster = (require "../api-interface").cluster
@@ -19,6 +19,7 @@ cluster_ready = async (config, spec) ->
       token: config.huxley.profile.token
 
   return yield cluster.get options
+
 
 
 module.exports =
@@ -39,6 +40,7 @@ module.exports =
           public_domain: domain
         hook:
           address: "root@#{spec.first}.#{domain}:3000"
+        files: config.files
         huxley:
           url: config.huxley.url
           token: config.huxley.profile.token
@@ -53,6 +55,33 @@ module.exports =
       # Return data about the cluster
       return response
 
+    # Complete additional setup, here and on the hook server.
+    setup: async (options) ->
+      # Add a "git remote" alias using the cluster name. The first command is allowed to fail.
+      yield force shell, "git remote rm #{options.cluster.name}"
+      yield shell "git remote add #{options.cluster.name} ssh://#{options.hook.address}/root/repos/#{options.app.name}.git"
+
+      # Transport files and directories listed in huxley.yaml to the hook server.
+      if options.files? != []
+        {files, app, cluster} = options
+        # Tar every file and directory listed in "files" of huxley.yaml
+        command = "tar -zcf #{app.name}.tar.gz "
+        command += "#{file} " for file in files
+        yield shell command
+
+        # Ship the tarball to the hook server.
+        yield shell "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null " +
+                    "-P 3000 #{app.name}.tar.gz " +
+                    "root@#{cluster.name}.#{app.public_domain}:/root/files"
+
+        # Commit what we've just added to the "files" directory.
+        yield shell "ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null " +
+                    "-p 3000 root@#{cluster.name}.#{app.public_domain} << EOF\n" +
+                    "cd files && git add -A && git commit -m 'Adding extra data from #{app.name}.'\n" +
+                    "EOF"
+
+        # Delete the local tarball.
+        yield shell "rm #{app.name}.tar.gz"
 
 
   delete:
