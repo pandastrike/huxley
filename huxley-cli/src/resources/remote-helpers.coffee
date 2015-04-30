@@ -64,24 +64,20 @@ module.exports =
       # Transport files and directories listed in huxley.yaml to the hook server.
       if options.files? != []
         {files, app, cluster} = options
-        # Tar every file and directory listed in "files" of huxley.yaml
-        command = "tar -zcf #{app.name}.tar.gz "
-        command += "#{file} " for file in files
-        yield shell command
-
-        # Ship the tarball to the hook server.
-        yield shell "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null " +
-                    "-P 3000 #{app.name}.tar.gz " +
-                    "root@#{cluster.name}.#{app.public_domain}:/root/files"
+        # Tar every file and directory listed in "files" of huxley.yaml...
+        tar = "tar -zcf - "
+        tar += "#{file} " for file in files
+        # ...and pipe the output to the hook server over SSH.
+        yield shell tar + " | " +
+                    "ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null " +
+                    "-p 3000 root@#{cluster.name}.#{app.public_domain}  \"" +
+                    "cat > files/#{app.name}.tar.gz \""
 
         # Commit what we've just added to the "files" directory.
         yield shell "ssh -A -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null " +
                     "-p 3000 root@#{cluster.name}.#{app.public_domain} << EOF\n" +
                     "cd files && git add -A && git commit -m 'Adding extra data from #{app.name}.'\n" +
                     "EOF"
-
-        # Delete the local tarball.
-        yield shell "rm #{app.name}.tar.gz"
 
 
   delete:
