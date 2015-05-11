@@ -14,11 +14,9 @@ module.exports = (db) ->
     {request, respond, match} = context
     token = request.headers.authorization.split(" ")[1]
 
-    # Access the user's profile.
-    profile = yield db.profiles.get token
-
-    if !profile
+    # Validation
+    if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
-    else
-      resources = db.pending.get_all token
-      respond 200, {resources}
+      return
+
+    respond 200, {resources: db.pending.list token}

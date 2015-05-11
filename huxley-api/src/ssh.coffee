@@ -11,7 +11,7 @@ module.exports =
   # This function allows the server to generate its own SSH keypair.  The private key
   # is safely placed in the $HOME directory and the public key is made accessable
   # to "handlers.coffee" so it can be put on every cluster for access.
-  generate_keypair: async () ->
+  generate: async () ->
     # Generate an SSH keypair that will serve as the API's master key.
     command = "ssh-keygen -t rsa -C 'huxley_api_master' -N '' -f huxley_master"
     {stdout} = yield shell command

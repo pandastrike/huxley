@@ -23,10 +23,9 @@ module.exports =
     # Begin interview
     {questions} = require "../interviews/cluster-create.coffee"
     answers = yield interview questions config
-    config = merge config, answers
 
-    # Now use the interview and raw configuration as context to build an "options" object for panda-hook.
-    options = yield build config, spec
+    # Use the interview and raw configuration as context to build an "options" object for panda-hook.
+    options = yield build config, spec, answers
 
     # With our object built, call the Huxley API.
     response = yield api.create options

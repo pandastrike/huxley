@@ -11,7 +11,7 @@ builder.define "clusters",
   as: "list"
 
 builder.define "cluster",
-  template: "/cluster/:cluster_name"
+  template: "/cluster/:name"
 .delete()
 .get()
 
@@ -45,11 +45,9 @@ builder.define "deployments",
 .post
   as: "create"
   creates: "deployment"
-
-builder.define "deployment",
-  template: "/deployment/:deployment_id"
 .put
   as: "update"
+
 
 builder.reflect()
 

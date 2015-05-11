@@ -22,8 +22,8 @@ module.exports =
     create: async (spec) ->
       try
         clusters = (yield discover spec.huxley.url).clusters
-        {response: {headers: {cluster_id}}} = yield clusters.create spec
-        return "Cluster creation In Progress. \nName: #{spec.cluster_name} \nCluster ID: #{cluster_id}"
+        {response: {headers: {id}}} = yield clusters.create spec
+        return "Cluster creation In Progress. \nName: #{spec.cluster.name} \nCluster ID: #{id}"
       catch error
         throw build_error "Unable to construct Huxley cluster.", error
 

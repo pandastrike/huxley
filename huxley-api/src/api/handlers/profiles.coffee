@@ -4,7 +4,7 @@
 # This file contains API handler functions for the collective resource "profiles".
 
 {async} = require "fairmont"
-{make_key} = require "./helpers"
+key = require "../keys"
 
 module.exports = (db) ->
 
@@ -14,7 +14,7 @@ module.exports = (db) ->
     {name, email} = data.profile
 
     # Create a new user profile and save.
-    token = make_key()
+    token = key.generate()
     yield db.profiles.put token,
       aws: data.aws
       name: name

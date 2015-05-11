@@ -3,7 +3,7 @@
 #===============================================================================
 # This file contains API handler functions for the collective resource "deployment".
 
-{async} = require "fairmont"
+{async, md5} = require "fairmont"
 
 module.exports = (db) ->
   # Update the status of an existing deployment.
@@ -12,10 +12,10 @@ module.exports = (db) ->
     {respond, data} = context
     data = yield data
     {app, cluster, huxley} = data
-    token = huxley.token
+    {token, pending} = huxley
 
     # Validate the profile.
-    unless token && (yield db.profiles.get token)
+    if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
       return
 
@@ -26,6 +26,6 @@ module.exports = (db) ->
 
     # Remove pending record if we've reached a terminal state.
     if app.status == "online" || app.status == "failed"
-      db.pending.delete token, "git push #{cluster.name} #{app.branch}"
+      db.pending.delete token, huxley.pending
 
     respond 200
