@@ -4,8 +4,8 @@
 Pending = require "./pending"
 
 module.exports = async () ->
-    adapter = Redis.Adapter.make(host: "192.168.59.103")  # Local Machine
-    #adapter = Redis.Adapter.make(host: "172.17.42.1")    # Docker Container
+    #adapter = Redis.Adapter.make(host: "192.168.59.103")  # Local Machine
+    adapter = Redis.Adapter.make(host: "172.17.42.1")    # Docker Container
     adapter.connect()
 
     # Database Collection Declarations
