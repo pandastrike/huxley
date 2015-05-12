@@ -9,6 +9,6 @@
 {async} = require "fairmont" # utility library
 
 module.exports =
-  initialize: require "./intialize"
+  initialize: require "./initialize"
   lookup: require "./lookup"
   remove: require "./remove"
