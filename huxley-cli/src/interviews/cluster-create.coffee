@@ -76,7 +76,7 @@ module.exports =
         name: "domain"
         description: "Public Domain:"
         message: "Specify a publicly accessable domain for the cluster:"
-        default: config.cluster.public if config.cluster
+        default: config.cluster.domain if config.cluster
       ,
         name: "tags"
         description: "Descriptive Tag:"

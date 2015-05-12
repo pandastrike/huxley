@@ -7,7 +7,7 @@ module.exports = (db) ->
     {request, respond, data} = context
     data = yield data
     {name} = data.cluster
-    token = request.headers.authorization.split(" ")[1]
+    {token} = data.huxley
     id = yield db.lookup.cluster.id name, token, db
 
     # Validation

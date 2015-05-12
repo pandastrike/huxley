@@ -38,6 +38,8 @@ module.exports =
           console.log "Cluster is up and running"
           return
         yield sleep 10000
+    else
+      return response
 
 
   # This function prepares the "options" object to ask the API server to delete a
