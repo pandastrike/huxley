@@ -1,4 +1,3 @@
-
 {async} = require "fairmont"
 
 module.exports = (db) ->

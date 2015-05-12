@@ -2,9 +2,8 @@
 # Huxley API - Handlers - Profiles
 #===============================================================================
 # This file contains API handler functions for the collective resource "profiles".
-
 {async} = require "fairmont"
-key = require "../keys"
+key = require "../key"
 
 module.exports = (db) ->
 
