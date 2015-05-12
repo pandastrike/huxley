@@ -35,4 +35,4 @@ module.exports = (db) ->
         token: token
         pending: hash
 
-    respond 200
+    respond 200, {output: "Deletion underway."}
