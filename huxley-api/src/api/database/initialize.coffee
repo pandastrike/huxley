@@ -1,6 +1,7 @@
 # Instantiate Huxley's database interface via Pirate.
-
 {async} = require "fairmont"
+{Redis} = require "pirate"  # database adapter
+
 Pending = require "./pending"
 
 module.exports = async () ->
