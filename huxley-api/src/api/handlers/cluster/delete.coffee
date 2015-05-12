@@ -1,5 +1,5 @@
 {async, md5} = require "fairmont"
-panda_cluster = require "./panda-cluster"
+panda_cluster = require "panda-cluster"
 
 module.exports = (db) ->
   async (context) ->
