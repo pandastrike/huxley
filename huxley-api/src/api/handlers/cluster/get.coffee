@@ -17,4 +17,4 @@ module.exports = (db) ->
       return
 
     # Retrieve cluster data.
-    respond 200, {id, cluster: yield db.cluster.get id}
+    respond 200, {id, cluster: yield db.clusters.get id}
