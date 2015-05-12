@@ -27,7 +27,7 @@ module.exports = (db) ->
     yield db.clusters.put id,
       status: "starting"
       name: data.cluster.name
-      domain: data.cluster.zones.public
+      domain: data.cluster.zones.public.name
       type: data.cluster.type
       region: data.aws.region
       availability_zone: data.aws.availability_zone
