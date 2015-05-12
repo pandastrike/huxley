@@ -26,7 +26,7 @@ module.exports = (db) ->
 
 
     # Update pending commands list if the status is terminal.
-    if status == "online"
+    if status == "online" || status == "failed"
       db.pending.delete token, pending
 
     if status == "stopped"
