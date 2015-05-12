@@ -12,7 +12,7 @@ builder.define "clusters",
 
 builder.define "cluster",
   template: "/cluster/:name"
-.delete()
+.post as: "delete"
 .get()
 
 

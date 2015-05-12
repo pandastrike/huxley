@@ -4,8 +4,9 @@ panda_cluster = require "panda-cluster"
 module.exports = (db) ->
   async (context) ->
     # Parse the context for needed information.
-    {request, respond, match} = context
-    {name} = match.path
+    {request, respond, data} = context
+    data = yield data
+    {name} = data.cluster
     token = request.headers.authorization.split(" ")[1]
     id = yield db.lookup.cluster.id name, token, db
 
@@ -30,8 +31,8 @@ module.exports = (db) ->
         name: name
         id: id
       huxley:
-        url: request.headers.host
+        url: data.huxley.url
         token: token
         pending: hash
 
-    respond 200, "Cluster deletion underway."
+    respond 201, "Cluster deletion underway."

@@ -30,7 +30,7 @@ module.exports =
     delete: async (spec) ->
       try
         cluster = (yield discover spec.huxley.url).cluster spec.cluster.name
-        yield cluster.delete
+        yield cluster.delete spec
           .authorize bearer: spec.huxley.token
           .invoke()
         return "Cluster deletion In Progress."
