@@ -9,7 +9,7 @@ module.exports = (db) ->
     token = request.headers.authorization.split(" ")[1]
     id = yield db.lookup.cluster.id name, token, db
     console.log context.request._httpMessage
-    console.log request.match
+    console.log match
     # Validation
     if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
