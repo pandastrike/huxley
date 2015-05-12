@@ -23,7 +23,6 @@ module.exports = async () ->
   cluster:  (require "./cluster")(db)
 
   deployments: (require "./deployments")(db)
-  deployment:  (require "./deployment")(db)
 
   pending: (require "./pending")(db)
 
