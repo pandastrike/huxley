@@ -5,9 +5,9 @@ module.exports = (db) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data
-    {id, status, detail} = data.cluster
+    {id, status, details} = data.cluster
     {token, pending} = data.huxley
-    console.log "**Status:", status, detail
+    console.log "**Status:", status, details
 
     # Validation
     if (!token) || !(yield db.profiles.get token)
@@ -17,7 +17,7 @@ module.exports = (db) ->
     # Store new status data.
     cluster = yield db.clusters.get id
     cluster.status = status
-    cluster.detail = detail
+    cluster.details = details
     yield db.clusters.put id, cluster
 
     # Update pending commands list if the status is terminal.
