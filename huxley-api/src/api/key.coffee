@@ -5,7 +5,7 @@
 # with them and SSH keys grant access.  These helper functions handle their
 # management.
 {join} = require "path"
-{async, read} = require "fairmont"  # utility library
+{async, read, shell} = require "fairmont"  # utility library
 key_forge = require "key-forge"     # cryptography
 
 module.exports =
@@ -26,7 +26,7 @@ module.exports =
 
       yield shell "ssh-keygen -t rsa -C 'cluster_agent_master' -N '' " +
         "-f #{join dir, id}"
-        
+
       return {
         public: yield read join dir, "#{id}.pub"
         private: yield read join dir, id
