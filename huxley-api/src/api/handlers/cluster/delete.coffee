@@ -35,4 +35,4 @@ module.exports = (db) ->
         token: token
         pending: hash
 
-    respond 201, "Cluster deletion underway."
+    respond 200, "Cluster deletion underway."
