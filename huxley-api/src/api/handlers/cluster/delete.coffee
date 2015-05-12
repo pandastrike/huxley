@@ -1,3 +1,4 @@
+url = require "url"
 {async, md5} = require "fairmont"
 panda_cluster = require "panda-cluster"
 
@@ -8,7 +9,7 @@ module.exports = (db) ->
     {name} = match.path
     token = request.headers.authorization.split(" ")[1]
     id = yield db.lookup.cluster.id name, token, db
-
+    console.log context.request.url
     # Validation
     if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
