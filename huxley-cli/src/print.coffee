@@ -14,4 +14,5 @@ module.exports =
       # TODO: Support YAML output.
       throw "YAML output isn't supported yet."
     else
+      console.log "\n"
       console.log response.toString()
