@@ -11,9 +11,14 @@ module.exports = async () ->
 
     # Database Collection Declarations
     return {
+      # Raw Adapters
       clusters: yield adapter.collection "clusters"
       deployments: yield adapter.collection "deployments"
       profiles: yield adapter.collection "profiles"
       remotes: yield adapter.collection "remotes"
       pending: new Pending
+
+      # Query Functions
+      lookup: require "./lookup"
+      remove: require "./remove"
     }

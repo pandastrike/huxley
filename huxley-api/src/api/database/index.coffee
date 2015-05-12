@@ -7,5 +7,3 @@
 
 module.exports =
   initialize: require "./initialize"
-  lookup: require "./lookup"
-  remove: require "./remove"
