@@ -25,7 +25,7 @@ module.exports = (db) ->
 
     # Use panda-cluster to delete the cluster, and delete from database.
     panda_cluster.delete
-      aws: profile.aws
+      aws: (yield db.profiles.get token).aws
       cluster:
         name: name
         id: id
