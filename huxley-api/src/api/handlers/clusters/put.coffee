@@ -21,8 +21,8 @@ module.exports = (db) ->
       cluster.details = details
       yield db.clusters.put id, cluster
     catch
-      if status != "stopped" || status != "shutting down"
-        throw new Error "Failed to store status." 
+      if status != "stopped" && status != "shutting down"
+        throw new Error "Failed to store status."
 
 
     # Update pending commands list if the status is terminal.
