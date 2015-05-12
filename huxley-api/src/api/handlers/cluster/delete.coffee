@@ -23,7 +23,7 @@ module.exports = (db) ->
     status = "deleting"
     db.pending.put token, hash, status, command
 
-    Use panda-cluster to delete the cluster, and delete from database.
+    # Use panda-cluster to delete the cluster, and delete from database.
     panda_cluster.delete
       aws: (yield db.profiles.get token).aws
       cluster:
