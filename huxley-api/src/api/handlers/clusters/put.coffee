@@ -21,10 +21,10 @@ module.exports = (db) ->
     yield db.clusters.put id, cluster
 
     # Update pending commands list if the status is terminal.
-    if data.status == "online"
+    if status == "online"
       db.pending.delete token, pending
 
-    if data.status == "stopped"
+    if status == "stopped"
       db.pending.delete token, pending
       yield db.remove.cluster id, token, db
 
