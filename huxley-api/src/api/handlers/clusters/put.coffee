@@ -14,11 +14,16 @@ module.exports = (db) ->
       respond 401, "Unknown profile."
       return
 
-    # Store new status data.
-    cluster = yield db.clusters.get id
-    cluster.status = status
-    cluster.details = details
-    yield db.clusters.put id, cluster
+    # Store new status data.  If shutting down or stopped, it's okay to skip this.
+    try
+      cluster = yield db.clusters.get id
+      cluster.status = status
+      cluster.details = details
+      yield db.clusters.put id, cluster
+    catch
+      if status != "stopped" || status != "shutting down"
+        throw new Error "Failed to store status." 
+
 
     # Update pending commands list if the status is terminal.
     if status == "online"
