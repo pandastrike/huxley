@@ -8,7 +8,7 @@ module.exports = (db) ->
     {name} = match.path
     token = request.headers.authorization.split(" ")[1]
     id = yield db.lookup.cluster.id name, token, db
-    console.log context.request.connection.parser.incoming
+
     # Validation
     if (!token) || !(yield db.profiles.get token)
       respond 401, "Unknown profile."
@@ -23,15 +23,15 @@ module.exports = (db) ->
     status = "deleting"
     db.pending.put token, hash, status, command
 
-    # Use panda-cluster to delete the cluster, and delete from database.
-    # panda_cluster.delete
-    #   aws: (yield db.profiles.get token).aws
-    #   cluster:
-    #     name: name
-    #     id: id
-    #   huxley:
-    #     url: "https://#{request.headers.host}"
-    #     token: token
-    #     pending: hash
+    Use panda-cluster to delete the cluster, and delete from database.
+    panda_cluster.delete
+      aws: (yield db.profiles.get token).aws
+      cluster:
+        name: name
+        id: id
+      huxley:
+        url: request.headers.host
+        token: token
+        pending: hash
 
     respond 200, "Cluster deletion underway."
