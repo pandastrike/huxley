@@ -7,7 +7,7 @@ module.exports = (db) ->
     data = yield data
     {id, status, details} = data.cluster
     {token, pending} = data.huxley
-    console.log "**Status:", status, details
+    console.log "**Status for #{data.cluster.name}: #{status};  #{details}"
 
     # Validation
     if (!token) || !(yield db.profiles.get token)
@@ -21,9 +21,8 @@ module.exports = (db) ->
       cluster.details = details
       yield db.clusters.put id, cluster
     catch
-      if status != "stopped" && status != "shutting down"
-        throw new Error "Failed to store status."
-
+      # Swallow the error here if the cluster record has already been destroyed.
+      console.log "Failed to store status: #{status};  #{details}"
 
     # Update pending commands list if the status is terminal.
     if status == "online" || status == "failed"

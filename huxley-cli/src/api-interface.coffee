@@ -31,8 +31,6 @@ module.exports =
       try
         cluster = (yield discover spec.huxley.url).cluster spec.cluster.name
         yield cluster.delete spec
-          .authorize bearer: spec.huxley.token
-          .invoke()
         return "Cluster deletion In Progress."
       catch error
         throw build_error "Unable to delete Huxley cluster.", error
