@@ -11,7 +11,7 @@ cluster = (require "../api-interface").cluster
 # Check the API server to see if a specified cluster is online and ready.
 is_ready = async (config, spec) ->
   # Build a data object to query the API's database for active clusters.
-  return yield cluster.get options
+  return yield cluster.get
     cluster:
       name: spec.first
     huxley:
@@ -36,7 +36,6 @@ module.exports =
           domain: cluster.domain
         hook:
           address: "root@#{spec.first}.#{cluster.domain}:3000"
-        files: config.files
         huxley:
           url: config.huxley.url
           token: config.huxley.profile.token

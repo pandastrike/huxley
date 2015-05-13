@@ -17,9 +17,10 @@ module.exports = (db) ->
     # Store new status data.  If shutting down or stopped, it's okay to skip this.
     try
       cluster = yield db.clusters.get id
-      cluster.status = status
-      cluster.details = details
-      yield db.clusters.put id, cluster
+      unless (cluster.status == "shutting down" || cluster.status = "stopped") && status == "starting"
+        cluster.status = status
+        cluster.details = details
+        yield db.clusters.put id, cluster
     catch
       # Swallow the error here if the cluster record has already been destroyed.
       console.log "Failed to store status: #{status};  #{details}"

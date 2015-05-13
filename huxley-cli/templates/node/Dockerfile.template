@@ -13,13 +13,15 @@ MAINTAINER David Harper (david@pandastrike.com)
 #RUN npm install -g coffee-script
 
 # Pull in your source code.
-RUN git clone -b {{{branch}}} git://hook.{{{cluster}}}.cluster:2001/repos/{{{name}}} {{{name}}}
+RUN git clone -b {{{app.branch}}} git://hook.{{{cluster.name}}}.cluster:2001/repos/{{{app.name}}} {{{app.name}}}
 RUN cd {{{name}}} && npm install
 
 # Pull in any data that the user specified in the huxley.yaml
-RUN git clone git://hook.{{{cluster}}}.cluster:2001/files
-RUN cp files/{{{name}}}.tar.gz {{{name}}}
-RUN cd {{{name}}} && tar -xzf {{{name}}}.tar.gz
+RUN git clone git://hook.{{{cluster.name}}}.cluster:2001/files
+RUN if [ -e files/{{{app.name}}}.tar.gz ]; then           \
+      cp files/{{{app.name}}}.tar.gz {{{app.name}}};      \
+      cd {{{app.name}}} && tar -xzf {{{app.name}}}.tar.gz \
+    fi 
 
 # Clean up the vessel we used to transport this data.
-RUN rm -rf files && rm -f {{{name}}}/{{{name}}}.tar.gz
+RUN rm -rf files && rm -f {{{app.name}}}/{{{app.name}}}.tar.gz
