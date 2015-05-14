@@ -4,6 +4,8 @@ module.exports = (db) ->
   console.log "This works 1"
   async (context) ->
     console.log "This works 2"
+    {respond} = context
+    respond 200
     # # Parse the context for needed information.
     # {respond, data} = context
     # data = yield data
