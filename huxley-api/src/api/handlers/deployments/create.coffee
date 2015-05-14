@@ -1,4 +1,4 @@
-{async} = require "fairmont"
+{async, md5} = require "fairmont"
 
 module.exports = (db) ->
   async (context) ->
