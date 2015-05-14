@@ -21,7 +21,7 @@
     "amen": "1.0.0-alpha-04"
   },
   "dependencies": {
-    "fairmont": "^1.0.0-beta-03",
+    "fairmont": "1.0.0-beta-03",
     "key-forge": "^1.0.0-beta-01",
     "panda-cluster": "pandastrike/panda-cluster#development/alpha-06",
     "panda-config": "1.0.0-alpha-03",
