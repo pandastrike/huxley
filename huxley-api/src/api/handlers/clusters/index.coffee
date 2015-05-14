@@ -5,5 +5,5 @@
 
 module.exports = (db) ->
   create: (require "./create")(db)
-  put: (require "./put")(db)
   list: (require "./list")(db)
+  update: (require "./update")(db)

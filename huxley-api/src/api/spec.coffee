@@ -6,9 +6,10 @@ builder.define "clusters",
 .post
   as: "create"
   creates: "cluster"
-.put()
 .get
   as: "list"
+.put
+  as: "update"
 
 builder.define "cluster",
   template: "/cluster/:name"

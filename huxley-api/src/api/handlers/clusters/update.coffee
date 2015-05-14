@@ -14,7 +14,8 @@ module.exports = (db) ->
       respond 401, "Unknown profile."
       return
 
-    # Store new status data.  If shutting down or stopped, it's okay to skip this.
+    # Store new status data.  If shutting down or stopped, it's okay to skip an
+    # update a create command...  happens if the user deletes a cluster before it's ready.
     try
       cluster = yield db.clusters.get id
       unless (cluster.status == "shutting down" || cluster.status = "stopped") && status == "starting"
