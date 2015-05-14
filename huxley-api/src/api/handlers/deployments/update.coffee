@@ -7,7 +7,7 @@
 
 module.exports = (db) ->
   # Update the status of an existing deployment.
-  update: async (context) ->
+  async (context) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data

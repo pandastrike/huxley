@@ -1,7 +1,7 @@
 {async} = require "fairmont"
 
 module.exports = (db) ->
-  create: async (context) ->
+  async (context) ->
     # Parse the context for needed information.
     {respond, data} = context
     data = yield data
