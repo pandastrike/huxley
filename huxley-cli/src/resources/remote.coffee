@@ -33,7 +33,7 @@ module.exports =
     response = yield api.create options
 
     # Complete additional setup, here and on the hook server.
-    yield setup options
+    yield setup options, config
 
     return response
 

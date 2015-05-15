@@ -52,15 +52,16 @@ module.exports =
       return response
 
     # Complete additional setup, here and on the hook server.
-    setup: async (options) ->
+    setup: async (options, config) ->
       # Add a "git remote" alias. The first command is allowed to fail.
       yield force shell, "git remote rm #{options.cluster.name}"
       yield shell "git remote add #{options.cluster.name} " +
         "ssh://#{options.hook.address}/root/repos/#{options.app.name}.git"
 
       # Transport files and directories listed in huxley.yaml to the hook server.
-      if options.files && options.files != []
-        {files, app, cluster} = options
+      {app, cluster} = options
+      {files} = config
+      if files && files != []
         # Tar every file and directory listed in "files" of huxley.yaml...
         tar = "tar -zcf - "
         tar += "#{file} " for file in files

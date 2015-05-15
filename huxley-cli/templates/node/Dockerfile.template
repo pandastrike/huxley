@@ -14,14 +14,16 @@ MAINTAINER David Harper (david@pandastrike.com)
 
 # Pull in your source code.
 RUN git clone -b {{{app.branch}}} git://hook.{{{cluster.name}}}.cluster:2001/repos/{{{app.name}}} {{{app.name}}}
-RUN cd {{{name}}} && npm install
+RUN cd {{{app.name}}} && npm install
 
 # Pull in any data that the user specified in the huxley.yaml
 RUN git clone git://hook.{{{cluster.name}}}.cluster:2001/files
-RUN if [ -e files/{{{app.name}}}.tar.gz ]; then           \
-      cp files/{{{app.name}}}.tar.gz {{{app.name}}};      \
-      cd {{{app.name}}} && tar -xzf {{{app.name}}}.tar.gz \
-    fi 
+RUN if [ -e files/{{{app.name}}}.tar.gz ]; then            \
+      cp files/{{{app.name}}}.tar.gz {{{app.name}}};       \
+      cd {{{app.name}}} && tar -xzf {{{app.name}}}.tar.gz; \
+    else                                                   \
+      exit 0;                                              \
+    fi
 
 # Clean up the vessel we used to transport this data.
 RUN rm -rf files && rm -f {{{app.name}}}/{{{app.name}}}.tar.gz

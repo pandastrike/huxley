@@ -27,7 +27,7 @@
     "fairmont": "1.0.0-beta-03",
     "mustache": "^1.1.0",
     "panda-config": "1.0.0-alpha-03",
-    "pbx": "^1.0.0-alpha-17",
+    "pbx": "pandastrike/pbx#huxley",
     "prompt": "^0.2.14",
     "shred": "1.1.0-alpha-03",
     "when": "^3.7.2"
