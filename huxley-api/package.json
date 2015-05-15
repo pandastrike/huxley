@@ -26,7 +26,7 @@
     "panda-cluster": "pandastrike/panda-cluster#development/alpha-06",
     "panda-config": "1.0.0-alpha-03",
     "panda-hook": "pandastrike/panda-hook#development/alpha-06b",
-    "pbx": "1.0.0-beta-05",
+    "pbx": "pandastrike/pbx#huxley",
     "pirate": "^1.0.0-alpha-05",
     "when": "^3.6.3"
   },
