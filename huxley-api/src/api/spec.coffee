@@ -18,7 +18,7 @@ builder.define "cluster",
 
 
 builder.define "remotes",
-  template: "/remotes"
+  path: "/remotes"
 .post
   as: "create"
   creates: "remote"
@@ -38,7 +38,7 @@ builder.define "profiles",
   creates: "profile"
 
 builder.define "profile",
-  template: "/profile"
+  path: "/profile"
 .get()
 
 builder.define "deployments",
