@@ -24,7 +24,7 @@ ExecStartPre=/usr/bin/echo "Registering Service with DNS.  This will take a mome
 ExecStartPre=/usr/bin/curl -XPOST kick.{{{cluster.name}}}.cluster:2000/records -d '{ \
   "hostname": "{{{service.name}}}.{{{cluster.name}}}.{{{app.domain}}}", \
   "ip_address": "${COREOS_PUBLIC_IPV4}", "port": {{{service.external_port}}}, \
-  "type": "A" }' -H 'Content-Type: application/vnd.kick.record+json; version=1.0; charset=UTF-8'
+  "type": "A" }' -H 'Content-Type: application/vnd.kick.record+json'
 
 ExecStartPre=/usr/bin/bash -c "until curl kick.{{{cluster.name}}}.cluster:2000/record/{{{service.name}}}.{{{cluster.name}}}.{{{app.domain}}} | grep -o 'INSYNC'; do echo 'polling for another 5s'; sleep 5; done"
 

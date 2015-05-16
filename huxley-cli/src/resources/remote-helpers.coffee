@@ -43,6 +43,8 @@ module.exports =
 
     # Check to see if this remote repository can be created.
     check: async (config, spec) ->
+      throw "Please provide a cluster name" unless spec.first
+
       response = yield is_ready(config, spec)
       if response.cluster.status != "online"
         throw "That cluster is not ready to accept a remote repository."
@@ -75,11 +77,13 @@ module.exports =
         # Commit what we've just added to the "files" directory.
         yield shell "ssh -A -o StrictHostKeyChecking=no " +
           " -o UserKnownHostsFile=/dev/null " +
-          "-p 3000 root@#{cluster.name}.#{app.domain} << EOF\n" +
-          "cd files && git add -A && " + "
-          git commit -m 'Adding extra data from #{app.name}.'\n" +
+          "-p 3000 root@#{cluster.name}.#{app.domain} << EOF \n" +
+          "cd files \n" +
+          "git config --global user.email 'huxley@pandastrike.com' \n" +
+          "git config --global user.name 'huxley-client' \n" +
+          "git add -A \n" +
+          "git commit -m 'Adding extra data from #{app.name}.' \n" +
           "EOF"
-
 
   delete:
     # Construct an object that will be passed to the Huxley API to used by its panda-hook library.

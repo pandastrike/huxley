@@ -12,7 +12,7 @@ module.exports = (db) ->
     {respond, data} = context
     data = yield data
     {app, cluster, huxley} = data
-    {token, pending} = huxley
+    {token} = huxley
 
     # Validate the profile.
     if (!token) || !(yield db.profiles.get token)
@@ -26,6 +26,6 @@ module.exports = (db) ->
 
     # Remove pending record if we've reached a terminal state.
     if app.status == "online" || app.status == "failed"
-      db.pending.delete token, huxley.pending
+      db.pending.delete token, md5( "git push #{cluster.name} #{app.branch}" )
 
     respond 200

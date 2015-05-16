@@ -19,9 +19,11 @@ RUN cd {{{app.name}}} && npm install
 # Pull in any data that the user specified in the huxley.yaml
 RUN git clone git://hook.{{{cluster.name}}}.cluster:2001/files
 RUN if [ -e files/{{{app.name}}}.tar.gz ]; then            \
+      echo "Extracting privileged files.";                 \
       cp files/{{{app.name}}}.tar.gz {{{app.name}}};       \
       cd {{{app.name}}} && tar -xzf {{{app.name}}}.tar.gz; \
     else                                                   \
+      echo "No privileged data found.";                    \
       exit 0;                                              \
     fi
 
