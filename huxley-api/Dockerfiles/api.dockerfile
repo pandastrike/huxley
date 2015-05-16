@@ -6,4 +6,9 @@ RUN mkdir .huxley-agent-keys
 
 # Install Huxley API.
 RUN git clone https://github.com/pandastrike/huxley.git
-RUN cd /huxley/huxley-api && git checkout tags/v1.0.0-alpha-04.1 && npm install
+RUN cd /huxley/huxley-api && git checkout tags/v1.0.0-alpha-06 && npm install
+
+# Define default command.
+WORKDIR /huxley/huxley-api
+# docker run -d -p 80:8080 --name api pandastrike/huxley_api /bin/bash -c "
+#   ssh-agent coffee --nodejs --harmony src/server.coffee"
