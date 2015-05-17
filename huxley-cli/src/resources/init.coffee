@@ -33,4 +33,4 @@ module.exports =
         write_path: process.cwd()
         write_filename: "huxley"
 
-      return "Huxley deployment initalized."
+      return "Huxley deployment initialized."
