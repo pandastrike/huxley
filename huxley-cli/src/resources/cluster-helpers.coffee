@@ -3,13 +3,23 @@
 #===============================================================================
 # Clusters require some sophisticated configuration.  This file holds some of the
 # helper functions to keep the cluster.coffee file clean.
-{resolve} = require "path"
+{join} = require "path"
 {read, async} = require "fairmont"
-{parse} = require "c50n"
+Configurator = require "panda-config"
 
+# This function reads the YAML file containing a pool of adjectives and nouns to construct random names.
+get_names = async () ->
+  configurator = Configurator.make
+    format: "yaml"
+    extension: ".yaml"
+    paths: [ join __dirname, ".." ]
+
+  config = configurator.make name: "names"
+  yield config.load()
+  return config.data
 
 # This function selects and returns a random element from an input array.
-select_random = (list) ->
+pluck = (list) ->
   {random, round} = Math
   index = round random() * (list.length - 1)
   return list[index]
@@ -19,40 +29,40 @@ module.exports =
 
   create:
     # Construct an object that will be passed to the Huxley API to used by its panda-cluster library.
-    build: async (config, spec) ->
+    build: async (config, spec, answers) ->
+
+      # Using default AWS config?
+      {aws} = config
+      aws.region = answers.region
+      aws.availability_zone = answers.zone
+      aws.key_name = answers.key
 
       # Did the user input a cluster name?
       if spec.first
-        # The user gave us a name.  Use it.
-        cluster_name = spec.first
+        name = spec.first # The user gave us a name.  Use it.
       else
-        # The user didn't give us anything.  Generate a cluster name from our list of ajectives and nouns.
-        {adjectives, nouns} = parse( yield read( resolve( __dirname, "..", "names.cson")))
-        cluster_name = "#{select_random(adjectives)}-#{select_random(nouns)}"
+        # Generate a cluster name from our list of adjectives and nouns.
+        {adjectives, nouns} = yield get_names()
+        name = "#{pluck adjectives}-#{pluck nouns}"
 
       # Return "options" object for panda-cluster's create function.
       return {
-        # Required
-        aws: config.aws
-        key_name: config.aws.key_name
-        availability_zone: config.aws.availability_zone
-        cluster_name: cluster_name
-        public_domain: config.public_domain
-        private_domain: "#{cluster_name}.cluster"
-
-        # Optional
-        channel: config.channel                   || 'stable'
-        cluster_size: config.cluster_size         || 3
-        instance_type: config.instance_type       || "m1.medium"
-        public_keys: config.public_keys           || []
-        region: config.region                     || config.aws.region
-        formation_service_templates: true
-        spot_price: config.spot_price             if config.spot_price?
-        virtualization: config.virtualization     || "pv"
-
-        tags: [{Key: "role", Value: config.tags}]
-
-        # Huxley Access
+        aws: aws
+        cluster:
+          name: name
+          size: answers.size
+          type: answers.type
+          price: answers.price
+          virtualization: answers.virtualization
+          tags: [{Key: "role", Value: answers.tags}]
+          zones:
+            public:
+              name: answers.domain
+            private:
+              name: "#{name}.cluster"
+        coreos:
+          channel: answers.channel
+        public_keys: config.public_keys  || []
         huxley:
           url: config.huxley.url
           token: config.huxley.profile.token

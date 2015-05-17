@@ -2,15 +2,19 @@ module.exports =
 
   questions: () ->
     [
-      name: "service_name"
+      name: "name"
       description: "What is the mixin name?"
       default: process.cwd().split("/").pop()
     ,
-      name: "port"
-      description: "On what port is the mixin listening?"
+      name: "external_port"
+      description: "What external port on the container is exposed?"
       default: undefined
     ,
-      name: "start_command"
-      description: "What is the application start command?"
+      name: "internal_port"
+      description: "What internal port in the container maps to the above?"
+      default: 80
+    ,
+      name: "start"
+      description: "What is the mixin start command?"
       default: "npm start"
     ]

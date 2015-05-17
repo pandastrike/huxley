@@ -1,0 +1,8 @@
+--------------------------------------------
+Usage: huxley version
+--------------------------------------------
+Follow any command with "help" for more information.
+
+This sub-command allows you to access the version of the Huxley CLI currently in use.
+
+Also triggered by "huxley -v" and "huxley --version"

@@ -6,18 +6,19 @@ builder.define "clusters",
 .post
   as: "create"
   creates: "cluster"
-.put()
 .get
   as: "list"
+.put
+  as: "update"
 
 builder.define "cluster",
-  template: "/cluster/:cluster_name"
-.delete()
+  template: "/cluster/:name"
+.post as: "delete"
 .get()
 
 
 builder.define "remotes",
-  template: "/remotes"
+  path: "/remotes"
 .post
   as: "create"
   creates: "remote"
@@ -37,7 +38,7 @@ builder.define "profiles",
   creates: "profile"
 
 builder.define "profile",
-  template: "/profile"
+  path: "/profile"
 .get()
 
 builder.define "deployments",
@@ -45,11 +46,9 @@ builder.define "deployments",
 .post
   as: "create"
   creates: "deployment"
-
-builder.define "deployment",
-  template: "/deployment/:deployment_id"
 .put
   as: "update"
+
 
 builder.reflect()
 

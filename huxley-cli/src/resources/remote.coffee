@@ -18,7 +18,7 @@ module.exports =
   # This function prepares the "options" object to ask the API server to place a githook
   # on the cluster's hook server.  Then it adds to the local machine's git aliases.
   create: async (spec) ->
-    {build, check} = (require "./remote-helpers").create
+    {build, check, setup} = (require "./remote-helpers").create
 
     # Start by reading configuration data from the local config files.
     {config} = yield pull_configuration()
@@ -32,9 +32,8 @@ module.exports =
     # With our object built, call the Huxley API.
     response = yield api.create options
 
-    # Now, add a "git remote" alias using the cluster name. The first command is allowed to fail.
-    yield force shell, "git remote rm #{spec.first}"
-    yield shell "git remote add #{spec.first} ssh://#{options.hook.address}/root/repos/#{options.app.name}.git"
+    # Complete additional setup, here and on the hook server.
+    yield setup options, config
 
     return response
 

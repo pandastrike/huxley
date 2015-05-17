@@ -17,6 +17,12 @@ init          Generates the basic files Huxley needs to function and adds them t
 mixin
   add         Adds a Huxley mixin to the application's "launch/" directory.  Includes template Dockerfile and CoreOS unit file (*.service)
 
+pending
+  ls          Lists all pending commands
+  wait        Blocking command that does not exit until all pending commands are resolved.
+
 remote
-  add       Place a githook on a targeted cluster.
-  passive   Place arbitrary data on a targeted cluster.  Avoids deployment cascade.
+  add         Place a githook on a targeted cluster.
+  passive     Place arbitrary data on a targeted cluster.  Avoids deployment cascade.
+
+version       Provides the version of the Huxley CLI currently in use.

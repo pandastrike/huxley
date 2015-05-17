@@ -18,16 +18,13 @@
 {shell, async, call} = require "fairmont" # utility library
 {processor} = require "pbx"               # API library
 
-# Third Party Libraries
-{promise} = require "when"
-
 # Local Modules
-handlers = require "./handlers"
-api_spec = require "./api"
-{generate_keypair} = require "./ssh-master"
+handlers = require "./api/handlers"
+spec = require "./api/spec"
+keypair = require "./ssh"
 
 # Address where the server is listening for requests.
-api_spec.base_url = "http://localhost:8080"
+spec.base_url = "http://localhost:8080"
 
 #===============================================================================
 # Server Spinup
@@ -38,8 +35,8 @@ call ->
 
   # By defualt the server generates its own SSH key.  If we place "restart" after
   # the startup command, the user can ask the server to reuse whatever keys are in place.
-  yield generate_keypair()  unless argv.length != 0 && argv[0] == "restart"
+  yield keypair.generate()  unless argv.length != 0 && argv[0] == "restart"
 
   # Spinup the server.
-  createServer yield (processor api_spec, handlers)
+  createServer yield (processor spec, handlers)
   .listen 8080, () -> console.log "Huxley API is online.  Listening on 8080."

@@ -18,6 +18,9 @@ module.exports =
     # Deliver the general info blurb, if neccessary.
     yield usage "main"  if !resource || resource == "-h" || resource == "--help" || resource == "help"
 
+    # Map special flags to special "resources"
+    resource = "version" if resource == "-v" || resource == "--version"
+
     # Identify the resource.
     try
       commands = require "#{__dirname}/resources/#{resource}"
@@ -33,9 +36,12 @@ module.exports =
     command = "delete" if command == "remove" || command == "rm" || command == "destroy"
     command = "list"   if command == "ls"
 
-    # Validate the command.
+    # Validate the command, allowing for special exceptions.
     if resource == "init"
       command = "init"
+    else if resource == "version" || resource == "-v" || resource == "--version"
+      resource = "version"
+      command = "version"
     else
       yield usage( "#{resource}/main", "Error: Invalid command.") unless command in Object.keys(commands)
 
