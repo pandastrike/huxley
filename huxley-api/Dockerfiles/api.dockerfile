@@ -6,7 +6,7 @@ RUN mkdir .huxley-agent-keys
 
 # Install Huxley API.
 RUN git clone https://github.com/pandastrike/huxley.git
-RUN cd /huxley/huxley-api && git checkout tags/v1.0.0-alpha-06 && npm install
+RUN cd /huxley/huxley-api && git checkout tags/v1.0.0-alpha-07 && npm install
 
 # Define default command.
 WORKDIR /huxley/huxley-api
