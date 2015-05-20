@@ -2,7 +2,7 @@
 # Huxley - CLI Interviewer
 #===============================================================================
 # The Huxley CLI relies on an interviewer to collect configuration details from
-# the user via prompts.  We wrap the aptly named library "prompt" to achieve this, haha.
+# the user via prompts.  We wrap the aptly named library "prompt".
 Configurator = require "panda-config"
 {async, merge} = require "fairmont"
 prompt = require "prompt"
@@ -19,13 +19,20 @@ module.exports =
     prompt.delimiter = ""
     prompt.start()
 
-  # Execute the interview prompt.  We wrap prompt's execution in a promise so we may use ES6 syntax.
+  # Execute the interview.  Wrap the menthod in a promise to use ES6 style.
   interview: (questions) ->
     promise (resolve, reject) ->
       prompt.get questions, (error, answers) ->
         if error?
           reject error
         else
+          # Map boolean-esque answers onto "true" and "false" values.
+          for k of answers
+            if answers[k] == "yes" || answers[k] == "y" || answers[k] == "true"
+              answers[k] = true
+            if answers[k] == "no" || answers[k] == "n" || answers[k] == "false"
+              answers[k] = false
+
           resolve answers
 
   # Write the configuration gathered by the interview to file.

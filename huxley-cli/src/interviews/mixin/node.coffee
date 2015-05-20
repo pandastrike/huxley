@@ -17,4 +17,14 @@ module.exports =
       name: "start"
       description: "What is the mixin start command?"
       default: "npm start"
+    ,
+      name: "production"
+      description: "Will this be a production deployment?"
+      message: "Specify among allowed answers: \n'yes', 'no', 'y', 'n', 'true', 'false'"
+      default: "no"
+      conform: (v) ->
+        if v in ["yes", "no", "y", "n", "true", "false"]
+          return true
+        else
+          return false
     ]

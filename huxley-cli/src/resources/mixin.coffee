@@ -20,7 +20,7 @@ module.exports =
 
     # Begin interview
     try
-      {questions} = (require "../interviews/mixins/#{mixin}")
+      {questions} = (require "../interviews/mixin/#{mixin}")
       answers = yield interview questions()
       {name} = answers
     catch error

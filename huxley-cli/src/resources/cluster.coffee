@@ -21,7 +21,7 @@ module.exports =
     {config} = yield pull_configuration()
 
     # Begin interview
-    {questions} = require "../interviews/cluster-create.coffee"
+    {questions} = require "../interviews/cluster/create.coffee"
     answers = yield interview questions config
 
     # Use the interview and raw configuration as context to build an "options" object for panda-hook.
