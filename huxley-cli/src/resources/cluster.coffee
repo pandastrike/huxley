@@ -35,7 +35,7 @@ module.exports =
         {cluster} = yield api.get options
         console.log "Waiting for cluster creation..."
         if cluster.status == "running"
-          console.log "Cluster is up and running"
+          console.log "Cluster is configured and online."
           return
         yield sleep 10000
     else
@@ -45,7 +45,7 @@ module.exports =
   # This function prepares the "options" object to ask the API server to delete a
   # CoreOS cluster using your AWS credentials.
   delete: async (spec) ->
-    {build} = (require "./cluster-helpers").delete
+    {build, cleanup} = (require "./cluster-helpers").delete
     # Read configuration data from the local config files.
     {config} = yield pull_configuration()
 
@@ -54,6 +54,11 @@ module.exports =
 
     # With our object built, call the Huxley API.
     response = yield api.delete options
+
+    # Make local changes reflecting the destruction of the cluster.
+    yield cleanup response
+
+    return response.message
 
 
   describe: async (spec) ->

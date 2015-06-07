@@ -4,7 +4,7 @@
 # Clusters require some sophisticated configuration.  This file holds some of the
 # helper functions to keep the cluster.coffee file clean.
 {join} = require "path"
-{read, async} = require "fairmont"
+{read, async, shell, empty, remove} = require "fairmont"
 Configurator = require "panda-config"
 
 # This function reads the YAML file containing a pool of adjectives and nouns to construct random names.
@@ -80,6 +80,27 @@ module.exports =
           url: config.huxley.url
           token: config.huxley.profile.token
       }
+
+    # Make changes to the local machine that reflect a change
+    cleanup: async ({cluster}) ->
+      {name, domain} = cluster
+
+      # Remove the git remote for this cluster. Allowed to fail.
+      try
+        yield shell "git remote rm #{name}"
+      catch error
+
+      # Remove the IP address from "known_hosts"
+      try
+        text = yield read "#{process.env.HOME}/.ssh/known_hosts"
+        hosts = text.split("\n")
+        remove(hosts, host) for host in hosts when !empty host.match(domain)
+        text = hosts.join("\n")
+        yield shell "echo #{text} > #{process.env.HOME}/.ssh/known_hosts"
+      catch error
+        console.log "Unable to edit 'known_hosts'."
+
+
 
   describe:
     # Construct an object that will be passed to the Huxley API to be used by its panda-cluster library.
