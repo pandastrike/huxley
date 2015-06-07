@@ -52,7 +52,7 @@ module.exports =
           name: name
           size: answers.size
           type: answers.type
-          price: answers.price
+          price: Number(answers.price)
           virtualization: answers.virtualization
           tags: [{Key: "role", Value: answers.tags}]
           zones:
@@ -94,9 +94,12 @@ module.exports =
       try
         text = yield read "#{process.env.HOME}/.ssh/known_hosts"
         hosts = text.split("\n")
-        remove(hosts, host) for host in hosts when !empty host.match(domain)
-        text = hosts.join("\n")
-        yield shell "echo #{text} > #{process.env.HOME}/.ssh/known_hosts"
+
+        remnants = []
+        remnants.push(host) for host in hosts when empty host.match(domain)
+        text = remnants.join("\n")
+
+        yield shell "echo '#{text}' > #{process.env.HOME}/.ssh/known_hosts"
       catch error
         console.log "Unable to edit 'known_hosts'."
 
