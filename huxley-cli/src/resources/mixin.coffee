@@ -22,9 +22,15 @@ module.exports =
     try
       {questions} = (require "../interviews/mixin/#{mixin}")
       answers = yield interview questions()
-      {name} = answers
+      {name, exclusions} = answers
     catch error
       throw "Error: Invalid mixin specified."
+
+    # Process exclusion variable.
+    answers.exclusions = []
+    if !(/^\s*$/.test(exclusions))
+      list = exclusions.split /\s*,\s*/
+      answers.exclusions.push(item) for item in list
 
     # Add mixin to launch directory if it doesn't already exist.
     template_dir = join __dirname, "../../templates", mixin
