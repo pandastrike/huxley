@@ -34,6 +34,15 @@ ExecStartPre=/usr/bin/curl -XPOST kick.{{{cluster.name}}}.cluster:2000/records -
   "ip_address": "${COREOS_PUBLIC_IPV4}", "port": {{{service.external_port}}},       \
   "type": "A" }' -H 'Content-Type: application/vnd.kick.record+json'
 
+{{! production mixins named www get addition redirect routing.}}
+{{#service.www_redirect}}
+ExecStartPre=/usr/bin/curl -XPOST kick.{{{cluster.name}}}.cluster:2000/records -d '{ \
+  "hostname": "{{{app.domain}}}",                                                    \
+  "ip_address": "${COREOS_PUBLIC_IPV4}", "port": {{{service.external_port}}},        \
+  "type": "A" }' -H 'Content-Type: application/vnd.kick.record+json'
+{{/service.www_redirect}}
+
+
 {{^service.production}}
 ExecStartPre=/usr/bin/bash -c "until curl kick.{{{cluster.name}}}.cluster:2000/record/{{{service.name}}}.{{{cluster.name}}}.{{{app.domain}}} | grep -o 'INSYNC'; do echo 'polling for another 5s'; sleep 5; done"
 {{/service.production}}
@@ -59,3 +68,8 @@ ExecStart=/usr/bin/docker run --name {{{service.name}}} -p {{{service.external_p
 
 [Install]
 WantedBy=multi-user.target
+
+[X-Fleet]
+{{#service.exclusions}}
+Conflicts={{.}}
+{{/service.exclusions}}

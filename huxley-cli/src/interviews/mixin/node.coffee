@@ -18,6 +18,10 @@ module.exports =
       description: "What is the mixin start command?"
       default: "npm start"
     ,
+      name: "exclusions"
+      description: "Provide a comma separated list of mixins that cannot be co-located with this one (if any).\n"
+      default: undefined
+    ,
       name: "production"
       description: "Will this be a production deployment?"
       message: "Specify among allowed answers: \n'yes', 'no', 'y', 'n', 'true', 'false'"

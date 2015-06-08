@@ -35,4 +35,5 @@ module.exports = (db) ->
         token: token
         pending: hash
 
-    respond 200, {output: "Deletion underway."}
+    # Successfully underway.  Return identifying information back to the CLI.
+    respond 200, {cluster: yield db.clusters.get id}

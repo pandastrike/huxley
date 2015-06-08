@@ -41,7 +41,8 @@ module.exports =
           token: config.huxley.profile.token
       }
 
-    # Check to see if this remote repository can be created.
+    # Check to see if this remote repository can be created.  Perhaps this should
+    # be done with a 503 reply from the API if the cluster is not ready?
     check: async (config, spec) ->
       throw "Please provide a cluster name" unless spec.first
 

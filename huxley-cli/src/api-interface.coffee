@@ -30,8 +30,10 @@ module.exports =
     delete: async (spec) ->
       try
         cluster = (yield discover spec.huxley.url).cluster spec.cluster.name
-        yield cluster.delete spec
-        return "Cluster deletion In Progress."
+        {data} = yield cluster.delete spec
+        data = yield data
+        data.message = "Cluster deletion In Progress."
+        return data
       catch error
         throw build_error "Unable to delete Huxley cluster.", error
 
