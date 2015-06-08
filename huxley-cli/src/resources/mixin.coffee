@@ -22,7 +22,7 @@ module.exports =
     try
       {questions} = (require "../interviews/mixin/#{mixin}")
       answers = yield interview questions()
-      {name, exclusions} = answers
+      {name, exclusions, production} = answers
     catch error
       throw "Error: Invalid mixin specified."
 
@@ -31,6 +31,13 @@ module.exports =
     if !(/^\s*$/.test(exclusions))
       list = exclusions.split /\s*,\s*/
       answers.exclusions.push(item) for item in list
+
+    # If the mixin is named "www", provide additional routing via a URL that does not start with "www".
+    # Example domain.com routes to www.domain.com
+    if production && (name == "www")
+      answers.www_redirect = true
+    else
+      answers.www_redirect = false
 
     # Add mixin to launch directory if it doesn't already exist.
     template_dir = join __dirname, "../../templates", mixin
