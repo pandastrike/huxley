@@ -50,18 +50,13 @@ module.exports =
         aws: aws
         cluster:
           name: name
-          size: answers.size
-          type: answers.type
-          price: Number(answers.price)
-          virtualization: answers.virtualization
+          production: answers.production
           tags: [{Key: "role", Value: answers.tags}]
-          zones:
+          dns:
             public:
               name: answers.domain
             private:
               name: "#{name}.cluster"
-        coreos:
-          channel: answers.channel
         public_keys: config.public_keys  || []
         huxley:
           url: config.huxley.url
