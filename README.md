@@ -3,7 +3,7 @@
 ### Automated Deployment for the Modern Web
 ---
 
-> **Warning:** This is an experimental project under heavy development.  It's awesome and becoming even more so, but it is a work in progress.
+> **Warning:** This is an experimental project under development.
 
 ## Overview
 Huxley manages the deployment of your application.  It launches your app as a set of mixins, allocating the needed resources from your Amazon Web Services account.  With simple, human-readable configuration and just a few commands, your app is up and running.  
