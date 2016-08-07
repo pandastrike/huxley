@@ -1,9 +1,14 @@
 # Huxley
 
-### Automated Deployment for the Modern Web
----
+> **IMPORTANT** This project is no longer under active development.
+> Based on what we've learned building this,
+> we recommend looking at [Convox][] instead.
 
-> **Warning:** This is an experimental project under development.
+[Convox]:https://github.com/convox/rack
+
+### Automated Deployment for the Modern Web
+
+---
 
 ## Overview
 Huxley manages the deployment of your application.  It launches your app as a set of mixins, allocating the needed resources from your Amazon Web Services account.  With simple, human-readable configuration and just a few commands, your app is up and running.  
